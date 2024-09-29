@@ -7,7 +7,7 @@ import {
   getBasenameTextRecord,
 } from "~~/abis/basenames";
 import { DayCard } from "~~/components/how-based-are-you/DayCard";
-import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
+// import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 
@@ -150,7 +150,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
       {/* <TransactionList address={params.address} year={selectedYear} month={selectedMonth} /> */}
       <div className="flex items-center flex-col flex-grow">
         <div className="m-4">
-          <PfpCard name={basenamesProfile?.basename} image={basenamesProfile?.avatar} size="sm" />
+          {/* <PfpCard name={basenamesProfile?.basename} image={basenamesProfile?.avatar} size="sm" /> */}
         </div>
 
         <div className="bg-secondary rounded-lg">
