@@ -30,3 +30,18 @@ p {
 .btn.btn-ghost {
   @apply shadow-none;
 }
+
+
+@font-face {
+  font-family: "Inter";
+  src: url('../fonts/Inter//Inter-VariableFont_opsz\,wght.ttf');
+}
+
+.font-inter {
+  font-family: "Inter";
+}
+
+p {
+  font-family: "Inter";
+
+}

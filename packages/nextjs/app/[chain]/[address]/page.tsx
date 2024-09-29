@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  BasenameTextRecordKeys, //etBasename,
+  getBasenameAvatar,
+  getBasenameTextRecord,
+} from "~~/abis/basenames";
 import { DayCard } from "~~/components/how-based-are-you/DayCard";
+import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
+import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 
 // function getRandomInt(min: number, max: number): number {
@@ -26,6 +33,32 @@ const monthsAsStrings = [
 ];
 
 export default function UserPage({ params }: { params: { chain: string; address: string } }) {
+  const [basenamesProfile, setBasenamesProfile] = useState<any>();
+
+  console.log(basenamesProfile);
+
+  useEffect(() => {
+    async function fetchData() {
+      // const basename = await getBasename(params.address as `0x${string}`);
+
+      // if (basename === undefined) throw Error("failed to resolve address to name");
+
+      const basename = "jacobhomanics.base.eth";
+      const avatar = await getBasenameAvatar(basename);
+
+      const description = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Description);
+
+      const twitter = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Twitter);
+      setBasenamesProfile({
+        basename,
+        avatar,
+        description,
+        twitter,
+      });
+    }
+    fetchData();
+  }, [params.address]);
+
   const numOfDays = 31;
 
   const [selectedMonth, setSelectedMonth] = useState(9);
@@ -116,26 +149,18 @@ export default function UserPage({ params }: { params: { chain: string; address:
     <>
       {/* <TransactionList address={params.address} year={selectedYear} month={selectedMonth} /> */}
       <div className="flex items-center flex-col flex-grow">
-        <div className="flex flex-wrap justify-center m-4 space-x-1">
-          <div className="flex flex-col bg-base-300 w-[200px] rounded-lg items-center justify-center">
-            <p className="text-xl m-0">Monthly Score</p>
-            <p className="text-6xl m-0">{totalMonthlyScore}</p>
-          </div>
-
-          <div className="flex flex-col bg-base-300 w-[200px] rounded-lg items-center justify-center">
-            <p className="text-xl m-0">Yearly Score</p>
-            <p className="text-6xl m-0">{yearlyScore}</p>
-          </div>
-
-          <div className="flex flex-col bg-base-300 w-[200px] rounded-lg items-center justify-center">
-            <p className="text-xl m-0">All Time Score</p>
-            <p className="text-6xl m-0">{allTimeScore}</p>
-          </div>
+        <div className="m-4">
+          <PfpCard name={basenamesProfile?.basename} image={basenamesProfile?.avatar} size="sm" />
         </div>
 
         <div className="bg-secondary rounded-lg">
-          <div className="bg-base-100 p-4">
-            <div className="flex flex-wrap justify-center items-center space-x-1">
+          <div className="bg-base-100 p-1 md:p-4">
+            <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">
+              <Score title="Monthly Score" score={totalMonthlyScore} />
+              <Score title="Yearly Score" score={yearlyScore} />
+              <Score title="All Time Score" score={allTimeScore} />
+            </div>
+            <div className="flex flex-wrap justify-center items-center space-x-1 m-4">
               <button
                 onClick={() => {
                   if (selectedMonth === 1) {
@@ -150,9 +175,10 @@ export default function UserPage({ params }: { params: { chain: string; address:
               >
                 {"<"}
               </button>
-              <div className="w-80 flex flex-col items-center justify-center">
-                <p className="text-center text-3xl md:text-6xl m-0">{monthsAsStrings[selectedMonth - 1]}</p>
-                <p className="text-center text-3xl md:text-6xl m-0">{selectedYear}</p>
+              <div className="w-64 md:w-[600px] flex flex-col items-center justify-center">
+                <p className="text-center text-3xl md:text-6xl m-0">
+                  {monthsAsStrings[selectedMonth - 1]} {selectedYear}
+                </p>
               </div>
 
               <button
@@ -171,9 +197,11 @@ export default function UserPage({ params }: { params: { chain: string; address:
                 {">"}
               </button>
             </div>
-          </div>
 
-          <div className="flex flex-wrap justify-center">{monthsComponents}</div>
+            <div className="flex flex-wrap justify-center bg-primary rounded-lg mx-1 md:mx-[450px]">
+              {monthsComponents}
+            </div>
+          </div>
         </div>
       </div>
     </>
