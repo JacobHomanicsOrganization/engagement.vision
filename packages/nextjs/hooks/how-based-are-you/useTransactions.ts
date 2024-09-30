@@ -5,6 +5,7 @@ import * as chains from "viem/chains";
 const blockExplorerApiKeys = {
   Base: "JNHGAYAJ35A4S981QFATUTGQQS2ZVG4NPY",
   "Arbitrum One": "MAZ2G1NF8HEHSC6I4JZGKPKYH68AY6MAIT",
+  "OP Mainnet": "H2GKEGVRAGMNFNQ14GU5KHAU58PYK1114M",
 };
 
 export function getBlockExplorerApiLink(chainId: number, address: any) {
