@@ -9,14 +9,10 @@ const chainObjs = {
   base: {
     titleCard: "How Based Are You?",
     ctaCard: "Find out how Based you are!",
-    light: "light",
-    dark: "dark",
   },
   arbitrum: {
     titleCard: "How Futuristic Are You?",
     ctaCard: "Find out how Futuristic you are!",
-    light: "arbitrumLight",
-    dark: "arbitrumDark",
   },
 };
 

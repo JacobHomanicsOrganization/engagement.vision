@@ -10,6 +10,7 @@ import { DayCard } from "~~/components/how-based-are-you/DayCard";
 // import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
+import { useGlobalState } from "~~/services/store/store";
 
 // function getRandomInt(min: number, max: number): number {
 //   min = Math.ceil(min); // Ensure the minimum is rounded up
@@ -33,6 +34,12 @@ const monthsAsStrings = [
 ];
 
 export default function UserPage({ params }: { params: { chain: string; address: string } }) {
+  const setTargetPageChain = useGlobalState(({ setTargetPageChain }) => setTargetPageChain);
+
+  useEffect(() => {
+    setTargetPageChain(params.chain);
+  }, [params.chain, setTargetPageChain]);
+
   const [basenamesProfile, setBasenamesProfile] = useState<any>();
 
   console.log(basenamesProfile);

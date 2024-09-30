@@ -5,10 +5,14 @@ import { useTheme } from "next-themes";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
 import { useGlobalState } from "~~/services/store/store";
 
-const chainObjs = {
-  base: {
+const appThemes = {
+  app: {
     light: "light",
     dark: "dark",
+  },
+  base: {
+    light: "lightBase",
+    dark: "darkBase",
   },
   arbitrum: {
     light: "lightArbitrum",
@@ -18,26 +22,11 @@ const chainObjs = {
 
 export const SwitchTheme = ({ className }: { className?: string }) => {
   const targetPageChain = useGlobalState(({ targetPageChain }) => targetPageChain);
-  const chainObj = chainObjs[targetPageChain as keyof typeof chainObjs];
+  const chainObj = appThemes[targetPageChain as keyof typeof appThemes];
 
   const { setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  // const [isDarkMode, setIsDarkMode] = useState(true);
 
   const isDarkMode = resolvedTheme?.includes("dark");
-
-  console.log(resolvedTheme);
-
-  // useEffect(() => {
-  //   if (resolvedTheme === undefined) return;
-
-  //   console.log(resolvedTheme);
-  //   setIsDarkMode(resolvedTheme.includes("dark"));
-  // }, [resolvedTheme]);
-
-  console.log(resolvedTheme);
-  console.log(isDarkMode);
 
   const [isThemeMounted, setIsThemeMounted] = useState(false);
 
@@ -53,6 +42,8 @@ export const SwitchTheme = ({ className }: { className?: string }) => {
   const handleToggle = () => {
     setTheme(isDarkMode ? chainObj.light : chainObj.dark);
   };
+
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     if (mounted) return;
