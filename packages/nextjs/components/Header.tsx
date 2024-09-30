@@ -7,6 +7,8 @@ import { usePathname } from "next/navigation";
 import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
+import { useGlobalState } from "~~/services/store/store";
+import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 
 type HeaderMenuLink = {
   label: string;
@@ -63,6 +65,9 @@ export const Header = () => {
     useCallback(() => setIsDrawerOpen(false), []),
   );
 
+  const appTheme = useGlobalState(({ appTheme }) => appTheme);
+  const chain = getChainByName(appTheme || "");
+
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
       <div className="navbar-start w-auto lg:w-1/2">
@@ -93,8 +98,16 @@ export const Header = () => {
             <Image alt="SE2 logo" className="cursor-pointer" fill src="/logo.svg" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold leading-tight">Scaffold-ETH</span>
-            <span className="text-xs">Ethereum dev stack</span>
+            {chain?.name ? (
+              <>
+                <span className="font-bold leading-tight">{chain?.name}</span>
+                <span className="text-xs">Onsite</span>
+              </>
+            ) : (
+              <>
+                <span className="font-bold leading-tight">Onsite</span>
+              </>
+            )}
           </div>
         </Link>
         <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
