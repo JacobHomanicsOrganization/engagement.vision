@@ -11,6 +11,7 @@ import { DayCard } from "~~/components/how-based-are-you/DayCard";
 import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
+import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 
 // function getRandomInt(min: number, max: number): number {
 //   min = Math.ceil(min); // Ensure the minimum is rounded up
@@ -71,7 +72,9 @@ export default function UserPage({ params }: { params: { chain: string; address:
   const [selectedMonth, setSelectedMonth] = useState(9);
   const [selectedYear, setSelectedYear] = useState(2024);
 
-  const transactions = useTransactions({ address: params.address });
+  const chain = getChainByName(params.chain);
+
+  const transactions = useTransactions({ chainId: chain.id, address: params.address });
 
   const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
 
