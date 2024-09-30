@@ -202,7 +202,7 @@ module.exports = {
       },
       {
         lightOptimism: {
-          primary: "#F34F00",
+          primary: "#FF0420",
           "primary-content": "#212638",
           secondary: "#ffffff",
           "secondary-content": "#212638",
