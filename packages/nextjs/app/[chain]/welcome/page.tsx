@@ -14,6 +14,10 @@ const chainObjs = {
     titleCard: "How Futuristic Are You?",
     ctaCard: "Find out how Futuristic you are!",
   },
+  optimism: {
+    titleCard: "How Optimistic Are You?",
+    ctaCard: "Find out how Optimistic you are!",
+  },
 };
 
 export default function WelcomePage({ params }: { params: { chain: string } }) {

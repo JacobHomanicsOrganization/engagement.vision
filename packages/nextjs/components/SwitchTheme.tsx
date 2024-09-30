@@ -18,6 +18,10 @@ const appThemes = {
     light: "lightArbitrum",
     dark: "darkArbitrum",
   },
+  optimism: {
+    light: "lightOptimism",
+    dark: "darkOptimism",
+  },
 };
 
 export const SwitchTheme = ({ className }: { className?: string }) => {

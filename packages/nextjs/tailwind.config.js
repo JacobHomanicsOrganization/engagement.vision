@@ -72,7 +72,7 @@ module.exports = {
             },
         },
         lightBase: {
-          primary: "#00A4FF",
+          primary: "#4FB8E0",
           "primary-content": "#212638",
           secondary: "#ffffff",
           "secondary-content": "#212638",
@@ -170,6 +170,71 @@ module.exports = {
       {
         darkArbitrum: {
           primary: "#38a0f0",
+          "primary-content": "#F9FBFF",
+          secondary: "#000000",
+          "secondary-content": "#F9FBFF",
+          accent: "#4969A6",
+          "accent-content": "#F9FBFF",
+          neutral: "#F9FBFF",
+          "neutral-content": "#385183",
+          "base-100": "#000000",
+          "base-200": "#000000",
+          "base-300": "#38a0f0",
+          "base-content": "#F9FBFF",
+          info: "#385183",
+          success: "#34EEB6",
+          warning: "#FFCF72",
+          error: "#FF8863",
+
+          "--rounded-btn": "9999rem",
+
+          ".tooltip": {
+            "--tooltip-tail": "6px",
+            "--tooltip-color": "oklch(var(--p))",
+          },
+          ".link": {
+            textUnderlineOffset: "2px",
+          },
+          ".link:hover": {
+            opacity: "80%",
+          },
+        },
+      },
+      {
+        lightOptimism: {
+          primary: "#F34F00",
+          "primary-content": "#212638",
+          secondary: "#ffffff",
+          "secondary-content": "#212638",
+          accent: "#93BBFB",
+          "accent-content": "#212638",
+          neutral: "#212638",
+          "neutral-content": "#ffffff",
+          "base-100": "#ffffff",
+          "base-200": "#f4f8ff",
+          "base-300": "#0052FF",
+          "base-content": "#212638",
+          info: "#93BBFB",
+          success: "#34EEB6",
+          warning: "#FFCF72",
+          error: "#FF8863",
+
+          "--rounded-btn": "9999rem",
+
+          ".tooltip": {
+            "--tooltip-tail": "6px",
+          },
+          ".link": {
+            textUnderlineOffset: "2px",
+          },
+          ".link:hover": {
+            opacity: "80%",
+          },
+        },
+      },
+      {
+        darkOptimism: {
+          primary: "#F34F00",
           "primary-content": "#F9FBFF",
           secondary: "#000000",
           "secondary-content": "#F9FBFF",
