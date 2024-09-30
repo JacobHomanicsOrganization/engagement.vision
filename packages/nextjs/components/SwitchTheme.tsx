@@ -48,17 +48,10 @@ export const SwitchTheme = ({ className }: { className?: string }) => {
 
     setIsThemeMounted(true);
 
-    setTheme(resolvedTheme?.includes("dark") ? chainObj.dark : chainObj.light);
-  }, [isThemeMounted, resolvedTheme, setTheme, chainObj?.dark, chainObj?.light]);
+    setTheme(isDarkMode ? chainObj.dark : chainObj.light);
+  }, [isThemeMounted, isDarkMode, setTheme, chainObj?.dark, chainObj?.light]);
   const handleToggle = () => {
     setTheme(isDarkMode ? chainObj.light : chainObj.dark);
-
-    console.log("handing dark");
-    // if (isDarkMode) {
-    //   setTheme("light");
-    //   return;
-    // }
-    // setTheme("dark");
   };
 
   useEffect(() => {
