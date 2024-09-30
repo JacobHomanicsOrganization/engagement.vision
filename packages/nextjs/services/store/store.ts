@@ -20,8 +20,8 @@ type GlobalState = {
   setIsNativeCurrencyFetching: (newIsNativeCurrencyFetching: boolean) => void;
   targetNetwork: ChainWithAttributes;
   setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => void;
-  targetPageChain: string | undefined;
-  setTargetPageChain: (newTargetPageChain: string) => void;
+  appTheme: string | undefined;
+  setAppTheme: (newAppTheme: string) => void;
 };
 
 export const useGlobalState = create<GlobalState>(set => ({
@@ -35,6 +35,6 @@ export const useGlobalState = create<GlobalState>(set => ({
     set(state => ({ nativeCurrency: { ...state.nativeCurrency, isFetching: newValue } })),
   targetNetwork: scaffoldConfig.targetNetworks[0],
   setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => set(() => ({ targetNetwork: newTargetNetwork })),
-  targetPageChain: undefined,
-  setTargetPageChain: (newTargetPageChain: string) => set(() => ({ targetPageChain: newTargetPageChain })),
+  appTheme: undefined,
+  setAppTheme: (newAppTheme: string) => set(() => ({ appTheme: newAppTheme })),
 }));

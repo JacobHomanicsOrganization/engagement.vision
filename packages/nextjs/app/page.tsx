@@ -9,11 +9,11 @@ import { Address } from "~~/components/scaffold-eth";
 import { useGlobalState } from "~~/services/store/store";
 
 const Home: NextPage = () => {
-  const setTargetPageChain = useGlobalState(({ setTargetPageChain }) => setTargetPageChain);
+  const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
 
   useEffect(() => {
-    setTargetPageChain("app");
-  }, [setTargetPageChain]);
+    setAppTheme("app");
+  }, [setAppTheme]);
 
   const { address: connectedAddress } = useAccount();
   return (

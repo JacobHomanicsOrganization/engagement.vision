@@ -17,16 +17,17 @@ const chainObjs = {
 };
 
 export default function WelcomePage({ params }: { params: { chain: string } }) {
-  const setTargetPageChain = useGlobalState(({ setTargetPageChain }) => setTargetPageChain);
-  const chainObj = chainObjs[params.chain as keyof typeof chainObjs];
+  const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
 
   useEffect(() => {
-    setTargetPageChain(params.chain);
-  }, [params.chain, setTargetPageChain]);
+    setAppTheme(params.chain);
+  }, [params.chain, setAppTheme]);
 
   const router = useRouter();
 
   const [nameValue, setNameValue] = useState<string>("");
+
+  const chainObj = chainObjs[params.chain as keyof typeof chainObjs];
 
   return (
     <div className="flex flex-col justify-center items-center space-y-32">

@@ -34,11 +34,11 @@ const monthsAsStrings = [
 ];
 
 export default function UserPage({ params }: { params: { chain: string; address: string } }) {
-  const setTargetPageChain = useGlobalState(({ setTargetPageChain }) => setTargetPageChain);
+  const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
 
   useEffect(() => {
-    setTargetPageChain(params.chain);
-  }, [params.chain, setTargetPageChain]);
+    setAppTheme(params.chain);
+  }, [params.chain, setAppTheme]);
 
   const [basenamesProfile, setBasenamesProfile] = useState<any>();
 

@@ -21,7 +21,7 @@ const appThemes = {
 };
 
 export const SwitchTheme = ({ className }: { className?: string }) => {
-  const targetPageChain = useGlobalState(({ targetPageChain }) => targetPageChain);
+  const targetPageChain = useGlobalState(({ appTheme }) => appTheme);
   const chainObj = appThemes[targetPageChain as keyof typeof appThemes];
 
   const { setTheme, resolvedTheme } = useTheme();
