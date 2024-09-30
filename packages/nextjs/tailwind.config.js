@@ -177,7 +177,7 @@ module.exports = {
           "accent-content": "#F9FBFF",
           neutral: "#F9FBFF",
           "neutral-content": "#385183",
-          "base-100": "#000000",
+          "base-100": "#262626",
           "base-200": "#000000",
           "base-300": "#38a0f0",
           "base-content": "#F9FBFF",
@@ -234,7 +234,7 @@ module.exports = {
       },
       {
         darkOptimism: {
-          primary: "#F34F00",
+          primary: "#FF0420",
           "primary-content": "#F9FBFF",
           secondary: "#000000",
           "secondary-content": "#F9FBFF",
@@ -242,7 +242,7 @@ module.exports = {
           "accent-content": "#F9FBFF",
           neutral: "#F9FBFF",
           "neutral-content": "#385183",
-          "base-100": "#000000",
+          "base-100": "#1E2025",
           "base-200": "#000000",
           "base-300": "#38a0f0",
           "base-content": "#F9FBFF",

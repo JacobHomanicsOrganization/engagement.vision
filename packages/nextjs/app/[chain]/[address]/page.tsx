@@ -156,18 +156,18 @@ export default function UserPage({ params }: { params: { chain: string; address:
     <>
       {/* <TransactionList address={params.address} year={selectedYear} month={selectedMonth} /> */}
       <div className="flex items-center flex-col flex-grow">
-        <div className="m-4">
-          {/* <PfpCard name={basenamesProfile?.basename} image={basenamesProfile?.avatar} size="sm" /> */}
-        </div>
+        {/* <div className="m-4">
+          <PfpCard name={basenamesProfile?.basename} image={basenamesProfile?.avatar} size="sm" />
+        </div> */}
 
         <div className="bg-secondary rounded-lg">
-          <div className="bg-base-100 p-1 md:p-4">
+          <div className="p-1 md:p-4">
             <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">
               <Score title="Monthly Score" score={totalMonthlyScore} />
               <Score title="Yearly Score" score={yearlyScore} />
               <Score title="All Time Score" score={allTimeScore} />
             </div>
-            <div className="flex flex-wrap justify-center items-center space-x-1 m-4">
+            <div className="flex flex-wrap justify-center items-center space-x-1 m-4 bg-secondary rounded-xl">
               <button
                 onClick={() => {
                   if (selectedMonth === 1) {
@@ -205,7 +205,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
               </button>
             </div>
 
-            <div className="flex flex-wrap justify-center bg-primary rounded-lg mx-1 md:mx-[450px]">
+            <div className="flex flex-wrap justify-center bg-base-100 rounded-lg mx-1 md:mx-[450px]">
               {monthsComponents}
             </div>
           </div>
