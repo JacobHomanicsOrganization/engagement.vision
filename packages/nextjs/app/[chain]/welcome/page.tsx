@@ -1,24 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { InputBase } from "~~/components/scaffold-eth";
+import { useGlobalState } from "~~/services/store/store";
 
 const chainObjs = {
   base: {
     titleCard: "How Based Are You?",
     ctaCard: "Find out how Based you are!",
+    light: "light",
+    dark: "dark",
   },
   arbitrum: {
     titleCard: "How Futuristic Are You?",
     ctaCard: "Find out how Futuristic you are!",
+    light: "arbitrumLight",
+    dark: "arbitrumDark",
   },
 };
 
 export default function WelcomePage({ params }: { params: { chain: string } }) {
-  const router = useRouter();
-
+  const setTargetPageChain = useGlobalState(({ setTargetPageChain }) => setTargetPageChain);
   const chainObj = chainObjs[params.chain as keyof typeof chainObjs];
+
+  useEffect(() => {
+    setTargetPageChain(params.chain);
+  }, [params.chain, setTargetPageChain]);
+
+  const router = useRouter();
 
   const [nameValue, setNameValue] = useState<string>("");
 
@@ -39,7 +49,7 @@ export default function WelcomePage({ params }: { params: { chain: string } }) {
         <p className="text-xl md:text-4xl text-center">{chainObj.ctaCard}</p>
         <button
           onClick={() => {
-            router.push(`/base/${nameValue}`);
+            router.push(`/${params.chain}/${nameValue}`);
           }}
           className="btn btn-primary btn-lg text-4xl"
         >

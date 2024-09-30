@@ -3,24 +3,69 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
+import { useGlobalState } from "~~/services/store/store";
+
+const chainObjs = {
+  base: {
+    light: "light",
+    dark: "dark",
+  },
+  arbitrum: {
+    light: "lightArbitrum",
+    dark: "darkArbitrum",
+  },
+};
 
 export const SwitchTheme = ({ className }: { className?: string }) => {
+  const targetPageChain = useGlobalState(({ targetPageChain }) => targetPageChain);
+  const chainObj = chainObjs[targetPageChain as keyof typeof chainObjs];
+
   const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  const isDarkMode = resolvedTheme === "dark";
+  // const [isDarkMode, setIsDarkMode] = useState(true);
 
+  const isDarkMode = resolvedTheme?.includes("dark");
+
+  console.log(resolvedTheme);
+
+  // useEffect(() => {
+  //   if (resolvedTheme === undefined) return;
+
+  //   console.log(resolvedTheme);
+  //   setIsDarkMode(resolvedTheme.includes("dark"));
+  // }, [resolvedTheme]);
+
+  console.log(resolvedTheme);
+  console.log(isDarkMode);
+
+  const [isThemeMounted, setIsThemeMounted] = useState(false);
+
+  useEffect(() => {
+    if (chainObj?.light === undefined || chainObj?.dark === undefined) return;
+
+    if (isThemeMounted) return;
+
+    setIsThemeMounted(true);
+
+    setTheme(resolvedTheme?.includes("dark") ? chainObj.dark : chainObj.light);
+  }, [isThemeMounted, resolvedTheme, setTheme, chainObj?.dark, chainObj?.light]);
   const handleToggle = () => {
-    if (isDarkMode) {
-      setTheme("light");
-      return;
-    }
-    setTheme("dark");
+    setTheme(isDarkMode ? chainObj.light : chainObj.dark);
+
+    console.log("handing dark");
+    // if (isDarkMode) {
+    //   setTheme("light");
+    //   return;
+    // }
+    // setTheme("dark");
   };
 
   useEffect(() => {
+    if (mounted) return;
+
     setMounted(true);
-  }, []);
+  }, [mounted]);
 
   if (!mounted) return null;
 
