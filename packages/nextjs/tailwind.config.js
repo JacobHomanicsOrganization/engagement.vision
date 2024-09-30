@@ -137,7 +137,7 @@ module.exports = {
       },
       {
         lightArbitrum: {
-          primary: "#4B77BE",
+          primary: "#38A0F0",
           "primary-content": "#212638",
           secondary: "#ffffff",
           "secondary-content": "#212638",
@@ -169,7 +169,7 @@ module.exports = {
       },
       {
         darkArbitrum: {
-          primary: "#38a0f0",
+          primary: "#38A0F0",
           "primary-content": "#F9FBFF",
           secondary: "#000000",
           "secondary-content": "#F9FBFF",
