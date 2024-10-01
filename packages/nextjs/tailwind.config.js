@@ -71,6 +71,73 @@ module.exports = {
             opacity: "80%",
           },
         },
+      },
+      {
+        lightMainnet: {
+          primary: "#6C24E0",
+          "primary-content": "#212638",
+          secondary: "#ffffff",
+          "secondary-content": "#212638",
+          accent: "#93BBFB",
+          "accent-content": "#212638",
+          neutral: "#212638",
+          "neutral-content": "#ffffff",
+          "base-100": "#7A7D82",
+          "base-200": "#f4f8ff",
+          "base-300": "#0052FF",
+          "base-content": "#212638",
+          info: "#93BBFB",
+          success: "#34EEB6",
+          warning: "#FFCF72",
+          error: "#FF8863",
+
+          "--rounded-btn": "9999rem",
+
+          ".tooltip": {
+            "--tooltip-tail": "6px",
+          },
+          ".link": {
+            textUnderlineOffset: "2px",
+          },
+          ".link:hover": {
+            opacity: "80%",
+          },
+        },
+      },
+      {
+        darkMainnet: {
+          primary: "#6C24E0",
+          "primary-content": "#F9FBFF",
+          secondary: "#000000",
+          "secondary-content": "#F9FBFF",
+          accent: "#4969A6",
+          "accent-content": "#F9FBFF",
+          neutral: "#F9FBFF",
+          "neutral-content": "#385183",
+          "base-100": "#1E2025",
+          "base-200": "#000000",
+          "base-300": "#6C24E0",
+          "base-content": "#F9FBFF",
+          info: "#385183",
+          success: "#34EEB6",
+          warning: "#FFCF72",
+          error: "#FF8863",
+
+          "--rounded-btn": "9999rem",
+
+          ".tooltip": {
+            "--tooltip-tail": "6px",
+            "--tooltip-color": "oklch(var(--p))",
+          },
+          ".link": {
+            textUnderlineOffset: "2px",
+          },
+          ".link:hover": {
+            opacity: "80%",
+          },
+        },
+      },
+      {
         lightBase: {
           primary: "#0052FF",
           "primary-content": "#212638",

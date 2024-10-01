@@ -3,6 +3,7 @@ import axios from "axios";
 import * as chains from "viem/chains";
 
 const blockExplorerApiKeys = {
+  Ethereum: "PHFIJCVSUQFFEGWMI8M641MJQFFD2WCC7A",
   Base: "JNHGAYAJ35A4S981QFATUTGQQS2ZVG4NPY",
   "Arbitrum One": "MAZ2G1NF8HEHSC6I4JZGKPKYH68AY6MAIT",
   "OP Mainnet": "H2GKEGVRAGMNFNQ14GU5KHAU58PYK1114M",
@@ -21,6 +22,9 @@ export function getBlockExplorerApiLink(chainId: number, address: any) {
   }
 
   const targetChain = targetChainArr[0] as keyof typeof chains;
+
+  console.log(targetChain);
+
   const blockExplorerApiUrl = (chains[targetChain]?.blockExplorers?.default as { apiUrl?: string })?.apiUrl;
 
   if (!blockExplorerApiUrl) {

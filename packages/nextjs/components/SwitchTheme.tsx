@@ -10,6 +10,10 @@ const appThemes = {
     light: "light",
     dark: "dark",
   },
+  mainnet: {
+    light: "lightMainnet",
+    dark: "darkMainnet",
+  },
   base: {
     light: "lightBase",
     dark: "darkBase",

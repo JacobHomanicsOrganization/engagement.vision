@@ -6,6 +6,10 @@ import { InputBase } from "~~/components/scaffold-eth";
 import { useGlobalState } from "~~/services/store/store";
 
 const chainObjs = {
+  mainnet: {
+    titleCard: "How Programmable Are You?",
+    ctaCard: "Find out how Programmable you are!",
+  },
   base: {
     titleCard: "How Based Are You?",
     ctaCard: "Find out how Based you are!",
