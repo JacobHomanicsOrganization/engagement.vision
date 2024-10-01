@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import {
-  BasenameTextRecordKeys, //etBasename,
+  BasenameTextRecordKeys,
+  getBasename, //etBasename,
   getBasenameAvatar,
   getBasenameTextRecord,
 } from "~~/abis/basenames";
 import { DayCard } from "~~/components/how-based-are-you/DayCard";
-// import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
+import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
@@ -47,11 +48,11 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   useEffect(() => {
     async function fetchData() {
-      // const basename = await getBasename(params.address as `0x${string}`);
+      const basename = await getBasename(params.address as `0x${string}`);
 
-      // if (basename === undefined) throw Error("failed to resolve address to name");
+      if (basename === undefined) throw Error("failed to resolve address to name");
 
-      const basename = "jacobhomanics.base.eth";
+      // const basename = "jacobhomanics.base.eth";
       const avatar = await getBasenameAvatar(basename);
 
       const description = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Description);
@@ -159,9 +160,9 @@ export default function UserPage({ params }: { params: { chain: string; address:
     <>
       {/* <TransactionList address={params.address} year={selectedYear} month={selectedMonth} /> */}
       <div className="flex items-center flex-col flex-grow">
-        {/* <div className="m-4">
+        <div className="m-4">
           <PfpCard name={basenamesProfile?.basename} image={basenamesProfile?.avatar} size="sm" />
-        </div> */}
+        </div>
 
         <div className="bg-secondary rounded-lg">
           <div className="p-1 md:p-4">
