@@ -27,8 +27,6 @@ export function getBlockExplorerApiLink(chainId: number, address: any) {
     return "";
   }
 
-  console.log(chains[targetChain]?.name);
-
   const apiKey = blockExplorerApiKeys[chains[targetChain]?.name as keyof typeof blockExplorerApiKeys];
 
   return `${blockExplorerApiUrl}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}}`;
@@ -37,31 +35,34 @@ export function getBlockExplorerApiLink(chainId: number, address: any) {
 const fetchTransactions = async (chainId: number, address: any) => {
   const url = getBlockExplorerApiLink(chainId, address);
 
-  console.log(url);
   const response = await axios.get(url);
-  let transactions = response.data.result;
 
-  console.log(transactions);
-
-  if (transactions === "Max calls per sec rate limit reached (5/sec)") {
-    transactions = [];
+  if (
+    response.data.result.includes("Invalid API Key (#err2)|") ||
+    response.data.result === "Max calls per sec rate limit reached (5/sec)"
+  ) {
+    return { transactions: [], isError: true };
   }
 
-  return transactions;
+  return { transactions: response.data.result, isError: false };
 };
 
 export const useTransactions = ({ chainId, address }: any) => {
   const [transactions, setTransactions] = useState([]);
+  const [isError, setIsError] = useState(false);
+
   useEffect(() => {
     const getTransactions = async () => {
       if (address === undefined) return;
 
-      const txs = await fetchTransactions(chainId, address);
-      setTransactions(txs);
+      const { transactions, isError } = await fetchTransactions(chainId, address);
+
+      setTransactions(transactions);
+      setIsError(isError);
     };
 
     getTransactions();
   }, [chainId, address]);
 
-  return transactions;
+  return { transactions, isError };
 };

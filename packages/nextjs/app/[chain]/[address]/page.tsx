@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { isAddress } from "viem";
-import { base } from "viem/chains";
+import { Chain, isAddress } from "viem";
+import { base, mainnet } from "viem/chains";
 import {
   Basename,
   BasenameTextRecordKeys,
@@ -12,7 +12,7 @@ import {
   getBasenameTextRecord,
   isBasename,
 } from "~~/abis/basenames";
-import { getEnsAddress, getEnsName, isEnsName } from "~~/abis/ens";
+import { getEnsAddress, getEnsAvatar, getEnsDescription, getEnsName, isEnsName } from "~~/abis/ens";
 import { DayCard } from "~~/components/how-based-are-you/DayCard";
 import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
@@ -60,74 +60,151 @@ export default function UserPage({ params }: { params: { chain: string; address:
       // let profileDescription;
       // let profileTwitter;
 
+      async function getFullEnsProfile(ensName: string) {
+        const resolvedAddress = await getEnsAddress(ensName);
+        const resolvedAvatar = await getEnsAvatar(ensName);
+        const resolvedDescription = await getEnsDescription(ensName);
+        // const resolvedTwitter = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Twitter);
+        return {
+          addr: resolvedAddress,
+          name: ensName,
+          avatar: resolvedAvatar,
+          description: resolvedDescription,
+          // twitter: resolvedTwitter,
+        };
+      }
+
       async function getFullBaseProfile(basename: Basename) {
         const resolvedAddress = await getBasenameAddr(basename);
         const resolvedAvatar = await getBasenameAvatar(basename);
         const resolvedDescription = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Description);
-        const resolvedTwitter = await getBasenameTextRecord(basename as Basename, BasenameTextRecordKeys.Twitter);
+        // const resolvedTwitter = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Twitter);
         return {
           addr: resolvedAddress,
           name: basename,
           avatar: resolvedAvatar,
           description: resolvedDescription,
-          twitter: resolvedTwitter,
+          // twitter: resolvedTwitter,
         };
       }
 
-      async function ResolveWithBasePreference() {
+      async function ResolveWithBase() {
+        let profile = { addr: params.address } as any;
+        let isError;
+
         if (isAddress(params.address)) {
           const basename = await getBasename(params.address as `0x${string}`);
 
           if (isBasename(basename)) {
-            const baseProfile = await getFullBaseProfile(basename as Basename);
-            setProfile(baseProfile);
-          } else {
-            const ensName = await getEnsName(params.address);
-
-            if (isEnsName(ensName as string)) {
-              setProfile({
-                addr: params.address,
-                name: ensName,
-              });
-            } else {
-              setProfile({
-                addr: params.address,
-              });
-            }
+            profile = await getFullBaseProfile(basename as Basename);
           }
         } else if (isBasename(params.address)) {
-          const baseProfile = await getFullBaseProfile(params.address as Basename);
-          setProfile(baseProfile);
+          profile = await getFullBaseProfile(params.address as Basename);
         } else if (isEnsName(params.address)) {
-          const resolvedAddress = await getEnsAddress(params.address);
+          const resolvedEnsAddress = await getEnsAddress(params.address);
 
-          const basename = await getBasename(resolvedAddress as `0x${string}`);
+          const basename = await getBasename(resolvedEnsAddress as `0x${string}`);
 
           if (isBasename(basename)) {
-            const baseProfile = await getFullBaseProfile(basename as Basename);
-            setProfile(baseProfile);
+            profile = await getFullBaseProfile(basename as Basename);
           }
         }
+
+        return { profile, isError };
+      }
+
+      async function ResolveWithEns(chain: Chain = mainnet) {
+        console.log(chain);
+
+        let profile = { addr: params.address } as any;
+        let isError;
+
+        if (isAddress(params.address)) {
+          console.log("ENTERED");
+          let ensName;
+          try {
+            console.log("TRIED");
+
+            ensName = await getEnsName(params.address as `0x${string}`, chain);
+            console.log(ensName);
+          } catch (e) {
+            console.log("HERE IS AN ERROR!");
+            console.log(chain);
+            console.log(e);
+            isError = true;
+          }
+
+          if (isEnsName(ensName as string)) {
+            profile = await getFullEnsProfile(ensName as Basename);
+          }
+        } else if (isEnsName(params.address)) {
+          profile = await getFullEnsProfile(params.address as Basename);
+        } else if (isBasename(params.address)) {
+          const resolvedEnsAddress = await getEnsAddress(params.address);
+
+          const ensName = await getBasename(resolvedEnsAddress as `0x${string}`);
+
+          if (isEnsName(ensName as string)) {
+            profile = await getFullEnsProfile(ensName as Basename);
+          }
+        }
+
+        return { profile, isError };
       }
 
       const resolutionLoop = [];
       if (chain.id === base.id) {
-        resolutionLoop.push("basenamesResolution");
-        resolutionLoop.push("ensResolutionLocalChain");
-        resolutionLoop.push("ensResolutionMainnet");
-        resolutionLoop.push("address");
+        resolutionLoop.push(async () => {
+          const result = await ResolveWithBase();
+          return result;
+        });
+        resolutionLoop.push(async () => {
+          const result = await ResolveWithEns(chain);
+          return result;
+        });
+        resolutionLoop.push(async () => {
+          const result = await ResolveWithEns(mainnet);
+          return result;
+        });
+
+        // resolutionLoop.push("ensResolutionLocalChain");
+        // resolutionLoop.push("ensResolutionMainnet");
+        // resolutionLoop.push("address");
       } else {
-        resolutionLoop.push("ensResolutionLocalChain");
-        resolutionLoop.push("ensResolutionMainnet");
-        resolutionLoop.push("basenamesResolution");
-        resolutionLoop.push("address");
+        console.log("USING THIS SETUP");
+        resolutionLoop.push(async () => {
+          const result = await ResolveWithEns(chain);
+          return result;
+        });
+        resolutionLoop.push(async () => {
+          const result = await ResolveWithEns();
+          return result;
+        });
+        resolutionLoop.push(async () => {
+          const result = await ResolveWithBase();
+          return result;
+        });
+        // resolutionLoop.push("ensResolutionLocalChain");
+        // resolutionLoop.push("ensResolutionMainnet");
+        // resolutionLoop.push("basenamesResolution");
+        // resolutionLoop.push("address");
       }
 
-      if (chain.id === base.id) {
-        await ResolveWithBasePreference();
-      } else {
-        // regular resolution algorithm
+      for (let i = 0; i < resolutionLoop.length; i++) {
+        console.log("Starting the engines " + i);
+        const result = await resolutionLoop[i]();
+
+        if (!result?.isError) {
+          setProfile(result?.profile);
+          break;
+        }
       }
+
+      // if (chain.id === base.id) {
+      //   await ResolveWithBasePreference();
+      // } else {
+      //   // regular resolution algorithm
+      // }
 
       // let usedAddress;
       // let usedBasename: Basename | undefined;
@@ -188,16 +265,16 @@ export default function UserPage({ params }: { params: { chain: string; address:
     }
 
     fetchData();
-  }, [chain?.id, params.address]);
+  }, [chain, chain?.id, params.address]);
 
-  console.log(profile);
+  // console.log(profile);
 
   const numOfDays = 31;
 
   const [selectedMonth, setSelectedMonth] = useState(9);
   const [selectedYear, setSelectedYear] = useState(2024);
 
-  const transactions = useTransactions({ chainId: chain.id, address: profile?.addr });
+  const { transactions, isError } = useTransactions({ chainId: chain.id, address: profile?.addr });
 
   const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
 
@@ -278,64 +355,81 @@ export default function UserPage({ params }: { params: { chain: string; address:
     );
   });
 
+  let transactionOutput;
+  if (isError) {
+    transactionOutput = (
+      <div>
+        {"There was an error loading this user's transactions. You may be trying to access an unsupported network."}
+      </div>
+    );
+  } else {
+    transactionOutput = (
+      <div className="bg-secondary rounded-lg">
+        <div className="p-1 md:p-4">
+          <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">
+            <Score title="Monthly Score" score={totalMonthlyScore} />
+            <Score title="Yearly Score" score={yearlyScore} />
+            <Score title="All Time Score" score={allTimeScore} />
+          </div>
+          <div className="flex flex-wrap justify-center items-center space-x-1 m-4 bg-secondary rounded-xl">
+            <button
+              onClick={() => {
+                if (selectedMonth === 1) {
+                  setSelectedMonth(12);
+                  setSelectedYear(selectedYear - 1);
+                  return;
+                }
+
+                setSelectedMonth(selectedMonth - 1);
+              }}
+              className="btn btn-primary"
+            >
+              {"<"}
+            </button>
+            <div className="w-64 md:w-[600px] flex flex-col items-center justify-center">
+              <p className="text-center text-3xl md:text-6xl m-0">
+                {monthsAsStrings[selectedMonth - 1]} {selectedYear}
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                if (selectedMonth === 12) {
+                  setSelectedMonth(1);
+                  setSelectedYear(selectedYear + 1);
+
+                  return;
+                }
+
+                setSelectedMonth(selectedMonth + 1);
+              }}
+              className="btn btn-primary"
+            >
+              {">"}
+            </button>
+          </div>
+
+          <div className="flex flex-wrap justify-center bg-base-100 rounded-lg mx-1 md:mx-[450px]">
+            {monthsComponents}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* <TransactionList address={params.address} year={selectedYear} month={selectedMonth} /> */}
       <div className="flex items-center flex-col flex-grow">
         <div className="m-4">
-          <PfpCard name={profile?.name ?? profile?.addr} image={profile?.avatar} size="sm" />
+          <PfpCard
+            name={profile?.name ?? profile?.addr}
+            image={profile?.avatar}
+            description={profile?.description}
+            size="sm"
+          />
         </div>
-
-        <div className="bg-secondary rounded-lg">
-          <div className="p-1 md:p-4">
-            <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">
-              <Score title="Monthly Score" score={totalMonthlyScore} />
-              <Score title="Yearly Score" score={yearlyScore} />
-              <Score title="All Time Score" score={allTimeScore} />
-            </div>
-            <div className="flex flex-wrap justify-center items-center space-x-1 m-4 bg-secondary rounded-xl">
-              <button
-                onClick={() => {
-                  if (selectedMonth === 1) {
-                    setSelectedMonth(12);
-                    setSelectedYear(selectedYear - 1);
-                    return;
-                  }
-
-                  setSelectedMonth(selectedMonth - 1);
-                }}
-                className="btn btn-primary"
-              >
-                {"<"}
-              </button>
-              <div className="w-64 md:w-[600px] flex flex-col items-center justify-center">
-                <p className="text-center text-3xl md:text-6xl m-0">
-                  {monthsAsStrings[selectedMonth - 1]} {selectedYear}
-                </p>
-              </div>
-
-              <button
-                onClick={() => {
-                  if (selectedMonth === 12) {
-                    setSelectedMonth(1);
-                    setSelectedYear(selectedYear + 1);
-
-                    return;
-                  }
-
-                  setSelectedMonth(selectedMonth + 1);
-                }}
-                className="btn btn-primary"
-              >
-                {">"}
-              </button>
-            </div>
-
-            <div className="flex flex-wrap justify-center bg-base-100 rounded-lg mx-1 md:mx-[450px]">
-              {monthsComponents}
-            </div>
-          </div>
-        </div>
+        {transactionOutput}
       </div>
     </>
   );

@@ -1,7 +1,7 @@
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 
 const TransactionList = ({ address, month, year }: any) => {
-  const transactions = useTransactions({ address, month, year });
+  const { transactions } = useTransactions({ address, month, year });
 
   return (
     <div>
