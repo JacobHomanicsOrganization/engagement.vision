@@ -11,7 +11,7 @@ import {
   getBasenameTextRecord,
   isBasename,
 } from "~~/abis/basenames";
-import { getEnsAddress, getEnsName, isEnsName } from "~~/abis/ens";
+import { getEnsAddress, isEnsName } from "~~/abis/ens";
 import { DayCard } from "~~/components/how-based-are-you/DayCard";
 import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
@@ -53,94 +53,128 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   useEffect(() => {
     async function fetchData() {
-      let profileAddress;
-      let profileName;
-      let profileAvatar;
-      let profileDescription;
-      let profileTwitter;
-
-      let resolvedName;
+      // let profileAddress;
+      // let profileName;
+      // let profileAvatar;
+      // let profileDescription;
+      // let profileTwitter;
 
       if (isAddress(params.address)) {
-        resolvedName = await getBasename(params.address as `0x${string}`);
+        const basename = await getBasename(params.address as `0x${string}`);
 
-        if (!resolvedName) {
-          resolvedName = await getEnsName(params.address);
+        if (isBasename(basename)) {
+          const resolvedAddress = await getBasenameAddr(basename as Basename);
+          const resolvedAvatar = await getBasenameAvatar(basename as Basename);
+          const resolvedDescription = await getBasenameTextRecord(
+            basename as Basename,
+            BasenameTextRecordKeys.Description,
+          );
+          const resolvedTwitter = await getBasenameTextRecord(basename as Basename, BasenameTextRecordKeys.Twitter);
+
+          setProfile({
+            addr: resolvedAddress,
+            name: basename,
+            avatar: resolvedAvatar,
+            description: resolvedDescription,
+            twitter: resolvedTwitter,
+          });
         }
+      } else if (isBasename(params.address)) {
+        const resolvedAddress = await getBasenameAddr(params.address as Basename);
+        const resolvedAvatar = await getBasenameAvatar(params.address as Basename);
+        const resolvedDescription = await getBasenameTextRecord(
+          params.address as Basename,
+          BasenameTextRecordKeys.Description,
+        );
+        const resolvedTwitter = await getBasenameTextRecord(params.address as Basename, BasenameTextRecordKeys.Twitter);
 
-        profileAddress = params.address;
-      } else {
-        if (isBasename(params.address) || isEnsName(params.address)) {
-          resolvedName = params.address;
+        setProfile({
+          addr: resolvedAddress,
+          name: params.address,
+          avatar: resolvedAvatar,
+          description: resolvedDescription,
+          twitter: resolvedTwitter,
+        });
+      } else if (isEnsName(params.address)) {
+        const resolvedAddress = await getEnsAddress(params.address);
+
+        const basename = await getBasename(resolvedAddress as `0x${string}`);
+
+        if (isBasename(basename)) {
+          const resolvedAddress = await getBasenameAddr(basename as Basename);
+          const resolvedAvatar = await getBasenameAvatar(basename as Basename);
+          const resolvedDescription = await getBasenameTextRecord(
+            basename as Basename,
+            BasenameTextRecordKeys.Description,
+          );
+          const resolvedTwitter = await getBasenameTextRecord(basename as Basename, BasenameTextRecordKeys.Twitter);
+
+          setProfile({
+            addr: resolvedAddress,
+            name: basename,
+            avatar: resolvedAvatar,
+            description: resolvedDescription,
+            twitter: resolvedTwitter,
+          });
         }
       }
 
-      if (resolvedName) {
-        if (isBasename(resolvedName)) {
-          const convertedResolvedName = resolvedName as Basename;
-          const resolvedAddress = await getBasenameAddr(convertedResolvedName);
-          const avatar = await getBasenameAvatar(convertedResolvedName);
-          const description = await getBasenameTextRecord(convertedResolvedName, BasenameTextRecordKeys.Description);
-          const twitter = await getBasenameTextRecord(convertedResolvedName, BasenameTextRecordKeys.Twitter);
+      // let usedAddress;
+      // let usedBasename: Basename | undefined;
+      // if (isAddress(params.chain)) {
+      //   usedBasename = await getBasename(params.address as `0x${string}`);
 
-          profileAddress = resolvedAddress;
-          profileAvatar = avatar;
-          profileDescription = description;
-          profileTwitter = twitter;
-        } else if (isEnsName(resolvedName)) {
-          const resolvedAddress = await getEnsAddress(resolvedName);
+      //   usedAddress = params.chain;
+      // } else {
+      // }
 
-          profileAddress = resolvedAddress;
-        }
+      // if (isBasename(usedBasename as string)) {
+      // }
 
-        profileName = resolvedName;
-      }
-
-      setProfile({
-        addr: profileAddress,
-        name: profileName,
-        avatar: profileAvatar,
-        description: profileDescription,
-        twitter: profileTwitter,
-      });
+      // let resolvedName;
 
       // if (isAddress(params.address)) {
-      //   finalAddress =
-      //   const basename = await getBasename(params.address as `0x${string}`);
-      //   finalUsername = basename;
+      //   resolvedName = await getBasename(params.address as `0x${string}`);
 
-      //   if (isBasename(finalUsername || "")) {
-      //     const addr = await getBasenameAddr(finalUsername as `${string}.base.eth`);
-
-      //     const avatar = await getBasenameAvatar(finalUsername as `${string}.base.eth`);
-      //     const description = await getBasenameTextRecord(
-      //       finalUsername as `${string}.base.eth`,
-      //       BasenameTextRecordKeys.Description,
-      //     );
-      //     const twitter = await getBasenameTextRecord(
-      //       finalUsername as `${string}.base.eth`,
-      //       BasenameTextRecordKeys.Twitter,
-      //     );
-
-      //     setProfile({
-      //       addr,
-      //       name: finalUsername,
-      //       avatar,
-      //       description,
-      //       twitter,
-      //     });
-      //   } else {
-      //     setProfile({
-      //       addr: ,
-      //       name: finalUsername,
-      //       avatar,
-      //       description,
-      //       twitter,
-      //     });
+      //   if (!resolvedName) {
+      //     resolvedName = await getEnsName(params.address);
       //   }
+
+      //   profileAddress = params.address;
       // } else {
-      //   finalUsername = params.address;
+      //   if (isBasename(params.address) || isEnsName(params.address)) {
+      //     resolvedName = params.address;
+      //   }
       // }
+
+      // if (resolvedName) {
+      //   if (isBasename(resolvedName)) {
+      //     const convertedResolvedName = resolvedName as Basename;
+      //     const resolvedAddress = await getBasenameAddr(convertedResolvedName);
+      //     const avatar = await getBasenameAvatar(convertedResolvedName);
+      //     const description = await getBasenameTextRecord(convertedResolvedName, BasenameTextRecordKeys.Description);
+      //     const twitter = await getBasenameTextRecord(convertedResolvedName, BasenameTextRecordKeys.Twitter);
+
+      //     profileAddress = resolvedAddress;
+      //     profileAvatar = avatar;
+      //     profileDescription = description;
+      //     profileTwitter = twitter;
+      //   } else if (isEnsName(resolvedName)) {
+      //     const resolvedAddress = await getEnsAddress(resolvedName);
+
+      //     profileAddress = resolvedAddress;
+      //   }
+
+      //   profileName = resolvedName;
+      // }
+
+      // setProfile({
+      //   addr: profileAddress,
+      //   name: profileName,
+      //   avatar: profileAvatar,
+      //   description: profileDescription,
+      //   twitter: profileTwitter,
+      // });
     }
 
     fetchData();

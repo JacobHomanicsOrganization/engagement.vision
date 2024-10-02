@@ -42,7 +42,9 @@ const baseClient = createPublicClient({
   transport: http("https://mainnet.base.org"),
 });
 
-export function isBasename(basename: string) {
+export function isBasename(basename: string | undefined) {
+  if (!basename) return false;
+
   return basename.endsWith(".base.eth");
 }
 
