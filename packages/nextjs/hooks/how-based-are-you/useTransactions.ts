@@ -48,6 +48,7 @@ const fetchTransactions = async (chainId: number, address: any) => {
 };
 
 export const useTransactions = ({ chainId, address }: any) => {
+  console.log(address);
   const [transactions, setTransactions] = useState([]);
   const [isError, setIsError] = useState(false);
 

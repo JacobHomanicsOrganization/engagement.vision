@@ -111,6 +111,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
           if (isBasename(basename)) {
             profile = await getFullBaseProfile(basename as Basename);
             resolved = true;
+          } else {
+            profile = { addr: resolvedEnsAddress };
           }
         }
 
@@ -118,24 +120,15 @@ export default function UserPage({ params }: { params: { chain: string; address:
       }
 
       async function ResolveWithEns(chain: Chain = mainnet) {
-        console.log(chain);
-
         let profile = { addr: params.address } as any;
         let isError;
         let resolved;
 
         if (isAddress(params.address)) {
-          console.log("ENTERED");
           let ensName;
           try {
-            console.log("TRIED");
-
             ensName = await getEnsName(params.address as `0x${string}`, chain);
-            console.log(ensName);
           } catch (e) {
-            console.log("HERE IS AN ERROR!");
-            console.log(chain);
-            console.log(e);
             isError = true;
           }
 
@@ -144,18 +137,20 @@ export default function UserPage({ params }: { params: { chain: string; address:
             resolved = true;
           }
         } else if (isEnsName(params.address)) {
-          console.log("IS ENS NAME");
           profile = await getFullEnsProfile(params.address as Basename);
           resolved = true;
         } else if (isBasename(params.address)) {
-          const resolvedEnsAddress = await getBasenameAddr(params.address);
+          console.log("I AM A BASENAME");
+          const resolvedBasenameAddress = await getBasenameAddr(params.address);
 
-          const ensName = await getEnsName(resolvedEnsAddress as `0x${string}`);
+          console.log(resolvedBasenameAddress);
+          const ensName = await getEnsName(resolvedBasenameAddress as `0x${string}`);
 
-          console.log("RESOLVED " + ensName);
           if (isEnsName(ensName as string)) {
             profile = await getFullEnsProfile(ensName as Basename);
             resolved = true;
+          } else {
+            profile = { addr: resolvedBasenameAddress };
           }
         }
 
@@ -181,7 +176,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
         // resolutionLoop.push("ensResolutionMainnet");
         // resolutionLoop.push("address");
       } else {
-        console.log("USING THIS SETUP");
         resolutionLoop.push(async () => {
           const result = await ResolveWithEns(chain);
           return result;
@@ -201,7 +195,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
       }
 
       for (let i = 0; i < resolutionLoop.length; i++) {
-        console.log("Starting the engines " + i);
         const result = await resolutionLoop[i]();
 
         //did it error?
