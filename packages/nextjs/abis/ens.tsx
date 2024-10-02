@@ -11,7 +11,9 @@ import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 export function isEnsName(ensName: string) {
   if (!ensName) return false;
 
-  return ensName.endsWith(".eth") || ensName.endsWith(".xyz");
+  const periodCount = (ensName.match(/\./g) || []).length;
+
+  return (periodCount === 1 && ensName.endsWith(".eth")) || (periodCount === 1 && ensName.endsWith(".xyz"));
 }
 
 export async function getEnsName(address: string, chain: Chain = mainnet) {

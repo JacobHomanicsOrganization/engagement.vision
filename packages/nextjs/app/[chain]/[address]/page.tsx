@@ -91,15 +91,18 @@ export default function UserPage({ params }: { params: { chain: string; address:
       async function ResolveWithBase() {
         let profile = { addr: params.address } as any;
         let isError;
+        let resolved;
 
         if (isAddress(params.address)) {
           const basename = await getBasename(params.address as `0x${string}`);
 
           if (isBasename(basename)) {
             profile = await getFullBaseProfile(basename as Basename);
+            resolved = true;
           }
         } else if (isBasename(params.address)) {
           profile = await getFullBaseProfile(params.address as Basename);
+          resolved = true;
         } else if (isEnsName(params.address)) {
           const resolvedEnsAddress = await getEnsAddress(params.address);
 
@@ -107,10 +110,11 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
           if (isBasename(basename)) {
             profile = await getFullBaseProfile(basename as Basename);
+            resolved = true;
           }
         }
 
-        return { profile, isError };
+        return { profile, isError, resolved };
       }
 
       async function ResolveWithEns(chain: Chain = mainnet) {
@@ -118,6 +122,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
         let profile = { addr: params.address } as any;
         let isError;
+        let resolved;
 
         if (isAddress(params.address)) {
           console.log("ENTERED");
@@ -136,20 +141,25 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
           if (isEnsName(ensName as string)) {
             profile = await getFullEnsProfile(ensName as Basename);
+            resolved = true;
           }
         } else if (isEnsName(params.address)) {
+          console.log("IS ENS NAME");
           profile = await getFullEnsProfile(params.address as Basename);
+          resolved = true;
         } else if (isBasename(params.address)) {
-          const resolvedEnsAddress = await getEnsAddress(params.address);
+          const resolvedEnsAddress = await getBasenameAddr(params.address);
 
-          const ensName = await getBasename(resolvedEnsAddress as `0x${string}`);
+          const ensName = await getEnsName(resolvedEnsAddress as `0x${string}`);
 
+          console.log("RESOLVED " + ensName);
           if (isEnsName(ensName as string)) {
             profile = await getFullEnsProfile(ensName as Basename);
+            resolved = true;
           }
         }
 
-        return { profile, isError };
+        return { profile, isError, resolved };
       }
 
       const resolutionLoop = [];
@@ -194,9 +204,12 @@ export default function UserPage({ params }: { params: { chain: string; address:
         console.log("Starting the engines " + i);
         const result = await resolutionLoop[i]();
 
+        //did it error?
         if (!result?.isError) {
           setProfile(result?.profile);
-          break;
+          if (result?.resolved) {
+            break;
+          }
         }
       }
 
