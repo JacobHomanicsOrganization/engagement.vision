@@ -42,6 +42,10 @@ const baseClient = createPublicClient({
   transport: http("https://mainnet.base.org"),
 });
 
+export function isBasename(basename: string) {
+  return basename.endsWith(".base.eth");
+}
+
 export async function getBasenameAddr(basename: Basename) {
   const addr = await baseClient.getEnsAddress({
     name: basename,
@@ -113,8 +117,6 @@ export const convertChainIdToCoinType = (chainId: number): string => {
  */
 export const convertReverseNodeToBytes = (address: Address, chainId: number) => {
   const addressFormatted = address.toLocaleLowerCase() as Address;
-
-  console.log(addressFormatted.substring(2) as `0x${string}`);
 
   const addressNode = keccak256(addressFormatted.substring(2) as `0x${string}`);
   const chainCoinType = convertChainIdToCoinType(chainId);

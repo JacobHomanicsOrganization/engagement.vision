@@ -9,7 +9,9 @@ import {
   getBasenameAddr, //etBasename,
   getBasenameAvatar,
   getBasenameTextRecord,
+  isBasename,
 } from "~~/abis/basenames";
+import { getEnsAddress, getEnsName, isEnsName } from "~~/abis/ens";
 import { DayCard } from "~~/components/how-based-are-you/DayCard";
 import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
@@ -45,50 +47,111 @@ export default function UserPage({ params }: { params: { chain: string; address:
     setAppTheme(params.chain);
   }, [params.chain, setAppTheme]);
 
-  const [profile, setProfile] = useState<any>();
+  const chain = getChainByName(params.chain);
 
-  console.log(profile);
+  const [profile, setProfile] = useState<any>();
 
   useEffect(() => {
     async function fetchData() {
-      let basename: Basename | undefined;
+      let profileAddress;
+      let profileName;
+      let profileAvatar;
+      let profileDescription;
+      let profileTwitter;
+
+      let resolvedName;
 
       if (isAddress(params.address)) {
-        basename = await getBasename(params.address as `0x${string}`);
-        if (basename === undefined) throw Error("failed to resolve address to name");
+        resolvedName = await getBasename(params.address as `0x${string}`);
+
+        if (!resolvedName) {
+          resolvedName = await getEnsName(params.address);
+        }
+
+        profileAddress = params.address;
       } else {
-        basename = params.address;
+        if (isBasename(params.address) || isEnsName(params.address)) {
+          resolvedName = params.address;
+        }
       }
 
-      try {
-        const addr = await getBasenameAddr(basename);
-        const avatar = await getBasenameAvatar(basename);
+      if (resolvedName) {
+        if (isBasename(resolvedName)) {
+          const convertedResolvedName = resolvedName as Basename;
+          const resolvedAddress = await getBasenameAddr(convertedResolvedName);
+          const avatar = await getBasenameAvatar(convertedResolvedName);
+          const description = await getBasenameTextRecord(convertedResolvedName, BasenameTextRecordKeys.Description);
+          const twitter = await getBasenameTextRecord(convertedResolvedName, BasenameTextRecordKeys.Twitter);
 
-        const description = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Description);
+          profileAddress = resolvedAddress;
+          profileAvatar = avatar;
+          profileDescription = description;
+          profileTwitter = twitter;
+        } else if (isEnsName(resolvedName)) {
+          const resolvedAddress = await getEnsAddress(resolvedName);
 
-        const twitter = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Twitter);
+          profileAddress = resolvedAddress;
+        }
 
-        setProfile({
-          addr,
-          basename,
-          avatar,
-          description,
-          twitter,
-        });
-      } catch (e) {
-        console.log("Error!");
+        profileName = resolvedName;
       }
+
+      setProfile({
+        addr: profileAddress,
+        name: profileName,
+        avatar: profileAvatar,
+        description: profileDescription,
+        twitter: profileTwitter,
+      });
+
+      // if (isAddress(params.address)) {
+      //   finalAddress =
+      //   const basename = await getBasename(params.address as `0x${string}`);
+      //   finalUsername = basename;
+
+      //   if (isBasename(finalUsername || "")) {
+      //     const addr = await getBasenameAddr(finalUsername as `${string}.base.eth`);
+
+      //     const avatar = await getBasenameAvatar(finalUsername as `${string}.base.eth`);
+      //     const description = await getBasenameTextRecord(
+      //       finalUsername as `${string}.base.eth`,
+      //       BasenameTextRecordKeys.Description,
+      //     );
+      //     const twitter = await getBasenameTextRecord(
+      //       finalUsername as `${string}.base.eth`,
+      //       BasenameTextRecordKeys.Twitter,
+      //     );
+
+      //     setProfile({
+      //       addr,
+      //       name: finalUsername,
+      //       avatar,
+      //       description,
+      //       twitter,
+      //     });
+      //   } else {
+      //     setProfile({
+      //       addr: ,
+      //       name: finalUsername,
+      //       avatar,
+      //       description,
+      //       twitter,
+      //     });
+      //   }
+      // } else {
+      //   finalUsername = params.address;
+      // }
     }
 
     fetchData();
   }, [params.address]);
 
+  console.log(profile);
+
   const numOfDays = 31;
 
   const [selectedMonth, setSelectedMonth] = useState(9);
   const [selectedYear, setSelectedYear] = useState(2024);
-
-  const chain = getChainByName(params.chain);
 
   const transactions = useTransactions({ chainId: chain.id, address: profile?.addr });
 
@@ -176,7 +239,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
       {/* <TransactionList address={params.address} year={selectedYear} month={selectedMonth} /> */}
       <div className="flex items-center flex-col flex-grow">
         <div className="m-4">
-          <PfpCard name={profile?.name} image={profile?.avatar} size="sm" />
+          <PfpCard name={profile?.name ?? profile?.addr} image={profile?.avatar} size="sm" />
         </div>
 
         <div className="bg-secondary rounded-lg">
