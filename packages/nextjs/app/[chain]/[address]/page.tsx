@@ -59,63 +59,38 @@ export default function UserPage({ params }: { params: { chain: string; address:
       // let profileDescription;
       // let profileTwitter;
 
+      async function getFullBaseProfile(basename: Basename) {
+        const resolvedAddress = await getBasenameAddr(basename);
+        const resolvedAvatar = await getBasenameAvatar(basename);
+        const resolvedDescription = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Description);
+        const resolvedTwitter = await getBasenameTextRecord(basename as Basename, BasenameTextRecordKeys.Twitter);
+        return {
+          addr: resolvedAddress,
+          name: basename,
+          avatar: resolvedAvatar,
+          description: resolvedDescription,
+          twitter: resolvedTwitter,
+        };
+      }
+
       if (isAddress(params.address)) {
         const basename = await getBasename(params.address as `0x${string}`);
 
         if (isBasename(basename)) {
-          const resolvedAddress = await getBasenameAddr(basename as Basename);
-          const resolvedAvatar = await getBasenameAvatar(basename as Basename);
-          const resolvedDescription = await getBasenameTextRecord(
-            basename as Basename,
-            BasenameTextRecordKeys.Description,
-          );
-          const resolvedTwitter = await getBasenameTextRecord(basename as Basename, BasenameTextRecordKeys.Twitter);
-
-          setProfile({
-            addr: resolvedAddress,
-            name: basename,
-            avatar: resolvedAvatar,
-            description: resolvedDescription,
-            twitter: resolvedTwitter,
-          });
+          const baseProfile = await getFullBaseProfile(basename as Basename);
+          setProfile(baseProfile);
         }
       } else if (isBasename(params.address)) {
-        const resolvedAddress = await getBasenameAddr(params.address as Basename);
-        const resolvedAvatar = await getBasenameAvatar(params.address as Basename);
-        const resolvedDescription = await getBasenameTextRecord(
-          params.address as Basename,
-          BasenameTextRecordKeys.Description,
-        );
-        const resolvedTwitter = await getBasenameTextRecord(params.address as Basename, BasenameTextRecordKeys.Twitter);
-
-        setProfile({
-          addr: resolvedAddress,
-          name: params.address,
-          avatar: resolvedAvatar,
-          description: resolvedDescription,
-          twitter: resolvedTwitter,
-        });
+        const baseProfile = await getFullBaseProfile(params.address as Basename);
+        setProfile(baseProfile);
       } else if (isEnsName(params.address)) {
         const resolvedAddress = await getEnsAddress(params.address);
 
         const basename = await getBasename(resolvedAddress as `0x${string}`);
 
         if (isBasename(basename)) {
-          const resolvedAddress = await getBasenameAddr(basename as Basename);
-          const resolvedAvatar = await getBasenameAvatar(basename as Basename);
-          const resolvedDescription = await getBasenameTextRecord(
-            basename as Basename,
-            BasenameTextRecordKeys.Description,
-          );
-          const resolvedTwitter = await getBasenameTextRecord(basename as Basename, BasenameTextRecordKeys.Twitter);
-
-          setProfile({
-            addr: resolvedAddress,
-            name: basename,
-            avatar: resolvedAvatar,
-            description: resolvedDescription,
-            twitter: resolvedTwitter,
-          });
+          const baseProfile = await getFullBaseProfile(basename as Basename);
+          setProfile(baseProfile);
         }
       }
 
