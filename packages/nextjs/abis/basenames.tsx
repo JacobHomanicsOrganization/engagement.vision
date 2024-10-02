@@ -42,6 +42,15 @@ const baseClient = createPublicClient({
   transport: http("https://mainnet.base.org"),
 });
 
+export async function getBasenameAddr(basename: Basename) {
+  const addr = await baseClient.getEnsAddress({
+    name: basename,
+    universalResolverAddress: BASENAME_L2_RESOLVER_ADDRESS,
+  });
+
+  return addr;
+}
+
 export async function getBasenameAvatar(basename: Basename) {
   const avatar = await baseClient.getEnsAvatar({
     name: basename,

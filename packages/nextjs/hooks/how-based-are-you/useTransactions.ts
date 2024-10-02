@@ -54,6 +54,8 @@ export const useTransactions = ({ chainId, address }: any) => {
   const [transactions, setTransactions] = useState([]);
   useEffect(() => {
     const getTransactions = async () => {
+      if (address === undefined) return;
+
       const txs = await fetchTransactions(chainId, address);
       setTransactions(txs);
     };

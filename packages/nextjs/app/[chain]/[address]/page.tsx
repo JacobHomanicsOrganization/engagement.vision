@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { isAddress } from "viem";
 import {
+  Basename,
   BasenameTextRecordKeys,
-  getBasename, //etBasename,
+  getBasename,
+  getBasenameAddr, //etBasename,
   getBasenameAvatar,
   getBasenameTextRecord,
 } from "~~/abis/basenames";
@@ -42,29 +45,41 @@ export default function UserPage({ params }: { params: { chain: string; address:
     setAppTheme(params.chain);
   }, [params.chain, setAppTheme]);
 
-  const [basenamesProfile, setBasenamesProfile] = useState<any>();
+  const [profile, setProfile] = useState<any>();
 
-  console.log(basenamesProfile);
+  console.log(profile);
 
   useEffect(() => {
     async function fetchData() {
-      const basename = await getBasename(params.address as `0x${string}`);
+      let basename: Basename | undefined;
 
-      if (basename === undefined) throw Error("failed to resolve address to name");
+      if (isAddress(params.address)) {
+        basename = await getBasename(params.address as `0x${string}`);
+        if (basename === undefined) throw Error("failed to resolve address to name");
+      } else {
+        basename = params.address;
+      }
 
-      // const basename = "jacobhomanics.base.eth";
-      const avatar = await getBasenameAvatar(basename);
+      try {
+        const addr = await getBasenameAddr(basename);
+        const avatar = await getBasenameAvatar(basename);
 
-      const description = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Description);
+        const description = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Description);
 
-      const twitter = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Twitter);
-      setBasenamesProfile({
-        basename,
-        avatar,
-        description,
-        twitter,
-      });
+        const twitter = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Twitter);
+
+        setProfile({
+          addr,
+          basename,
+          avatar,
+          description,
+          twitter,
+        });
+      } catch (e) {
+        console.log("Error!");
+      }
     }
+
     fetchData();
   }, [params.address]);
 
@@ -75,7 +90,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   const chain = getChainByName(params.chain);
 
-  const transactions = useTransactions({ chainId: chain.id, address: params.address });
+  const transactions = useTransactions({ chainId: chain.id, address: profile?.addr });
 
   const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
 
@@ -161,7 +176,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
       {/* <TransactionList address={params.address} year={selectedYear} month={selectedMonth} /> */}
       <div className="flex items-center flex-col flex-grow">
         <div className="m-4">
-          <PfpCard name={basenamesProfile?.basename} image={basenamesProfile?.avatar} size="sm" />
+          <PfpCard name={profile?.name} image={profile?.avatar} size="sm" />
         </div>
 
         <div className="bg-secondary rounded-lg">
