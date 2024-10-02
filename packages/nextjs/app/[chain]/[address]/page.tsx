@@ -140,10 +140,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
           profile = await getFullEnsProfile(params.address as Basename);
           resolved = true;
         } else if (isBasename(params.address)) {
-          console.log("I AM A BASENAME");
           const resolvedBasenameAddress = await getBasenameAddr(params.address);
 
-          console.log(resolvedBasenameAddress);
           const ensName = await getEnsName(resolvedBasenameAddress as `0x${string}`);
 
           if (isEnsName(ensName as string)) {

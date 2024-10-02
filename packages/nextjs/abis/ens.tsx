@@ -17,15 +17,12 @@ export function isEnsName(ensName: string) {
 }
 
 export async function getEnsName(address: string, chain: Chain = mainnet) {
-  console.log(chain);
   const publicClient = createPublicClient({
     chain: chain,
     transport: http(getAlchemyHttpUrl(chain.id)),
   });
 
-  console.log("pre ens");
   const ensName = await coreGetEnsName(publicClient, { address });
-  console.log(ensName);
   return ensName;
 }
 
