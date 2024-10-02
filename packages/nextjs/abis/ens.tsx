@@ -4,6 +4,8 @@ import { getEnsAddress as coreGetEnsAddress, getEnsName as coreGetEnsName } from
 import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 
 export function isEnsName(ensName: string) {
+  if (!ensName) return false;
+
   return ensName.endsWith(".eth");
 }
 

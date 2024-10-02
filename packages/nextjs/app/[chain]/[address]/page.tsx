@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { isAddress } from "viem";
+import { base } from "viem/chains";
 import {
   Basename,
   BasenameTextRecordKeys,
@@ -11,7 +12,7 @@ import {
   getBasenameTextRecord,
   isBasename,
 } from "~~/abis/basenames";
-import { getEnsAddress, isEnsName } from "~~/abis/ens";
+import { getEnsAddress, getEnsName, isEnsName } from "~~/abis/ens";
 import { DayCard } from "~~/components/how-based-are-you/DayCard";
 import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
@@ -73,25 +74,46 @@ export default function UserPage({ params }: { params: { chain: string; address:
         };
       }
 
-      if (isAddress(params.address)) {
-        const basename = await getBasename(params.address as `0x${string}`);
+      async function ResolveWithBasePreference() {
+        if (isAddress(params.address)) {
+          const basename = await getBasename(params.address as `0x${string}`);
 
-        if (isBasename(basename)) {
-          const baseProfile = await getFullBaseProfile(basename as Basename);
+          if (isBasename(basename)) {
+            const baseProfile = await getFullBaseProfile(basename as Basename);
+            setProfile(baseProfile);
+          } else {
+            const ensName = await getEnsName(params.address);
+
+            if (isEnsName(ensName as string)) {
+              setProfile({
+                addr: params.address,
+                name: ensName,
+              });
+            } else {
+              setProfile({
+                addr: params.address,
+              });
+            }
+          }
+        } else if (isBasename(params.address)) {
+          const baseProfile = await getFullBaseProfile(params.address as Basename);
           setProfile(baseProfile);
-        }
-      } else if (isBasename(params.address)) {
-        const baseProfile = await getFullBaseProfile(params.address as Basename);
-        setProfile(baseProfile);
-      } else if (isEnsName(params.address)) {
-        const resolvedAddress = await getEnsAddress(params.address);
+        } else if (isEnsName(params.address)) {
+          const resolvedAddress = await getEnsAddress(params.address);
 
-        const basename = await getBasename(resolvedAddress as `0x${string}`);
+          const basename = await getBasename(resolvedAddress as `0x${string}`);
 
-        if (isBasename(basename)) {
-          const baseProfile = await getFullBaseProfile(basename as Basename);
-          setProfile(baseProfile);
+          if (isBasename(basename)) {
+            const baseProfile = await getFullBaseProfile(basename as Basename);
+            setProfile(baseProfile);
+          }
         }
+      }
+
+      if (chain.id === base.id) {
+        await ResolveWithBasePreference();
+      } else {
+        // regular resolution algorithm
       }
 
       // let usedAddress;
@@ -153,7 +175,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     }
 
     fetchData();
-  }, [params.address]);
+  }, [chain?.id, params.address]);
 
   console.log(profile);
 
