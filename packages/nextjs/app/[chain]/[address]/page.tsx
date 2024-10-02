@@ -110,6 +110,19 @@ export default function UserPage({ params }: { params: { chain: string; address:
         }
       }
 
+      const resolutionLoop = [];
+      if (chain.id === base.id) {
+        resolutionLoop.push("basenamesResolution");
+        resolutionLoop.push("ensResolutionLocalChain");
+        resolutionLoop.push("ensResolutionMainnet");
+        resolutionLoop.push("address");
+      } else {
+        resolutionLoop.push("ensResolutionLocalChain");
+        resolutionLoop.push("ensResolutionMainnet");
+        resolutionLoop.push("basenamesResolution");
+        resolutionLoop.push("address");
+      }
+
       if (chain.id === base.id) {
         await ResolveWithBasePreference();
       } else {
