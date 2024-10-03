@@ -41,13 +41,13 @@ export default function WelcomePage({ params }: { params: { chain: string } }) {
     <div className="flex flex-col justify-center items-center space-y-32">
       <p className="text-4xl md:text-8xl text-center text-primary">{chainObj.titleCard}</p>
       <div className="w-[300px] md:w-[800px] flex justify-center flex-col text-center">
-        <p className="text-xl md:text-4xl">Enter an address</p>
+        <p className="text-xl md:text-4xl">Enter an Address/ENS Name/Basename</p>
         <InputBase
           value={nameValue}
           onChange={updatedValue => {
             setNameValue(updatedValue);
           }}
-          placeholder="0x"
+          placeholder="0x / name.eth / name.base.eth"
         />
       </div>
       <div className="flex flex-col justify-center">
