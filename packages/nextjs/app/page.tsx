@@ -62,6 +62,15 @@ const Home: NextPage = () => {
             <span className="block text-2xl mb-2">Welcome to</span>
             <span className="block text-4xl font-bold">Engagement.Vision</span>
           </h1>
+          <p className="text-center">
+            {"View a user's engagement with a blockchain through "}
+            <span className="bg-primary rounded-lg p-1">Onchain Activity</span>
+            {", "}
+            <span className="bg-primary rounded-lg p-1">Twitter Interactions</span>
+            {", "}
+            <span className="bg-primary rounded-lg p-1">Warpcast Interactions</span> {", and "}
+            <span className="bg-primary rounded-lg p-1">Talent Protocol Badges</span>
+          </p>
         </div>
 
         <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
