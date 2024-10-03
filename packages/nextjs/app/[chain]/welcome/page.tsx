@@ -15,8 +15,8 @@ const chainObjs = {
     ctaCard: "Find out how Based you are!",
   },
   arbitrum: {
-    titleCard: "How Futuristic Are You?",
-    ctaCard: "Find out how Futuristic you are!",
+    titleCard: "How Stylized Are You?",
+    ctaCard: "Find out how Stylized you are!",
   },
   optimism: {
     titleCard: "How Optimistic Are You?",
