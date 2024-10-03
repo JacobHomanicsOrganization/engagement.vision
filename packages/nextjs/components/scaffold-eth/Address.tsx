@@ -5,12 +5,15 @@ import { AddressRaw } from "./AddressRaw";
 import { Address as AddressType, getAddress, isAddress } from "viem";
 import { normalize } from "viem/ens";
 import { useEnsAvatar, useEnsName } from "wagmi";
+import { Basename, getBasename, getBasenameAvatar } from "~~/abis/basenames";
+import { isEnsName } from "~~/abis/ens";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 
 type AddressProps = {
   address?: AddressType;
   disableAddressLink?: boolean;
   format?: "short" | "long";
+  ensType?: "ens" | "basename";
   size?: "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";
 };
 
@@ -42,12 +45,30 @@ export const Address = ({ address, disableAddressLink, format, size = "base" }: 
 
   // We need to apply this pattern to avoid Hydration errors.
   useEffect(() => {
-    setEns(fetchedEns);
-  }, [fetchedEns]);
+    async function get() {
+      let basename;
+      if (isEnsName(fetchedEns)) setEns(fetchedEns);
+      else {
+        basename = await getBasename(address || "");
+        setEns(basename);
+      }
+    }
+    get();
+  }, [address, fetchedEns]);
 
   useEffect(() => {
-    setEnsAvatar(fetchedEnsAvatar);
-  }, [fetchedEnsAvatar]);
+    async function get() {
+      if (fetchedEnsAvatar !== undefined) {
+        setEnsAvatar(fetchedEnsAvatar);
+      } else {
+        if (ens === undefined) return;
+
+        const avatar = await getBasenameAvatar(ens as Basename);
+        setEnsAvatar(avatar);
+      }
+    }
+    get();
+  }, [ens, fetchedEnsAvatar]);
 
   return (
     <AddressRaw

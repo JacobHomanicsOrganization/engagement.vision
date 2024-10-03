@@ -8,8 +8,8 @@ import {
 } from "viem/ens";
 import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 
-export function isEnsName(ensName: string) {
-  if (!ensName) return false;
+export function isEnsName(ensName: string | null | undefined) {
+  if (ensName === undefined || ensName === null) return false;
 
   const periodCount = (ensName.match(/\./g) || []).length;
 
