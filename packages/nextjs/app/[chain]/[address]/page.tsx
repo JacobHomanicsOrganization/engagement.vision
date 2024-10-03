@@ -355,6 +355,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     );
   }
 
+  console.log(profile);
   return (
     <>
       {/* <TransactionList address={params.address} year={selectedYear} month={selectedMonth} /> */}
@@ -364,6 +365,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
             name={profile?.name ?? profile?.addr}
             image={profile?.avatar}
             description={profile?.description}
+            chain={chain}
+            address={profile?.addr}
             size="sm"
           />
         </div>
