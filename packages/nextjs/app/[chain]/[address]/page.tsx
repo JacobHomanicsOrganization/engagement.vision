@@ -309,46 +309,46 @@ export default function UserPage({ params }: { params: { chain: string; address:
             <Score title="Yearly Score" score={yearlyScore} />
             <Score title="All Time Score" score={allTimeScore} />
           </div>
-          <div className="flex flex-wrap justify-center items-center space-x-1 m-4 bg-secondary rounded-xl">
-            <button
-              onClick={() => {
-                if (selectedMonth === 1) {
-                  setSelectedMonth(12);
-                  setSelectedYear(selectedYear - 1);
-                  return;
-                }
 
-                setSelectedMonth(selectedMonth - 1);
-              }}
-              className="btn btn-primary"
-            >
-              {"<"}
-            </button>
-            <div className="w-64 md:w-[600px] flex flex-col items-center justify-center">
-              <p className="text-center text-3xl md:text-6xl m-0">
-                {monthsAsStrings[selectedMonth - 1]} {selectedYear}
-              </p>
+          <div className="flex flex-col bg-base-100">
+            <div className="flex flex-wrap justify-center items-center space-x-1 m-4 rounded-xl">
+              <button
+                onClick={() => {
+                  if (selectedMonth === 1) {
+                    setSelectedMonth(12);
+                    setSelectedYear(selectedYear - 1);
+                    return;
+                  }
+
+                  setSelectedMonth(selectedMonth - 1);
+                }}
+                className="btn btn-primary"
+              >
+                {"<"}
+              </button>
+              <div className="w-64 md:w-[600px] flex flex-col items-center justify-center">
+                <p className="text-center text-3xl md:text-6xl m-0">
+                  {monthsAsStrings[selectedMonth - 1]} {selectedYear}
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  if (selectedMonth === 12) {
+                    setSelectedMonth(1);
+                    setSelectedYear(selectedYear + 1);
+
+                    return;
+                  }
+
+                  setSelectedMonth(selectedMonth + 1);
+                }}
+                className="btn btn-primary"
+              >
+                {">"}
+              </button>
             </div>
-
-            <button
-              onClick={() => {
-                if (selectedMonth === 12) {
-                  setSelectedMonth(1);
-                  setSelectedYear(selectedYear + 1);
-
-                  return;
-                }
-
-                setSelectedMonth(selectedMonth + 1);
-              }}
-              className="btn btn-primary"
-            >
-              {">"}
-            </button>
-          </div>
-
-          <div className="flex flex-wrap justify-center bg-base-100 rounded-lg mx-1 md:mx-[450px]">
-            {monthsComponents}
+            <div className="flex flex-wrap justify-center rounded-lg mx-1 md:mx-[450px]">{monthsComponents}</div>
           </div>
         </div>
       </div>
