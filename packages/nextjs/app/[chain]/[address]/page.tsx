@@ -218,7 +218,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let count = 0;
 
     for (let i = 0; i < transactions.length; i++) {
-      count += 5;
+      count += 1;
     }
 
     setAllTimeScore(count);
@@ -237,7 +237,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let count = 0;
 
     for (let i = 0; i < filteredTransactions.length; i++) {
-      count += 5;
+      count += 1;
     }
 
     setYearlyScore(count);
@@ -254,7 +254,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let count = 0;
 
     for (let i = 0; i < filteredTransactions.length; i++) {
-      count += 5;
+      count += 1;
     }
 
     setTotalMonthlyScore(count);
@@ -274,7 +274,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
       let count = 0;
 
       for (let i = 0; i < theDayTransactions.length; i++) {
-        count += 5;
+        count += 1;
       }
 
       randomNumbers.push(count);
