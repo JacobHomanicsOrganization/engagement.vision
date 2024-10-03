@@ -44,6 +44,8 @@ const monthsAsStrings = [
 type Profile = { addr?: string; name?: string; avatar?: string; description?: string };
 
 export default function UserPage({ params }: { params: { chain: string; address: string } }) {
+  //after cleanup, fix bug by making params.address lowercase if its not an address
+
   const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
 
   useEffect(() => {
