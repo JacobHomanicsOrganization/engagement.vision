@@ -50,18 +50,33 @@ export default function UserPage({ params }: { params: { chain: string; address:
     setAppTheme(params.chain);
   }, [params.chain, setAppTheme]);
 
-  const chain = getChainByName(params.chain);
-
+  const { chain } = getChainByName(params.chain);
   const [profile, setProfile] = useState<any>();
+
+  const [userError, setUserError] = useState<string>();
+
+  useEffect(() => {
+    if (chain === undefined) {
+      setUserError("Invalid chain. Please check for typos!");
+    } else if (!isAddress(profile?.addr)) {
+      setUserError("This account cannot be found anywhere. Please check for typos!");
+    } else {
+      setUserError(undefined);
+    }
+  }, [chain, chain?.id, profile, profile?.addr]);
+
+  const [isLoadingUserProfile, setIsLoadingUserProfile] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
+      if (chain === undefined) return;
       // let profileAddress;
       // let profileName;
       // let profileAvatar;
       // let profileDescription;
       // let profileTwitter;
 
+      setIsLoadingUserProfile(true);
       async function getFullEnsProfile(ensName: string) {
         const resolvedAddress = await getEnsAddress(ensName);
         const resolvedAvatar = await getEnsAvatar(ensName);
@@ -176,7 +191,9 @@ export default function UserPage({ params }: { params: { chain: string; address:
         }
       }
 
+      console.log(chosenProfile);
       setProfile(chosenProfile);
+      setIsLoadingUserProfile(false);
     }
 
     fetchData();
@@ -189,7 +206,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
   const [selectedMonth, setSelectedMonth] = useState(9);
   const [selectedYear, setSelectedYear] = useState(2024);
 
-  const { transactions, isError } = useTransactions({ chainId: chain.id, address: profile?.addr });
+  const { transactions, isError, errorMessage } = useTransactions({ chainId: chain?.id, address: profile?.addr });
 
   const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
 
@@ -272,13 +289,17 @@ export default function UserPage({ params }: { params: { chain: string; address:
     );
   });
 
+  const [isLoadingWebsite, setIsLoadingWebsite] = useState(false);
+  useEffect(() => {
+    setIsLoadingWebsite(isLoadingUserProfile);
+  }, [isLoadingUserProfile]);
+
+  if (isLoadingWebsite) return <>Loading...</>;
+  if (userError) return <>{userError}</>;
+
   let transactionOutput;
   if (isError) {
-    transactionOutput = (
-      <div>
-        {"There was an error loading this user's transactions. You may be trying to access an unsupported network."}
-      </div>
-    );
+    transactionOutput = <div>{errorMessage}</div>;
   } else {
     transactionOutput = (
       <div className="bg-secondary rounded-lg">

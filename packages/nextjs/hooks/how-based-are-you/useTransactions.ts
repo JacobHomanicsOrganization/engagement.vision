@@ -37,11 +37,24 @@ const fetchTransactions = async (chainId: number, address: any) => {
 
   const response = await axios.get(url);
 
-  if (
-    response.data.result.includes("Invalid API Key (#err2)|") ||
-    response.data.result === "Max calls per sec rate limit reached (5/sec)"
-  ) {
-    return { transactions: [], isError: true };
+  console.log(response);
+
+  if (response.status === 200 && response.data.status !== "1") {
+    let eMessage;
+
+    if (response.data.result.includes("Invalid API Key (#err2)|")) {
+      eMessage = "This chain is not supported. Please try a different chain!"; //Invalid API Key
+    }
+
+    if (response.data.result === "Max calls per sec rate limit reached (5/sec)") {
+      eMessage = "Too many requests! Please wait a bit and try again.";
+    }
+
+    if (response.data.result === "Error! Invalid address format") {
+      eMessage = "The address is invalid!";
+    }
+
+    return { transactions: [], isError: true, eMessage };
   }
 
   return { transactions: response.data.result, isError: false };
@@ -50,19 +63,21 @@ const fetchTransactions = async (chainId: number, address: any) => {
 export const useTransactions = ({ chainId, address }: any) => {
   const [transactions, setTransactions] = useState([]);
   const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   useEffect(() => {
     const getTransactions = async () => {
       if (address === undefined) return;
 
-      const { transactions, isError } = await fetchTransactions(chainId, address);
+      const { transactions, isError, eMessage } = await fetchTransactions(chainId, address);
 
       setTransactions(transactions);
       setIsError(isError);
+      setErrorMessage(eMessage);
     };
 
     getTransactions();
   }, [chainId, address]);
 
-  return { transactions, isError };
+  return { transactions, isError, errorMessage };
 };

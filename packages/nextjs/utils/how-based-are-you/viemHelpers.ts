@@ -2,7 +2,9 @@ import * as chains from "viem/chains";
 import { Chain } from "viem/chains";
 
 export function getChainByName(name: string) {
-  return chains[name as keyof typeof chains];
+  const chain = chains[name as keyof typeof chains];
+
+  return { chain, isError: chain === undefined };
 }
 
 export function getAllChains() {
