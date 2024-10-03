@@ -16,6 +16,23 @@ type HeaderMenuLink = {
   icon?: React.ReactNode;
 };
 
+const chainObjs = {
+  base: {
+    titleCard: "How Based Are You?",
+    ctaCard: "Find out how Based you are!",
+    logo: "Base_Network_Logo.svg",
+    link: "https://base.org",
+  },
+  arbitrum: {
+    titleCard: "How Futuristic Are You?",
+    ctaCard: "Find out how Futuristic you are!",
+  },
+  optimism: {
+    titleCard: "How Optimistic Are You?",
+    ctaCard: "Find out how Optimistic you are!",
+  },
+};
+
 export const menuLinks: HeaderMenuLink[] = [
   {
     label: "Home",
@@ -66,6 +83,7 @@ export const Header = () => {
   );
 
   const appTheme = useGlobalState(({ appTheme }) => appTheme);
+  const chainObj = chainObjs[appTheme as keyof typeof chainObjs] as any;
   const chain = getChainByName(appTheme || "");
 
   return (
@@ -93,23 +111,51 @@ export const Header = () => {
             </ul>
           )}
         </div>
-        <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
+
+        {chainObj?.logo ? (
           <div className="flex relative w-10 h-10">
-            <Image alt="SE2 logo" className="cursor-pointer" fill src="/logo.svg" />
+            <Link
+              href={chainObj?.link || ""}
+              target="#"
+              passHref
+              className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0"
+            >
+              <Image alt="Logo" className="cursor-pointer" fill src={`/${chainObj?.logo || ""}`} />
+            </Link>
           </div>
-          <div className="flex flex-col">
-            {chain?.name ? (
-              <>
+        ) : (
+          <></>
+        )}
+
+        <div className="flex flex-col">
+          {chain?.name ? (
+            <>
+              {chainObj?.link ? (
+                <span className="font-bold leading-tight">
+                  <Link href={chainObj?.link || ""} target="#" passHref className="ml-4 mr-6 shrink-0">
+                    {chain?.name}
+                  </Link>
+                </span>
+              ) : (
                 <span className="font-bold leading-tight">{chain?.name}</span>
-                <span className="text-xs">Onsite</span>
-              </>
-            ) : (
-              <>
-                <span className="font-bold leading-tight">Onsite</span>
-              </>
-            )}
-          </div>
-        </Link>
+              )}
+
+              <span className="text-xs">
+                <Link href="/" passHref className="ml-4 mr-6 shrink-0">
+                  Onsite
+                </Link>
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="font-bold leading-tight">
+                <Link href="/" passHref className="ml-4 mr-6 shrink-0">
+                  Onsite
+                </Link>
+              </span>
+            </>
+          )}
+        </div>
         <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
           <HeaderMenuLinks />
         </ul>

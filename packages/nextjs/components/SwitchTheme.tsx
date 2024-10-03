@@ -39,9 +39,12 @@ export const SwitchTheme = ({ className }: { className?: string }) => {
   useEffect(() => {
     if (chainObj?.light === undefined || chainObj?.dark === undefined) return;
 
+    console.log("we changing");
     setTheme(isDarkMode ? chainObj.dark : chainObj.light);
   }, [isDarkMode, setTheme, chainObj?.dark, chainObj?.light]);
   const handleToggle = () => {
+    console.log("we changing");
+
     setTheme(isDarkMode ? chainObj.light : chainObj.dark);
   };
 
