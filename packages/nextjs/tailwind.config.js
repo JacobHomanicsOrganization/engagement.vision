@@ -74,7 +74,7 @@ module.exports = {
       },
       {
         lightMainnet: {
-          primary: "#6C24E0",
+          primary: "#627EEA",
           "primary-content": "#212638",
           secondary: "#ffffff",
           "secondary-content": "#212638",
@@ -84,7 +84,7 @@ module.exports = {
           "neutral-content": "#ffffff",
           "base-100": "#7A7D82",
           "base-200": "#f4f8ff",
-          "base-300": "#0052FF",
+          "base-300": "#627EEA",
           "base-content": "#212638",
           info: "#93BBFB",
           success: "#34EEB6",
@@ -106,7 +106,7 @@ module.exports = {
       },
       {
         darkMainnet: {
-          primary: "#6C24E0",
+          primary: "#627EEA",
           "primary-content": "#F9FBFF",
           secondary: "#000000",
           "secondary-content": "#F9FBFF",
@@ -116,7 +116,7 @@ module.exports = {
           "neutral-content": "#385183",
           "base-100": "#1E2025",
           "base-200": "#000000",
-          "base-300": "#6C24E0",
+          "base-300": "#627EEA",
           "base-content": "#F9FBFF",
           info: "#385183",
           success: "#34EEB6",

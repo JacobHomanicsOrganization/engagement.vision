@@ -17,19 +17,25 @@ type HeaderMenuLink = {
 };
 
 const chainObjs = {
+  app: {
+    logo: "eye.svg",
+    link: "/",
+  },
+  mainnet: {
+    logo: "ethereum-eth.svg",
+    link: "https://ethereum.org",
+  },
   base: {
-    titleCard: "How Based Are You?",
-    ctaCard: "Find out how Based you are!",
     logo: "Base_Network_Logo.svg",
     link: "https://base.org",
   },
   arbitrum: {
-    titleCard: "How Futuristic Are You?",
-    ctaCard: "Find out how Futuristic you are!",
+    logo: "arbitrum-arb-logo.png",
+    link: "https://arbitrum.foundation",
   },
   optimism: {
-    titleCard: "How Optimistic Are You?",
-    ctaCard: "Find out how Optimistic you are!",
+    logo: "optimism-ethereum-op-logo.png",
+    link: "https://optimism.io",
   },
 };
 
@@ -137,7 +143,7 @@ export const Header = () => {
 
               <span className="text-xs">
                 <Link href="/" passHref className={`${chainObj?.logo ? "ml-4" : ""} mr-6 shrink-0`}>
-                  Onsite
+                  Engagement.Vision
                 </Link>
               </span>
             </>
@@ -145,7 +151,7 @@ export const Header = () => {
             <>
               <span className="font-bold leading-tight">
                 <Link href="/" passHref className={`${chainObj?.logo ? "ml-4" : ""} mr-6 shrink-0`}>
-                  Onsite
+                  Engagement.Vision
                 </Link>
               </span>
             </>
