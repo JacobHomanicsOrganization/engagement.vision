@@ -114,12 +114,7 @@ export const Header = () => {
 
         {chainObj?.logo ? (
           <div className="flex relative w-10 h-10">
-            <Link
-              href={chainObj?.link || ""}
-              target="#"
-              passHref
-              className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0"
-            >
+            <Link href={chainObj?.link || ""} target="#" passHref className="gap-2 ml-4 mr-6 shrink-0">
               <Image alt="Logo" className="cursor-pointer" fill src={`/${chainObj?.logo || ""}`} />
             </Link>
           </div>
@@ -141,7 +136,7 @@ export const Header = () => {
               )}
 
               <span className="text-xs">
-                <Link href="/" passHref className="ml-4 mr-6 shrink-0">
+                <Link href="/" passHref className={`${chainObj?.logo ? "ml-4" : ""} mr-6 shrink-0`}>
                   Onsite
                 </Link>
               </span>
@@ -149,7 +144,7 @@ export const Header = () => {
           ) : (
             <>
               <span className="font-bold leading-tight">
-                <Link href="/" passHref className="ml-4 mr-6 shrink-0">
+                <Link href="/" passHref className={`${chainObj?.logo ? "ml-4" : ""} mr-6 shrink-0`}>
                   Onsite
                 </Link>
               </span>
