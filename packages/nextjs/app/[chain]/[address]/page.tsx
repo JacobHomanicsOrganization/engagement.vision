@@ -41,6 +41,8 @@ const monthsAsStrings = [
   "December",
 ];
 
+type Profile = { addr?: string; name?: string; avatar?: string; description?: string };
+
 export default function UserPage({ params }: { params: { chain: string; address: string } }) {
   const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
 
@@ -71,7 +73,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
           avatar: resolvedAvatar,
           description: resolvedDescription,
           // twitter: resolvedTwitter,
-        };
+        } as Profile;
       }
 
       async function getFullBaseProfile(basename: Basename) {
@@ -85,12 +87,12 @@ export default function UserPage({ params }: { params: { chain: string; address:
           avatar: resolvedAvatar,
           description: resolvedDescription,
           // twitter: resolvedTwitter,
-        };
+        } as Profile;
       }
 
       async function ResolveWithBase() {
-        let profile = { addr: params.address } as any;
-        let isError;
+        let profile;
+        const isError = false;
         let resolved;
 
         if (isAddress(params.address)) {
@@ -106,13 +108,13 @@ export default function UserPage({ params }: { params: { chain: string; address:
         } else if (isEnsName(params.address)) {
           const resolvedEnsAddress = await getEnsAddress(params.address);
 
-          const basename = await getBasename(resolvedEnsAddress as `0x${string}`);
+          if (resolvedEnsAddress) {
+            const basename = await getBasename(resolvedEnsAddress as `0x${string}`);
 
-          if (isBasename(basename)) {
-            profile = await getFullBaseProfile(basename as Basename);
-            resolved = true;
-          } else {
-            profile = { addr: resolvedEnsAddress };
+            if (isBasename(basename)) {
+              profile = await getFullBaseProfile(basename as Basename);
+              resolved = true;
+            }
           }
         }
 
@@ -120,8 +122,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
       }
 
       async function ResolveWithEns(chain: Chain = mainnet) {
-        let profile = { addr: params.address } as any;
-        let isError;
+        let profile;
+        let isError = false;
         let resolved;
 
         if (isAddress(params.address)) {
@@ -137,135 +139,44 @@ export default function UserPage({ params }: { params: { chain: string; address:
             resolved = true;
           }
         } else if (isEnsName(params.address)) {
-          profile = await getFullEnsProfile(params.address as Basename);
+          profile = await getFullEnsProfile(params.address as string);
           resolved = true;
         } else if (isBasename(params.address)) {
           const resolvedBasenameAddress = await getBasenameAddr(params.address);
 
-          const ensName = await getEnsName(resolvedBasenameAddress as `0x${string}`);
+          if (resolvedBasenameAddress) {
+            const ensName = await getEnsName(resolvedBasenameAddress as `0x${string}`);
 
-          if (isEnsName(ensName as string)) {
-            profile = await getFullEnsProfile(ensName as Basename);
-            resolved = true;
-          } else {
-            profile = { addr: resolvedBasenameAddress };
+            if (isEnsName(ensName as string)) {
+              profile = await getFullEnsProfile(ensName as string);
+              resolved = true;
+            }
           }
         }
 
         return { profile, isError, resolved };
       }
 
-      const resolutionLoop = [];
-      if (chain.id === base.id) {
-        resolutionLoop.push(async () => {
-          const result = await ResolveWithBase();
-          return result;
-        });
-        resolutionLoop.push(async () => {
-          const result = await ResolveWithEns(chain);
-          return result;
-        });
-        resolutionLoop.push(async () => {
-          const result = await ResolveWithEns(mainnet);
-          return result;
-        });
+      const resolutionLoop = [async () => await ResolveWithEns(chain), async () => await ResolveWithEns()];
 
-        // resolutionLoop.push("ensResolutionLocalChain");
-        // resolutionLoop.push("ensResolutionMainnet");
-        // resolutionLoop.push("address");
+      if (chain.id === base.id) {
+        resolutionLoop.unshift(ResolveWithBase);
       } else {
-        resolutionLoop.push(async () => {
-          const result = await ResolveWithEns(chain);
-          return result;
-        });
-        resolutionLoop.push(async () => {
-          const result = await ResolveWithEns();
-          return result;
-        });
-        resolutionLoop.push(async () => {
-          const result = await ResolveWithBase();
-          return result;
-        });
-        // resolutionLoop.push("ensResolutionLocalChain");
-        // resolutionLoop.push("ensResolutionMainnet");
-        // resolutionLoop.push("basenamesResolution");
-        // resolutionLoop.push("address");
+        resolutionLoop.push(ResolveWithBase);
       }
 
-      for (let i = 0; i < resolutionLoop.length; i++) {
-        const result = await resolutionLoop[i]();
+      let chosenProfile: Profile = { addr: params.address };
 
-        //did it error?
-        if (!result?.isError) {
-          setProfile(result?.profile);
-          if (result?.resolved) {
-            break;
-          }
+      for (let i = 0; i < resolutionLoop.length; i++) {
+        const { profile } = await resolutionLoop[i]();
+
+        if (profile) {
+          chosenProfile = profile;
+          break;
         }
       }
 
-      // if (chain.id === base.id) {
-      //   await ResolveWithBasePreference();
-      // } else {
-      //   // regular resolution algorithm
-      // }
-
-      // let usedAddress;
-      // let usedBasename: Basename | undefined;
-      // if (isAddress(params.chain)) {
-      //   usedBasename = await getBasename(params.address as `0x${string}`);
-
-      //   usedAddress = params.chain;
-      // } else {
-      // }
-
-      // if (isBasename(usedBasename as string)) {
-      // }
-
-      // let resolvedName;
-
-      // if (isAddress(params.address)) {
-      //   resolvedName = await getBasename(params.address as `0x${string}`);
-
-      //   if (!resolvedName) {
-      //     resolvedName = await getEnsName(params.address);
-      //   }
-
-      //   profileAddress = params.address;
-      // } else {
-      //   if (isBasename(params.address) || isEnsName(params.address)) {
-      //     resolvedName = params.address;
-      //   }
-      // }
-
-      // if (resolvedName) {
-      //   if (isBasename(resolvedName)) {
-      //     const convertedResolvedName = resolvedName as Basename;
-      //     const resolvedAddress = await getBasenameAddr(convertedResolvedName);
-      //     const avatar = await getBasenameAvatar(convertedResolvedName);
-      //     const description = await getBasenameTextRecord(convertedResolvedName, BasenameTextRecordKeys.Description);
-      //     const twitter = await getBasenameTextRecord(convertedResolvedName, BasenameTextRecordKeys.Twitter);
-
-      //     profileAddress = resolvedAddress;
-      //     profileAvatar = avatar;
-      //     profileDescription = description;
-      //     profileTwitter = twitter;
-      //   } else if (isEnsName(resolvedName)) {
-      //     const resolvedAddress = await getEnsAddress(resolvedName);
-
-      //     profileAddress = resolvedAddress;
-      //   }
-
-      //   profileName = resolvedName;
-      // }
-
-      // setProfile({
-      //   addr: profileAddress,
-      //   name: profileName,
-      //   avatar: profileAvatar,
-      //   description: profileDescription,
-      //   twitter: profileTwitter,
-      // });
+      setProfile(chosenProfile);
     }
 
     fetchData();
@@ -297,6 +208,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
   const [yearlyScore, setYearlyScore] = useState(0);
 
   useEffect(() => {
+    console.log(transactions);
+
     const filteredTransactions = transactions.filter((tx: any) => {
       const txDate = new Date(tx.timeStamp * 1000);
       return txDate.getFullYear() === selectedYear;
