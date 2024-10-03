@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Chain, isAddress } from "viem";
 import { base, mainnet } from "viem/chains";
-import { useAccount } from "wagmi";
 import {
   Basename,
   BasenameTextRecordKeys,
@@ -17,7 +16,6 @@ import { getEnsAddress, getEnsAvatar, getEnsDescription, getEnsName, isEnsName }
 import { DayCard } from "~~/components/how-based-are-you/DayCard";
 import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
-import { Address } from "~~/components/scaffold-eth";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
@@ -46,7 +44,6 @@ const monthsAsStrings = [
 type Profile = { addr?: string; name?: string; avatar?: string; description?: string };
 
 export default function UserPage({ params }: { params: { chain: string; address: string } }) {
-  const account = useAccount();
   const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
 
   useEffect(() => {
@@ -364,7 +361,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
       {/* <TransactionList address={params.address} year={selectedYear} month={selectedMonth} /> */}
       <div className="flex items-center flex-col flex-grow">
         <div className="m-4">
-          <Address address={account?.address} />
           <PfpCard
             name={profile?.name ?? profile?.addr}
             image={profile?.avatar}
