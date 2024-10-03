@@ -31,8 +31,6 @@ export function getBlockExplorerApiLink(chainId: number, address: any) {
     return "";
   }
 
-  console.log(chains[targetChain]?.name);
-
   const apiKey = blockExplorerApiKeys[chains[targetChain]?.name as keyof typeof blockExplorerApiKeys];
 
   return `${blockExplorerApiUrl}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}}`;
@@ -41,29 +39,49 @@ export function getBlockExplorerApiLink(chainId: number, address: any) {
 const fetchTransactions = async (chainId: number, address: any) => {
   const url = getBlockExplorerApiLink(chainId, address);
 
-  console.log(url);
   const response = await axios.get(url);
-  let transactions = response.data.result;
 
-  console.log(transactions);
+  console.log(response);
 
-  if (transactions === "Max calls per sec rate limit reached (5/sec)") {
-    transactions = [];
+  if (response.status === 200 && response.data.status !== "1") {
+    let eMessage;
+
+    if (response.data.result.includes("Invalid API Key (#err2)|")) {
+      eMessage = "This chain is not supported. Please try a different chain!"; //Invalid API Key
+    }
+
+    if (response.data.result === "Max calls per sec rate limit reached (5/sec)") {
+      eMessage = "Too many requests! Please wait a bit and try again.";
+    }
+
+    if (response.data.result === "Error! Invalid address format") {
+      eMessage = "The address is invalid!";
+    }
+
+    return { transactions: [], isError: true, eMessage };
   }
 
-  return transactions;
+  return { transactions: response.data.result, isError: false };
 };
 
 export const useTransactions = ({ chainId, address }: any) => {
   const [transactions, setTransactions] = useState([]);
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>();
+
   useEffect(() => {
     const getTransactions = async () => {
-      const txs = await fetchTransactions(chainId, address);
-      setTransactions(txs);
+      if (address === undefined) return;
+
+      const { transactions, isError, eMessage } = await fetchTransactions(chainId, address);
+
+      setTransactions(transactions);
+      setIsError(isError);
+      setErrorMessage(eMessage);
     };
 
     getTransactions();
   }, [chainId, address]);
 
-  return transactions;
+  return { transactions, isError, errorMessage };
 };
