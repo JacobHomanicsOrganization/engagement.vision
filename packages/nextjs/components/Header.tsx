@@ -4,6 +4,7 @@ import React, { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
@@ -16,9 +17,15 @@ type HeaderMenuLink = {
   icon?: React.ReactNode;
 };
 
+function getProperGlasses(isDarkMode: boolean) {
+  return isDarkMode ? "glasses-optic-white.png" : "glasses-optic.svg";
+}
+
 const chainObjs = {
   app: {
-    logo: "eye.svg",
+    logo: (isDarkMode: boolean) => {
+      return getProperGlasses(isDarkMode);
+    },
     link: "/",
   },
   mainnet: {
@@ -92,6 +99,10 @@ export const Header = () => {
   const chainObj = chainObjs[appTheme as keyof typeof chainObjs] as any;
   const { chain } = getChainByName(appTheme || "");
 
+  const { resolvedTheme } = useTheme();
+
+  const isDarkMode = resolvedTheme?.includes("dark");
+
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
       <div className="navbar-start w-auto lg:w-1/2">
@@ -121,7 +132,12 @@ export const Header = () => {
         {chainObj?.logo ? (
           <div className="flex relative w-10 h-10">
             <Link href={chainObj?.link || ""} target="#" passHref className="gap-2 ml-4 mr-6 shrink-0">
-              <Image alt="Logo" className="cursor-pointer" fill src={`/${chainObj?.logo || ""}`} />
+              <Image
+                alt="Logo"
+                className="cursor-pointer"
+                fill
+                src={`/${appTheme === "app" ? chainObj?.logo(isDarkMode) : chainObj?.logo || ""}`}
+              />
             </Link>
           </div>
         ) : (
