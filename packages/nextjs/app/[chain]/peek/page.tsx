@@ -24,7 +24,7 @@ const chainObjs = {
   },
 };
 
-export default function WelcomePage({ params }: { params: { chain: string } }) {
+export default function PeekPage({ params }: { params: { chain: string } }) {
   const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
 
   useEffect(() => {

@@ -15,22 +15,22 @@ const chainObjs = [
   {
     name: "Ethereum",
     logo: "ethereum-eth.svg",
-    link: "/mainnet/welcome",
+    link: "/mainnet/peek",
   },
   {
     name: "Base",
     logo: "Base_Network_Logo.svg",
-    link: "/base/welcome",
+    link: "/base/peek",
   },
   {
     name: "Arbitrum",
     logo: "arbitrum-arb-logo.png",
-    link: "/arbitrum/welcome",
+    link: "/arbitrum/peek",
   },
   {
     name: "OP Mainnet",
     logo: "optimism-ethereum-op-logo.png",
-    link: "/optimism/welcome",
+    link: "/optimism/peek",
   },
 ];
 
