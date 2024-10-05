@@ -324,12 +324,12 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
                   setSelectedMonth(selectedMonth - 1);
                 }}
-                className="btn btn-primary"
+                className="btn btn-primary btn-sm md:btn-md"
               >
                 {"<"}
               </button>
-              <div className="w-64 md:w-[600px] flex flex-col items-center justify-center">
-                <p className="text-center text-3xl md:text-6xl m-0">
+              <div className="w-56 md:w-[600px] flex flex-col items-center justify-center">
+                <p className="text-center text-2xl md:text-6xl m-0">
                   {monthsAsStrings[selectedMonth - 1]} {selectedYear}
                 </p>
               </div>
@@ -345,7 +345,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
                   setSelectedMonth(selectedMonth + 1);
                 }}
-                className="btn btn-primary"
+                className="btn btn-primary btn-sm md:btn-md"
               >
                 {">"}
               </button>
