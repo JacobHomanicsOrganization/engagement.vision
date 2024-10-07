@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { Chain, isAddress } from "viem";
 import { base, mainnet } from "viem/chains";
 import {
@@ -13,6 +14,7 @@ import {
   isBasename,
 } from "~~/abis/basenames";
 import { getEnsAddress, getEnsAvatar, getEnsDescription, getEnsName, isEnsName } from "~~/abis/ens";
+import { getEnsText } from "~~/abis/ens";
 import { DayCard } from "~~/components/how-based-are-you/DayCard";
 import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
@@ -25,6 +27,51 @@ import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 //   max = Math.floor(max); // Ensure the maximum is rounded down
 //   return Math.floor(Math.random() * (max - min + 1)) + min;
 // }
+
+const getUserWarpcastFid = async (username: string) => {
+  // console.log(username);
+  try {
+    // const response = await axios.get(`/api/twitter/${username}`);
+    // const response = await axios.get("https://hub.pinata.cloud/v1/castsByFid?fid=6023&pageSize=10&reverse=true");
+    const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
+    console.log(response.data);
+    return response.data.transfer.id;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const getUserCastsByFid = async (fid: number) => {
+  try {
+    // const response = await axios.get(`/api/twitter/${username}`);
+    const response = await axios.get(`https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&pageSize=100&reverse=true`);
+    console.log(response.data);
+    return response.data;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const getUserByUsername = async (username: string) => {
+  try {
+    const response = await axios.get(`/api/twitter/${username}`);
+    console.log(response.data);
+    return response.data;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const getUserTweets = async (username: string) => {
+  console.log(username);
+  // try {
+  //   const response = await axios.get(`/api/twitter2/${username}`);
+  //   console.log(response.data);
+  //   return response.data;
+  // } catch (err) {
+  //   console.log(err);
+  // }
+};
 
 const monthsAsStrings = [
   "January",
@@ -41,7 +88,14 @@ const monthsAsStrings = [
   "December",
 ];
 
-type Profile = { addr?: string; name?: string; avatar?: string; description?: string };
+type Profile = {
+  addr?: string;
+  name?: string;
+  avatar?: string;
+  description?: string;
+  twitter?: string;
+  farcaster?: string;
+};
 
 export default function UserPage({ params }: { params: { chain: string; address: string } }) {
   //after cleanup, fix bug by making params.address lowercase if its not an address
@@ -83,13 +137,13 @@ export default function UserPage({ params }: { params: { chain: string; address:
         const resolvedAddress = await getEnsAddress(ensName);
         const resolvedAvatar = await getEnsAvatar(ensName);
         const resolvedDescription = await getEnsDescription(ensName);
-        // const resolvedTwitter = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Twitter);
+        const resolvedTwitter = await getEnsText(ensName, "com.twitter");
         return {
           addr: resolvedAddress,
           name: ensName,
           avatar: resolvedAvatar,
           description: resolvedDescription,
-          // twitter: resolvedTwitter,
+          twitter: resolvedTwitter,
         } as Profile;
       }
 
@@ -97,13 +151,16 @@ export default function UserPage({ params }: { params: { chain: string; address:
         const resolvedAddress = await getBasenameAddr(basename);
         const resolvedAvatar = await getBasenameAvatar(basename);
         const resolvedDescription = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Description);
-        // const resolvedTwitter = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Twitter);
+        const resolvedTwitter = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Twitter);
+        const resolvedFarcaster = await getBasenameTextRecord(basename, BasenameTextRecordKeys.Farcaster);
+
         return {
           addr: resolvedAddress,
           name: basename,
           avatar: resolvedAvatar,
           description: resolvedDescription,
-          // twitter: resolvedTwitter,
+          twitter: resolvedTwitter,
+          farcaster: resolvedFarcaster,
         } as Profile;
       }
 
@@ -193,8 +250,24 @@ export default function UserPage({ params }: { params: { chain: string; address:
         }
       }
 
-      console.log(chosenProfile);
       setProfile(chosenProfile);
+      if (chosenProfile.twitter) {
+        const user = await getUserByUsername(chosenProfile.twitter);
+
+        console.log(user);
+        const tweets = await getUserTweets(chosenProfile.twitter);
+        console.log(tweets);
+      }
+
+      if (chosenProfile.farcaster) {
+        const fid = await getUserWarpcastFid(chosenProfile.farcaster);
+        console.log(fid);
+
+        if (fid) {
+          const results = await getUserCastsByFid(fid);
+          console.log(results);
+        }
+      }
       setIsLoadingUserProfile(false);
     }
 
@@ -227,8 +300,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
   const [yearlyScore, setYearlyScore] = useState(0);
 
   useEffect(() => {
-    console.log(transactions);
-
     const filteredTransactions = transactions.filter((tx: any) => {
       const txDate = new Date(tx.timeStamp * 1000);
       return txDate.getFullYear() === selectedYear;

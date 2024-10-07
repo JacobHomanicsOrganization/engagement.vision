@@ -57,3 +57,15 @@ export async function getEnsAddress(ensName: string, chain?: Chain) {
   const address = await coreGetEnsAddress(publicClient, { name: ensName });
   return address;
 }
+
+export async function getEnsText(ensName: string, key: string, chain?: Chain) {
+  chain = chain ? chain : mainnet;
+
+  const publicClient = createPublicClient({
+    chain: chain,
+    transport: http(getAlchemyHttpUrl(chain.id)),
+  });
+
+  const address = await coreGetEnsText(publicClient, { name: ensName, key });
+  return address;
+}
