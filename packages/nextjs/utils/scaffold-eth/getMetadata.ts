@@ -44,7 +44,7 @@ export const getMetadata = ({
       images: [imageUrl],
     },
     icons: {
-      icon: [{ url: "/glasses-optic.svg", sizes: "32x32", type: "image/png" }],
+      icon: [{ url: "/meeple-circle.png", sizes: "32x32", type: "image/png" }],
     },
   };
 };
