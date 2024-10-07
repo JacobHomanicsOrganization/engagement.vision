@@ -18,7 +18,7 @@ type HeaderMenuLink = {
 };
 
 function getProperGlasses(isDarkMode: boolean) {
-  return isDarkMode ? "meeple-circle-white.png" : "meeple-circle.svg";
+  return isDarkMode ? "meeple-circle-white.png" : "meeple-circle.png";
 }
 
 const chainObjs = {
