@@ -28,23 +28,10 @@ import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 //   return Math.floor(Math.random() * (max - min + 1)) + min;
 // }
 
-const getUserWarpcastFid = async (username: string) => {
-  // console.log(username);
+const getPassport = async (username: string) => {
+  console.log("Trying with..." + username);
   try {
-    // const response = await axios.get(`/api/twitter/${username}`);
-    // const response = await axios.get("https://hub.pinata.cloud/v1/castsByFid?fid=6023&pageSize=10&reverse=true");
-    const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
-    console.log(response.data);
-    return response.data.transfer.id;
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const getUserCastsByFid = async (fid: number) => {
-  try {
-    // const response = await axios.get(`/api/twitter/${username}`);
-    const response = await axios.get(`https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&pageSize=100&reverse=true`);
+    const response = await axios.get(`/api/talent-protocol/passport/${username}`);
     console.log(response.data);
     return response.data;
   } catch (err) {
@@ -52,9 +39,10 @@ const getUserCastsByFid = async (fid: number) => {
   }
 };
 
-const getUserByUsername = async (username: string) => {
+const getPassportCredentials = async (username: string) => {
+  console.log("Trying with..." + username);
   try {
-    const response = await axios.get(`/api/twitter/${username}`);
+    const response = await axios.get(`/api/talent-protocol/credentials/${username}`);
     console.log(response.data);
     return response.data;
   } catch (err) {
@@ -62,16 +50,50 @@ const getUserByUsername = async (username: string) => {
   }
 };
 
-const getUserTweets = async (username: string) => {
-  console.log(username);
-  // try {
-  //   const response = await axios.get(`/api/twitter2/${username}`);
-  //   console.log(response.data);
-  //   return response.data;
-  // } catch (err) {
-  //   console.log(err);
-  // }
-};
+// const getUserWarpcastFid = async (username: string) => {
+//   // console.log(username);
+//   try {
+//     // const response = await axios.get(`/api/twitter/${username}`);
+//     // const response = await axios.get("https://hub.pinata.cloud/v1/castsByFid?fid=6023&pageSize=10&reverse=true");
+//     const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
+//     console.log(response.data);
+//     return response.data.transfer.id;
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
+
+// const getUserCastsByFid = async (fid: number) => {
+//   try {
+//     // const response = await axios.get(`/api/twitter/${username}`);
+//     const response = await axios.get(`https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&pageSize=100&reverse=true`);
+//     console.log(response.data);
+//     return response.data;
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
+
+// const getUserByUsername = async (username: string) => {
+//   try {
+//     const response = await axios.get(`/api/twitter/${username}`);
+//     console.log(response.data);
+//     return response.data;
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
+
+// const getUserTweets = async (username: string) => {
+//   console.log(username);
+//   // try {
+//   //   const response = await axios.get(`/api/twitter2/${username}`);
+//   //   console.log(response.data);
+//   //   return response.data;
+//   // } catch (err) {
+//   //   console.log(err);
+//   // }
+// };
 
 const monthsAsStrings = [
   "January",
@@ -252,22 +274,28 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
       setProfile(chosenProfile);
       if (chosenProfile.twitter) {
-        const user = await getUserByUsername(chosenProfile.twitter);
-
-        console.log(user);
-        const tweets = await getUserTweets(chosenProfile.twitter);
-        console.log(tweets);
+        // const user = await getUserByUsername(chosenProfile.twitter);
+        // console.log(user);
+        // const tweets = await getUserTweets(chosenProfile.twitter);
+        // console.log(tweets);
       }
 
       if (chosenProfile.farcaster) {
-        const fid = await getUserWarpcastFid(chosenProfile.farcaster);
-        console.log(fid);
-
-        if (fid) {
-          const results = await getUserCastsByFid(fid);
-          console.log(results);
-        }
+        // const fid = await getUserWarpcastFid(chosenProfile.farcaster);
+        // console.log(fid);
+        // if (fid) {
+        //   const results = await getUserCastsByFid(fid);
+        //   console.log(results);
+        // }
       }
+
+      console.log("getting passport");
+      const result = await getPassport(chosenProfile.addr || "");
+      console.log(result);
+      console.log("got passport");
+
+      const result2 = await getPassportCredentials(chosenProfile.addr || "");
+      console.log(result2);
       setIsLoadingUserProfile(false);
     }
 
