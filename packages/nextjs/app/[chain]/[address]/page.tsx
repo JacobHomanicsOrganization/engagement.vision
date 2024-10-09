@@ -60,31 +60,73 @@ const getPassportCredentials = async (username: string) => {
 };
 
 const getUserWarpcastFid = async (username: string) => {
-  // console.log(username);
   try {
-    // const response = await axios.get(`/api/twitter/${username}`);
-    // const response = await axios.get("https://hub.pinata.cloud/v1/castsByFid?fid=6023&pageSize=10&reverse=true");
-
-    //https://fnames.farcaster.xyz/transfers/current?name=${username}
-    //https://api.farcaster.xyz/v2/user-by-fname?fname=${username}
-    const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
-    return response.data.transfer.id;
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const getUserCastsByFid = async (fid: number) => {
-  try {
-    // const response = await axios.get(`/api/twitter/${username}`);
-
-    //for setting a max limit: https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&pageSize=100&reverse=true
-    const response = await axios.get(`https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&reverse=true`);
+    const response = await axios.get(`/api/farcaster/getUserByFid/${username}`);
     return response.data;
   } catch (err) {
     console.log(err);
   }
+
+  // // console.log(username);
+  // try {
+  //   // const response = await axios.get(`/api/twitter/${username}`);
+  //   // const response = await axios.get("https://hub.pinata.cloud/v1/castsByFid?fid=6023&pageSize=10&reverse=true");
+
+  //   //https://fnames.farcaster.xyz/transfers/current?name=${username}
+  //   //https://api.farcaster.xyz/v2/user-by-fname?fname=${username}
+  //   const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
+  //   return response.data.transfer.id;
+  // } catch (err) {
+  //   console.log(err);
+  // }
 };
+
+const getUserCastsByFid = async (fid: number) => {
+  try {
+    const response = await axios.get(`/api/farcaster/getUserCastsByFid/${fid}`);
+    return response.data;
+  } catch (err) {
+    console.log(err);
+  }
+
+  // try {
+  //   // const response = await axios.get(`/api/twitter/${username}`);
+
+  //   //for setting a max limit: https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&pageSize=100&reverse=true
+  //   const response = await axios.get(`https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&reverse=true`);
+  //   return response.data;
+  // } catch (err) {
+  //   console.log(err);
+  // }
+};
+
+// const getUserCastsByFidNextPageToken = async (fid: number, nextPageToken: string) => {
+//   try {
+//     const response = await axios.get(`/api/farcaster/getUserByFidNextPageToken/${fid}/${nextPageToken}`);
+//     return response.data;
+//   } catch (err) {
+//     console.log(err);
+//   }
+
+// try {
+//   // const response = await axios.get(`/api/twitter/${username}`);
+
+//   // console.log(
+//   //   "Trying " + `https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&reverse=true&nextPageToken=${nextPageToken}`,
+//   // );
+//   //for setting a max limit: https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&pageSize=100&reverse=true
+//   const response = await axios.get(
+//     `https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&reverse=true&nextPageToken=${nextPageToken}`,
+//   );
+//   // console.log("Returned");
+
+//   return response.data;
+// } catch (err) {
+//   // console.log("errored");
+
+//   console.log(err);
+// }
+// };
 
 // const getUserByUsername = async (username: string) => {
 //   try {
@@ -326,14 +368,65 @@ export default function UserPage({ params }: { params: { chain: string; address:
         // console.log(fid);
 
         if (fid) {
-          const results = await getUserCastsByFid(fid);
+          let results = await getUserCastsByFid(fid);
 
-          // console.log(results);
-          // console.log(results);
+          const startPageToken = results.nextPageToken;
+
+          let extraCatchCount = 0;
+
+          if (startPageToken.length > 0) {
+            while (true) {
+              results = await getUserCastsByFid(fid);
+
+              console.log(results);
+              if (startPageToken === results.nextPageToken) {
+                break;
+              }
+
+              extraCatchCount++;
+
+              if (extraCatchCount > 5) {
+                break;
+              }
+            }
+          }
 
           const msgs = results.messages.filter((x: any) => {
             return x;
           });
+
+          // // let catchMe = 0;
+
+          // // console.log(results.nextPageToken);
+
+          // if (results.nextPageToken.length > 0) {
+          //   console.log("YEE HAW");
+          //   console.log("I STARTED " + results.nextPageToken);
+          //   results = await getUserCastsByFidNextPageToken(fid, results.nextPageToken);
+          //   console.log(results);
+
+          //   if (results.nextPageToken.length > 0) {
+          //     console.log("YEE HAW2");
+          //     console.log("I STARTED2 " + results.nextPageToken);
+          //     results = await getUserCastsByFidNextPageToken(fid, results.nextPageToken);
+          //     console.log("2");
+          //     console.log(results);
+          //   }
+          // }
+
+          // while (results.nextPageToken.length > 0) {
+          //   console.log("I STARTED " + results.nextPageToken);
+          //   results = await getUserCastsByFidNextPageToken(fid, results.nextPageToken);
+          //   console.log(results);
+
+          //   catchMe++;
+          //   if (catchMe === 5) {
+          //     console.log("I broke");
+          //     break;
+          //   }
+          // }
+
+          // console.log(results);
 
           setMessages(msgs);
         }
