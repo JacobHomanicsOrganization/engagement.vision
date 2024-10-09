@@ -53,7 +53,8 @@ const getUserWarpcastFid = async (username: string) => {
     // const response = await axios.get("https://hub.pinata.cloud/v1/castsByFid?fid=6023&pageSize=10&reverse=true");
 
     //https://fnames.farcaster.xyz/transfers/current?name=${username}
-    const response = await axios.get(`https://api.farcaster.xyz/v2/user-by-fname?fname=${username}`);
+    //https://api.farcaster.xyz/v2/user-by-fname?fname=${username}
+    const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
     return response.data.transfer.id;
   } catch (err) {
     console.log(err);
@@ -158,7 +159,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
         const resolvedAvatar = await getEnsAvatar(ensName);
         const resolvedDescription = await getEnsDescription(ensName);
         const resolvedTwitter = await getEnsText(ensName, "com.twitter");
-        const resolvedFarcaster = await getEnsText(ensName, "fid");
+        const resolvedFarcaster = await getEnsText(ensName, "fnameOrFid");
 
         return {
           addr: resolvedAddress,
@@ -281,9 +282,29 @@ export default function UserPage({ params }: { params: { chain: string; address:
         // console.log(tweets);
       }
 
-      console.log(chosenProfile);
+      function isNumeric(str: string): boolean {
+        return /^\d+$/.test(str);
+      }
+
       if (chosenProfile.farcaster) {
-        const fid = await getUserWarpcastFid(chosenProfile.farcaster);
+        let fid;
+        if (isNumeric(chosenProfile.farcaster)) {
+          fid = chosenProfile.farcaster;
+        } else {
+          if (!isEnsName(chosenProfile.farcaster)) {
+            fid = await getUserWarpcastFid(chosenProfile.farcaster);
+          } else {
+            //is ENS name and supported.
+            throw "Error with ENS support";
+          }
+        }
+
+        // if (isEnsName(chosenProfile.farcaster)) {
+        //   fid = await getUserWarpcastFid("jacobhomanics");
+        // } else {
+        //   fid = await getUserWarpcastFid(chosenProfile.farcaster);
+        // }
+
         console.log(fid);
 
         // const JESSE_POLLACK_FID = 99;
