@@ -29,10 +29,8 @@ import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 // }
 
 const getPassport = async (username: string) => {
-  console.log("Trying with..." + username);
   try {
     const response = await axios.get(`/api/talent-protocol/passport/${username}`);
-    console.log(response.data);
     return response.data;
   } catch (err) {
     console.log(err);
@@ -40,10 +38,8 @@ const getPassport = async (username: string) => {
 };
 
 const getPassportCredentials = async (username: string) => {
-  console.log("Trying with..." + username);
   try {
     const response = await axios.get(`/api/talent-protocol/credentials/${username}`);
-    console.log(response.data);
     return response.data;
   } catch (err) {
     console.log(err);
@@ -289,20 +285,19 @@ export default function UserPage({ params }: { params: { chain: string; address:
         // }
       }
 
-      console.log("getting passport");
       const result = await getPassport(chosenProfile.addr || "");
-      console.log(result);
-      console.log("got passport");
 
-      const result2 = await getPassportCredentials(chosenProfile.addr || "");
-      console.log(result2);
+      console.log(result);
+
+      const result2 = await getPassportCredentials(result.passport["passport_id"]);
+      setCredentials(result2["passport_credentials"]);
       setIsLoadingUserProfile(false);
     }
 
     fetchData();
   }, [chain, chain?.id, params.address]);
 
-  // console.log(profile);
+  const [credentials, setCredentials] = useState([]);
 
   const numOfDays = 31;
 
@@ -328,6 +323,12 @@ export default function UserPage({ params }: { params: { chain: string; address:
   const [yearlyScore, setYearlyScore] = useState(0);
 
   useEffect(() => {
+    const filteredCredentials = credentials.filter((tx: any) => {
+      const date = new Date(tx["onchain_at"]);
+
+      return date.getFullYear() === selectedYear;
+    });
+
     const filteredTransactions = transactions.filter((tx: any) => {
       const txDate = new Date(tx.timeStamp * 1000);
       return txDate.getFullYear() === selectedYear;
@@ -339,12 +340,22 @@ export default function UserPage({ params }: { params: { chain: string; address:
       count += 1;
     }
 
+    for (let i = 0; i < filteredCredentials.length; i++) {
+      count += 200;
+    }
+
     setYearlyScore(count);
-  }, [transactions, transactions?.length, selectedYear]);
+  }, [transactions, transactions?.length, selectedYear, credentials?.length]);
 
   const [totalMonthlyScore, setTotalMonthlyScore] = useState(0);
 
   useEffect(() => {
+    const filteredCredentials = credentials.filter((tx: any) => {
+      const date = new Date(tx["onchain_at"]);
+
+      return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth;
+    });
+
     const filteredTransactions = transactions.filter((tx: any) => {
       const txDate = new Date(tx.timeStamp * 1000);
       return txDate.getFullYear() === selectedYear && txDate.getMonth() + 1 === selectedMonth;
@@ -356,13 +367,25 @@ export default function UserPage({ params }: { params: { chain: string; address:
       count += 1;
     }
 
+    for (let i = 0; i < filteredCredentials.length; i++) {
+      count += 200;
+    }
+
     setTotalMonthlyScore(count);
-  }, [transactions, transactions?.length, selectedMonth, selectedYear]);
+  }, [transactions, transactions?.length, selectedMonth, selectedYear, credentials?.length]);
 
   useEffect(() => {
     const randomNumbers = [];
 
+    console.log(credentials);
+
     for (let i = 0; i < numOfDays; i++) {
+      const theDayCredentials = credentials.filter((tx: any) => {
+        const date = new Date(tx["onchain_at"]);
+
+        return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth && date.getDate() === i + 1;
+      });
+
       const theDayTransactions = transactions.filter((tx: any) => {
         const txDate = new Date(tx.timeStamp * 1000);
         return (
@@ -370,7 +393,15 @@ export default function UserPage({ params }: { params: { chain: string; address:
         );
       }) as any;
 
+      console.log(theDayCredentials);
+
+      // console.log("Cred count: " + credCount);
+
       let count = 0;
+
+      for (let i = 0; i < theDayCredentials.length; i++) {
+        count += 200;
+      }
 
       for (let i = 0; i < theDayTransactions.length; i++) {
         count += 1;
@@ -380,7 +411,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     }
 
     setRandomNumbers([...randomNumbers]);
-  }, [numOfDays, transactions, transactions?.length, selectedMonth, selectedYear]);
+  }, [numOfDays, transactions, transactions?.length, selectedMonth, selectedYear, credentials?.length]);
 
   const monthsComponents = randomNumbers.map((value, index) => {
     return (
