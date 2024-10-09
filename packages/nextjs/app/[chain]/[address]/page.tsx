@@ -46,29 +46,31 @@ const getPassportCredentials = async (username: string) => {
   }
 };
 
-// const getUserWarpcastFid = async (username: string) => {
-//   // console.log(username);
-//   try {
-//     // const response = await axios.get(`/api/twitter/${username}`);
-//     // const response = await axios.get("https://hub.pinata.cloud/v1/castsByFid?fid=6023&pageSize=10&reverse=true");
-//     const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
-//     console.log(response.data);
-//     return response.data.transfer.id;
-//   } catch (err) {
-//     console.log(err);
-//   }
-// };
+const getUserWarpcastFid = async (username: string) => {
+  // console.log(username);
+  try {
+    // const response = await axios.get(`/api/twitter/${username}`);
+    // const response = await axios.get("https://hub.pinata.cloud/v1/castsByFid?fid=6023&pageSize=10&reverse=true");
 
-// const getUserCastsByFid = async (fid: number) => {
-//   try {
-//     // const response = await axios.get(`/api/twitter/${username}`);
-//     const response = await axios.get(`https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&pageSize=100&reverse=true`);
-//     console.log(response.data);
-//     return response.data;
-//   } catch (err) {
-//     console.log(err);
-//   }
-// };
+    //https://fnames.farcaster.xyz/transfers/current?name=${username}
+    const response = await axios.get(`https://api.farcaster.xyz/v2/user-by-fname?fname=${username}`);
+    return response.data.transfer.id;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const getUserCastsByFid = async (fid: number) => {
+  try {
+    // const response = await axios.get(`/api/twitter/${username}`);
+
+    //for setting a max limit: https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&pageSize=100&reverse=true
+    const response = await axios.get(`https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&reverse=true`);
+    return response.data;
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 // const getUserByUsername = async (username: string) => {
 //   try {
@@ -156,12 +158,15 @@ export default function UserPage({ params }: { params: { chain: string; address:
         const resolvedAvatar = await getEnsAvatar(ensName);
         const resolvedDescription = await getEnsDescription(ensName);
         const resolvedTwitter = await getEnsText(ensName, "com.twitter");
+        const resolvedFarcaster = await getEnsText(ensName, "fid");
+
         return {
           addr: resolvedAddress,
           name: ensName,
           avatar: resolvedAvatar,
           description: resolvedDescription,
           twitter: resolvedTwitter,
+          farcaster: resolvedFarcaster,
         } as Profile;
       }
 
@@ -276,18 +281,31 @@ export default function UserPage({ params }: { params: { chain: string; address:
         // console.log(tweets);
       }
 
+      console.log(chosenProfile);
       if (chosenProfile.farcaster) {
-        // const fid = await getUserWarpcastFid(chosenProfile.farcaster);
-        // console.log(fid);
-        // if (fid) {
-        //   const results = await getUserCastsByFid(fid);
-        //   console.log(results);
-        // }
+        const fid = await getUserWarpcastFid(chosenProfile.farcaster);
+        console.log(fid);
+
+        // const JESSE_POLLACK_FID = 99;
+        // const JACOB_HOMANICS_FID = 240799;
+        // const fid = JESSE_POLLACK_FID;
+        console.log(fid);
+
+        if (fid) {
+          const results = await getUserCastsByFid(fid);
+
+          console.log(results);
+          // console.log(results);
+
+          const msgs = results.messages.filter((x: any) => {
+            return x;
+          });
+
+          setMessages(msgs);
+        }
       }
 
       const result = await getPassport(chosenProfile.addr || "");
-
-      console.log(result);
 
       const result2 = await getPassportCredentials(result.passport["passport_id"]);
       setCredentials(result2["passport_credentials"]);
@@ -296,6 +314,9 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     fetchData();
   }, [chain, chain?.id, params.address]);
+
+  const [messages, setMessages] = useState([]);
+  console.log(messages);
 
   const [credentials, setCredentials] = useState([]);
 
@@ -371,15 +392,40 @@ export default function UserPage({ params }: { params: { chain: string; address:
       count += 200;
     }
 
+    // 1728448744;
+    // 1693336885;
+    // 103160891;
     setTotalMonthlyScore(count);
   }, [transactions, transactions?.length, selectedMonth, selectedYear, credentials?.length]);
 
   useEffect(() => {
     const randomNumbers = [];
 
-    console.log(credentials);
+    const FARCASTER_START_EPOCH = 1609459200;
+    const BASE_FID = 12142;
+    const COINBASE_WALLET_FID = 309857;
 
     for (let i = 0; i < numOfDays; i++) {
+      const theDayCasts = messages?.filter((tx: any) => {
+        const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
+        // console.log(tx.data.timestamp);
+
+        let isPresent = false;
+
+        for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
+          if (tx.data.castAddBody.mentions[i] === BASE_FID || tx.data.castAddBody.mentions[i] === COINBASE_WALLET_FID) {
+            isPresent = true;
+          }
+        }
+        // console.log(txDate);
+        return (
+          isPresent &&
+          txDate.getFullYear() === selectedYear &&
+          txDate.getMonth() + 1 === selectedMonth &&
+          txDate.getDate() === i + 1
+        );
+      }) as any;
+
       const theDayCredentials = credentials.filter((tx: any) => {
         const date = new Date(tx["onchain_at"]);
 
@@ -393,11 +439,14 @@ export default function UserPage({ params }: { params: { chain: string; address:
         );
       }) as any;
 
-      console.log(theDayCredentials);
-
-      // console.log("Cred count: " + credCount);
-
       let count = 0;
+
+      // console.log(messages);
+      // console.log(theDayCasts);
+
+      for (let i = 0; i < theDayCasts.length; i++) {
+        count += 400;
+      }
 
       for (let i = 0; i < theDayCredentials.length; i++) {
         count += 200;
@@ -411,7 +460,15 @@ export default function UserPage({ params }: { params: { chain: string; address:
     }
 
     setRandomNumbers([...randomNumbers]);
-  }, [numOfDays, transactions, transactions?.length, selectedMonth, selectedYear, credentials?.length]);
+  }, [
+    numOfDays,
+    transactions,
+    transactions?.length,
+    selectedMonth,
+    selectedYear,
+    credentials?.length,
+    messages?.length,
+  ]);
 
   const monthsComponents = randomNumbers.map((value, index) => {
     return (
@@ -487,7 +544,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
     );
   }
 
-  console.log(profile);
   return (
     <>
       {/* <TransactionList address={params.address} year={selectedYear} month={selectedMonth} /> */}
