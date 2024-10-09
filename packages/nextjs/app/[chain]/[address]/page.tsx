@@ -22,6 +22,19 @@ import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 
+// const BASE_FID = 12142;
+// const COINBASE_WALLET_FID = 309857;
+const FARCASTER_START_EPOCH = 1609459200;
+
+const chainsObjs = {
+  Base: {
+    mentionFids: [
+      12142, //Base,
+      309857, //Coinbase Wallet
+    ],
+  },
+};
+
 // function getRandomInt(min: number, max: number): number {
 //   min = Math.ceil(min); // Ensure the minimum is rounded up
 //   max = Math.floor(max); // Ensure the maximum is rounded down
@@ -305,17 +318,17 @@ export default function UserPage({ params }: { params: { chain: string; address:
         //   fid = await getUserWarpcastFid(chosenProfile.farcaster);
         // }
 
-        console.log(fid);
+        // console.log(fid);
 
         // const JESSE_POLLACK_FID = 99;
         // const JACOB_HOMANICS_FID = 240799;
         // const fid = JESSE_POLLACK_FID;
-        console.log(fid);
+        // console.log(fid);
 
         if (fid) {
           const results = await getUserCastsByFid(fid);
 
-          console.log(results);
+          // console.log(results);
           // console.log(results);
 
           const msgs = results.messages.filter((x: any) => {
@@ -337,7 +350,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
   }, [chain, chain?.id, params.address]);
 
   const [messages, setMessages] = useState([]);
-  console.log(messages);
+  // console.log(messages);
 
   const [credentials, setCredentials] = useState([]);
 
@@ -353,10 +366,28 @@ export default function UserPage({ params }: { params: { chain: string; address:
   const [allTimeScore, setAllTimeScore] = useState(0);
 
   useEffect(() => {
+    const filteredCasts = messages?.filter((tx: any) => {
+      let isPresent = false;
+
+      for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
+        for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
+          if (tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]) {
+            isPresent = true;
+          }
+        }
+      }
+      // console.log(txDate);
+      return isPresent;
+    }) as any;
+
     let count = 0;
 
     for (let i = 0; i < transactions.length; i++) {
       count += 1;
+    }
+
+    for (let i = 0; i < filteredCasts.length; i++) {
+      count += 400;
     }
 
     setAllTimeScore(count);
@@ -365,6 +396,22 @@ export default function UserPage({ params }: { params: { chain: string; address:
   const [yearlyScore, setYearlyScore] = useState(0);
 
   useEffect(() => {
+    const filteredCasts = messages?.filter((tx: any) => {
+      const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
+
+      let isPresent = false;
+
+      for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
+        for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
+          if (tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]) {
+            isPresent = true;
+          }
+        }
+      }
+      // console.log(txDate);
+      return isPresent && txDate.getFullYear() === selectedYear;
+    }) as any;
+
     const filteredCredentials = credentials.filter((tx: any) => {
       const date = new Date(tx["onchain_at"]);
 
@@ -386,12 +433,32 @@ export default function UserPage({ params }: { params: { chain: string; address:
       count += 200;
     }
 
+    for (let i = 0; i < filteredCasts.length; i++) {
+      count += 400;
+    }
+
     setYearlyScore(count);
   }, [transactions, transactions?.length, selectedYear, credentials?.length]);
 
   const [totalMonthlyScore, setTotalMonthlyScore] = useState(0);
 
   useEffect(() => {
+    const filteredCasts = messages?.filter((tx: any) => {
+      const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
+
+      let isPresent = false;
+
+      for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
+        for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
+          if (tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]) {
+            isPresent = true;
+          }
+        }
+      }
+      // console.log(txDate);
+      return isPresent && txDate.getFullYear() === selectedYear && txDate.getMonth() + 1 === selectedMonth;
+    }) as any;
+
     const filteredCredentials = credentials.filter((tx: any) => {
       const date = new Date(tx["onchain_at"]);
 
@@ -413,39 +480,34 @@ export default function UserPage({ params }: { params: { chain: string; address:
       count += 200;
     }
 
+    for (let i = 0; i < filteredCasts.length; i++) {
+      count += 400;
+    }
+
     // 1728448744;
     // 1693336885;
     // 103160891;
     setTotalMonthlyScore(count);
   }, [transactions, transactions?.length, selectedMonth, selectedYear, credentials?.length]);
 
-  const BASE_FID = 12142;
-  const COINBASE_WALLET_FID = 309857;
-
-  // const chainsObjs = {
-  //   "base": {
-  //     mentionFids: [BASE_FID, COINBASE_WALLET_FID],
-  //   }
-  // }
-  const baseChainObj = {
-    mentionFids: [BASE_FID, COINBASE_WALLET_FID],
-  };
+  // const baseChainObj = {
+  //   mentionFids: [BASE_FID, COINBASE_WALLET_FID],
+  // };
 
   useEffect(() => {
     const randomNumbers = [];
 
-    const FARCASTER_START_EPOCH = 1609459200;
-
     for (let i = 0; i < numOfDays; i++) {
       const theDayCasts = messages?.filter((tx: any) => {
         const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
-        // console.log(tx.data.timestamp);
 
         let isPresent = false;
 
         for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
-          for (let j = 0; j < baseChainObj.mentionFids.length; j++) {
-            if (tx.data.castAddBody.mentions[i] === baseChainObj.mentionFids[j]) {
+          for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
+            if (
+              tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]
+            ) {
               isPresent = true;
             }
           }
@@ -501,6 +563,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     selectedYear,
     credentials?.length,
     messages?.length,
+    chain?.id,
   ]);
 
   const monthsComponents = randomNumbers.map((value, index) => {
