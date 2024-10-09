@@ -447,7 +447,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     }
 
     setAllTimeScore(count);
-  }, [transactions, transactions?.length]);
+  }, [transactions, transactions?.length, messages?.length]);
 
   const [yearlyScore, setYearlyScore] = useState(0);
 
