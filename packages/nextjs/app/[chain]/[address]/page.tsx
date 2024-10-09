@@ -419,12 +419,22 @@ export default function UserPage({ params }: { params: { chain: string; address:
     setTotalMonthlyScore(count);
   }, [transactions, transactions?.length, selectedMonth, selectedYear, credentials?.length]);
 
+  const BASE_FID = 12142;
+  const COINBASE_WALLET_FID = 309857;
+
+  // const chainsObjs = {
+  //   "base": {
+  //     mentionFids: [BASE_FID, COINBASE_WALLET_FID],
+  //   }
+  // }
+  const baseChainObj = {
+    mentionFids: [BASE_FID, COINBASE_WALLET_FID],
+  };
+
   useEffect(() => {
     const randomNumbers = [];
 
     const FARCASTER_START_EPOCH = 1609459200;
-    const BASE_FID = 12142;
-    const COINBASE_WALLET_FID = 309857;
 
     for (let i = 0; i < numOfDays; i++) {
       const theDayCasts = messages?.filter((tx: any) => {
@@ -434,8 +444,10 @@ export default function UserPage({ params }: { params: { chain: string; address:
         let isPresent = false;
 
         for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
-          if (tx.data.castAddBody.mentions[i] === BASE_FID || tx.data.castAddBody.mentions[i] === COINBASE_WALLET_FID) {
-            isPresent = true;
+          for (let j = 0; j < baseChainObj.mentionFids.length; j++) {
+            if (tx.data.castAddBody.mentions[i] === baseChainObj.mentionFids[j]) {
+              isPresent = true;
+            }
           }
         }
         // console.log(txDate);
