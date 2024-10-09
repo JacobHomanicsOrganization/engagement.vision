@@ -60,12 +60,15 @@ const getPassportCredentials = async (username: string) => {
 };
 
 const getUserWarpcastFid = async (username: string) => {
-  try {
-    const response = await axios.get(`/api/farcaster/getUserByFid/${username}`);
-    return response.data;
-  } catch (err) {
-    console.log(err);
-  }
+  const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
+  return response.data.transfer.id;
+
+  // try {
+  //   const response = await axios.get(`/api/farcaster/getUserByFid/${username}`);
+  //   return response.data;
+  // } catch (err) {
+  //   console.log(err);
+  // }
 
   // // console.log(username);
   // try {
@@ -82,12 +85,14 @@ const getUserWarpcastFid = async (username: string) => {
 };
 
 const getUserCastsByFid = async (fid: number) => {
-  try {
-    const response = await axios.get(`/api/farcaster/getUserCastsByFid/${fid}`);
-    return response.data;
-  } catch (err) {
-    console.log(err);
-  }
+  const response = await axios.get(`https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&reverse=true`);
+  return response.data;
+  // try {
+  //   const response = await axios.get(`/api/farcaster/getUserCastsByFid/${fid}`);
+  //   return response.data;
+  // } catch (err) {
+  //   console.log(err);
+  // }
 
   // try {
   //   // const response = await axios.get(`/api/twitter/${username}`);
@@ -100,13 +105,12 @@ const getUserCastsByFid = async (fid: number) => {
   // }
 };
 
-// const getUserCastsByFidNextPageToken = async (fid: number, nextPageToken: string) => {
-//   try {
-//     const response = await axios.get(`/api/farcaster/getUserByFidNextPageToken/${fid}/${nextPageToken}`);
-//     return response.data;
-//   } catch (err) {
-//     console.log(err);
-//   }
+const getUserCastsByFidNextPageToken = async (fid: number, nextPageToken: string) => {
+  const response = await axios.get(
+    `https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&reverse=true&pageToken=${nextPageToken}`,
+  );
+  return response.data;
+};
 
 // try {
 //   // const response = await axios.get(`/api/twitter/${username}`);
@@ -348,6 +352,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
         } else {
           if (!isEnsName(chosenProfile.farcaster)) {
             fid = await getUserWarpcastFid(chosenProfile.farcaster);
+            console.log(fid);
           } else {
             //is ENS name and supported.
             throw "Error with ENS support";
@@ -368,65 +373,23 @@ export default function UserPage({ params }: { params: { chain: string; address:
         // console.log(fid);
 
         if (fid) {
-          let results = await getUserCastsByFid(fid);
+          let totalResults: any = [];
 
-          const startPageToken = results.nextPageToken;
+          let results;
 
-          let extraCatchCount = 0;
+          results = await getUserCastsByFid(fid);
+          totalResults = totalResults.concat(results.messages);
 
-          if (startPageToken.length > 0) {
-            while (true) {
-              results = await getUserCastsByFid(fid);
-
-              console.log(results);
-              if (startPageToken === results.nextPageToken) {
-                break;
-              }
-
-              extraCatchCount++;
-
-              if (extraCatchCount > 5) {
-                break;
-              }
-            }
+          while (results.nextPageToken !== "") {
+            results = await getUserCastsByFidNextPageToken(fid, results.nextPageToken);
+            totalResults = totalResults.concat(results.messages);
           }
 
-          const msgs = results.messages.filter((x: any) => {
+          console.log(totalResults);
+
+          const msgs = totalResults.filter((x: any) => {
             return x;
           });
-
-          // // let catchMe = 0;
-
-          // // console.log(results.nextPageToken);
-
-          // if (results.nextPageToken.length > 0) {
-          //   console.log("YEE HAW");
-          //   console.log("I STARTED " + results.nextPageToken);
-          //   results = await getUserCastsByFidNextPageToken(fid, results.nextPageToken);
-          //   console.log(results);
-
-          //   if (results.nextPageToken.length > 0) {
-          //     console.log("YEE HAW2");
-          //     console.log("I STARTED2 " + results.nextPageToken);
-          //     results = await getUserCastsByFidNextPageToken(fid, results.nextPageToken);
-          //     console.log("2");
-          //     console.log(results);
-          //   }
-          // }
-
-          // while (results.nextPageToken.length > 0) {
-          //   console.log("I STARTED " + results.nextPageToken);
-          //   results = await getUserCastsByFidNextPageToken(fid, results.nextPageToken);
-          //   console.log(results);
-
-          //   catchMe++;
-          //   if (catchMe === 5) {
-          //     console.log("I broke");
-          //     break;
-          //   }
-          // }
-
-          // console.log(results);
 
           setMessages(msgs);
         }
