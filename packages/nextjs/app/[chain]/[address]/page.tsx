@@ -385,7 +385,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
             totalResults = totalResults.concat(results.messages);
           }
 
-          console.log(totalResults);
+          // console.log(totalResults);
 
           const msgs = totalResults.filter((x: any) => {
             return x;
@@ -399,6 +399,20 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
       const result2 = await getPassportCredentials(result.passport["passport_id"]);
       setCredentials(result2["passport_credentials"]);
+
+      const validPassports = result2["passport_credentials"].filter((x: any) => {
+        return x["onchain_at"] !== null;
+      });
+
+      console.log(validPassports);
+      // for (let i = 0; i < result2["passport_credentials"].length; i++) {
+      //   if (result2["passport_credentials"][i]["onchain_at"] !== null) {
+      //     console.log(result2["passport_credentials"][i]);
+      //   }
+      // }
+
+      // console.log(result2);
+
       setIsLoadingUserProfile(false);
     }
 
@@ -436,10 +450,18 @@ export default function UserPage({ params }: { params: { chain: string; address:
       return isPresent;
     }) as any;
 
+    const filteredCredentials = credentials.filter((tx: any) => {
+      return tx["onchain_at"] !== null;
+    });
+
     let count = 0;
 
     for (let i = 0; i < transactions.length; i++) {
       count += 1;
+    }
+
+    for (let i = 0; i < filteredCredentials.length; i++) {
+      count += 2000;
     }
 
     for (let i = 0; i < filteredCasts.length; i++) {
@@ -447,7 +469,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     }
 
     setAllTimeScore(count);
-  }, [transactions, transactions?.length, messages?.length]);
+  }, [transactions, transactions?.length, messages?.length, credentials?.length]);
 
   const [yearlyScore, setYearlyScore] = useState(0);
 
@@ -468,11 +490,11 @@ export default function UserPage({ params }: { params: { chain: string; address:
       return isPresent && txDate.getFullYear() === selectedYear;
     }) as any;
 
-    // const filteredCredentials = credentials.filter((tx: any) => {
-    //   const date = new Date(tx["onchain_at"]);
+    const filteredCredentials = credentials.filter((tx: any) => {
+      const date = new Date(tx["onchain_at"]);
 
-    //   return date.getFullYear() === selectedYear;
-    // });
+      return date.getFullYear() === selectedYear;
+    });
 
     const filteredTransactions = transactions.filter((tx: any) => {
       const txDate = new Date(tx.timeStamp * 1000);
@@ -485,9 +507,9 @@ export default function UserPage({ params }: { params: { chain: string; address:
       count += 1;
     }
 
-    // for (let i = 0; i < filteredCredentials.length; i++) {
-    //   count += 200;
-    // }
+    for (let i = 0; i < filteredCredentials.length; i++) {
+      count += 2000;
+    }
 
     for (let i = 0; i < filteredCasts.length; i++) {
       count += 400;
@@ -515,11 +537,11 @@ export default function UserPage({ params }: { params: { chain: string; address:
       return isPresent && txDate.getFullYear() === selectedYear && txDate.getMonth() + 1 === selectedMonth;
     }) as any;
 
-    // const filteredCredentials = credentials.filter((tx: any) => {
-    //   const date = new Date(tx["onchain_at"]);
+    const filteredCredentials = credentials.filter((tx: any) => {
+      const date = new Date(tx["onchain_at"]);
 
-    //   return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth;
-    // });
+      return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth;
+    });
 
     const filteredTransactions = transactions.filter((tx: any) => {
       const txDate = new Date(tx.timeStamp * 1000);
@@ -532,9 +554,9 @@ export default function UserPage({ params }: { params: { chain: string; address:
       count += 1;
     }
 
-    // for (let i = 0; i < filteredCredentials.length; i++) {
-    //   count += 200;
-    // }
+    for (let i = 0; i < filteredCredentials.length; i++) {
+      count += 2000;
+    }
 
     for (let i = 0; i < filteredCasts.length; i++) {
       count += 400;
@@ -577,11 +599,11 @@ export default function UserPage({ params }: { params: { chain: string; address:
         );
       }) as any;
 
-      // const theDayCredentials = credentials.filter((tx: any) => {
-      //   const date = new Date(tx["onchain_at"]);
+      const theDayCredentials = credentials.filter((tx: any) => {
+        const date = new Date(tx["onchain_at"]);
 
-      //   return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth && date.getDate() === i + 1;
-      // });
+        return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth && date.getDate() === i + 1;
+      });
 
       const theDayTransactions = transactions.filter((tx: any) => {
         const txDate = new Date(tx.timeStamp * 1000);
@@ -599,9 +621,9 @@ export default function UserPage({ params }: { params: { chain: string; address:
         count += 400;
       }
 
-      // for (let i = 0; i < theDayCredentials.length; i++) {
-      //   count += 200;
-      // }
+      for (let i = 0; i < theDayCredentials.length; i++) {
+        count += 2000;
+      }
 
       for (let i = 0; i < theDayTransactions.length; i++) {
         count += 1;
