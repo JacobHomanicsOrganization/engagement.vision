@@ -433,9 +433,24 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
 
-  const [allTimeScore, setAllTimeScore] = useState(0);
+  const GLOBAL_TRANSACTIONS_POINTS = 1;
+  const GLOBAL_WARPCAST_POINTS = 100;
+  const GLOBAL_CREDENTIAL_POINTS = 10;
 
-  useEffect(() => {
+  function getAllTimeCredentialsCount() {
+    const filteredCredentials = credentials.filter((tx: any) => {
+      return tx["onchain_at"] !== null;
+    });
+
+    let count = 0;
+    for (let i = 0; i < filteredCredentials.length; i++) {
+      count += GLOBAL_CREDENTIAL_POINTS;
+    }
+
+    return count;
+  }
+
+  function getAllTimeCastsCount() {
     const filteredCasts = messages?.filter((tx: any) => {
       let isPresent = false;
 
@@ -446,30 +461,76 @@ export default function UserPage({ params }: { params: { chain: string; address:
           }
         }
       }
-      // console.log(txDate);
       return isPresent;
     }) as any;
 
-    const filteredCredentials = credentials.filter((tx: any) => {
-      return tx["onchain_at"] !== null;
-    });
+    let count = 0;
 
+    for (let i = 0; i < filteredCasts.length; i++) {
+      count += GLOBAL_WARPCAST_POINTS;
+    }
+
+    return count;
+  }
+
+  function getAllTimeTransactionCount() {
     let count = 0;
 
     for (let i = 0; i < transactions.length; i++) {
-      count += 1;
+      count += GLOBAL_TRANSACTIONS_POINTS;
     }
 
-    for (let i = 0; i < filteredCredentials.length; i++) {
-      count += 2000;
-    }
+    return count;
+  }
 
-    for (let i = 0; i < filteredCasts.length; i++) {
-      count += 400;
-    }
+  function getAllTimeCount() {
+    let count = 0;
 
-    setAllTimeScore(count);
-  }, [transactions, transactions?.length, messages?.length, credentials?.length]);
+    count += getAllTimeTransactionCount();
+    count += getAllTimeCredentialsCount();
+    count += getAllTimeCastsCount();
+
+    return count;
+  }
+
+  const allTimeScore = getAllTimeCount();
+
+  // const [allTimeScore, setAllTimeScore] = useState(0);
+  // useEffect(() => {
+  //   const filteredCasts = messages?.filter((tx: any) => {
+  //     let isPresent = false;
+
+  //     for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
+  //       for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
+  //         if (tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]) {
+  //           isPresent = true;
+  //         }
+  //       }
+  //     }
+  //     // console.log(txDate);
+  //     return isPresent;
+  //   }) as any;
+
+  //   const filteredCredentials = credentials.filter((tx: any) => {
+  //     return tx["onchain_at"] !== null;
+  //   });
+
+  //   let count = 0;
+
+  //   for (let i = 0; i < transactions.length; i++) {
+  //     count += GLOBAL_TRANSACTIONS_POINTS;
+  //   }
+
+  //   for (let i = 0; i < filteredCredentials.length; i++) {
+  //     count += GLOBAL_CREDENTIAL_POINTS;
+  //   }
+
+  //   for (let i = 0; i < filteredCasts.length; i++) {
+  //     count += GLOBAL_WARPCAST_POINTS;
+  //   }
+
+  //   setAllTimeScore(count);
+  // }, [transactions, transactions?.length, messages?.length, credentials?.length]);
 
   const [yearlyScore, setYearlyScore] = useState(0);
 
@@ -504,22 +565,21 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let count = 0;
 
     for (let i = 0; i < filteredTransactions.length; i++) {
-      count += 1;
+      count += GLOBAL_TRANSACTIONS_POINTS;
     }
 
     for (let i = 0; i < filteredCredentials.length; i++) {
-      count += 2000;
+      count += GLOBAL_CREDENTIAL_POINTS;
     }
 
     for (let i = 0; i < filteredCasts.length; i++) {
-      count += 400;
+      count += GLOBAL_WARPCAST_POINTS;
     }
 
     setYearlyScore(count);
   }, [transactions, transactions?.length, selectedYear, credentials?.length]);
 
   const [totalMonthlyScore, setTotalMonthlyScore] = useState(0);
-
   useEffect(() => {
     const filteredCasts = messages?.filter((tx: any) => {
       const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
@@ -551,26 +611,19 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let count = 0;
 
     for (let i = 0; i < filteredTransactions.length; i++) {
-      count += 1;
+      count += GLOBAL_TRANSACTIONS_POINTS;
     }
 
     for (let i = 0; i < filteredCredentials.length; i++) {
-      count += 2000;
+      count += GLOBAL_CREDENTIAL_POINTS;
     }
 
     for (let i = 0; i < filteredCasts.length; i++) {
-      count += 400;
+      count += GLOBAL_WARPCAST_POINTS;
     }
 
-    // 1728448744;
-    // 1693336885;
-    // 103160891;
     setTotalMonthlyScore(count);
   }, [transactions, transactions?.length, selectedMonth, selectedYear, credentials?.length]);
-
-  // const baseChainObj = {
-  //   mentionFids: [BASE_FID, COINBASE_WALLET_FID],
-  // };
 
   useEffect(() => {
     const randomNumbers = [];
@@ -590,7 +643,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
             }
           }
         }
-        // console.log(txDate);
         return (
           isPresent &&
           txDate.getFullYear() === selectedYear &&
@@ -614,19 +666,16 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
       let count = 0;
 
-      // console.log(messages);
-      // console.log(theDayCasts);
-
       for (let i = 0; i < theDayCasts.length; i++) {
-        count += 400;
+        count += GLOBAL_WARPCAST_POINTS;
       }
 
       for (let i = 0; i < theDayCredentials.length; i++) {
-        count += 2000;
+        count += GLOBAL_CREDENTIAL_POINTS;
       }
 
       for (let i = 0; i < theDayTransactions.length; i++) {
-        count += 1;
+        count += GLOBAL_TRANSACTIONS_POINTS;
       }
 
       randomNumbers.push(count);
