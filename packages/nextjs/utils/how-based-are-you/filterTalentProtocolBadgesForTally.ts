@@ -20,7 +20,13 @@ export function getMonthlyTalentProtocolBadgesTally(array: any[], pointsPer: num
   });
 }
 
-export function getDailyTalentProtocolTally(array: any[], pointsPer: number, year: number, month: number, day: number) {
+export function getDailyTalentProtocolBadgesTally(
+  array: any[],
+  pointsPer: number,
+  year: number,
+  month: number,
+  day: number,
+) {
   return getTallyForFilteredArray(array, pointsPer, (element: any) => {
     const date = new Date(element["onchain_at"]);
     return date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day;
