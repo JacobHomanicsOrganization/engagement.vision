@@ -495,7 +495,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   const dailyTallies = [];
   for (let i = 0; i < numOfDays; i++) {
-    dailyTallies.push(getDailyTally(transactions, selectedYear, selectedMonth, i + 1));
+    const selectedDay = i + 1;
+    dailyTallies.push(getDailyTally(transactions, selectedYear, selectedMonth, selectedDay));
   }
 
   const monthsComponents = dailyTallies.map((value, index) => {
