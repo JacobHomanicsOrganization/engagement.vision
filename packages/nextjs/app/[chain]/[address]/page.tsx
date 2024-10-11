@@ -27,17 +27,17 @@ import {
   getYearlyFarcasterMessagesTally,
 } from "~~/utils/how-based-are-you/filterFarcasterMessagesForTally";
 import {
+  getAllTimeOnchainTransactionsTally,
+  getDailyOnchainTransactionsTally,
+  getMonthlyOnchainTransactionsTally,
+  getYearlyOnchainTransactionsTally,
+} from "~~/utils/how-based-are-you/filterOnchainTransactionsForTally";
+import {
   getAllTimeBadgesTally,
   getDailyBadgesTally,
   getMonthlyBadgesTally,
   getYearlyBadgesTally,
 } from "~~/utils/how-based-are-you/filterTalentProtocolBadgesForTally";
-import {
-  getAllTimeTransactionsTally,
-  getDailyTransactionsTally,
-  getMonthlyTransactionsTally,
-  getYearlyTransactionsTally,
-} from "~~/utils/how-based-are-you/filterTransactionsForTally";
 import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 
 // const BASE_FID = 12142;
@@ -455,7 +455,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
   function getAllTimeTally(transactions: any) {
     let tally = 0;
 
-    tally += getAllTimeTransactionsTally(transactions, POINTS_PER_TRANSACTION);
+    tally += getAllTimeOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION);
     tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain);
     tally += getAllTimeBadgesTally(credentials, POINTS_PER_CREDENTIAL);
 
@@ -465,7 +465,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
   function getYearlyTally(transactions: any, year: number) {
     let tally = 0;
 
-    tally += getYearlyTransactionsTally(transactions, POINTS_PER_TRANSACTION, year);
+    tally += getYearlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year);
     tally += getYearlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year);
     tally += getYearlyBadgesTally(credentials, POINTS_PER_CREDENTIAL, year);
     return tally;
@@ -474,7 +474,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
   function getMonthlyTally(transactions: any, year: number, month: number) {
     let tally = 0;
 
-    tally += getMonthlyTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month);
+    tally += getMonthlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month);
     tally += getMonthlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year, month);
     tally += getMonthlyBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month);
     return tally;
@@ -483,7 +483,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
     let tally = 0;
 
-    tally += getDailyTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month, day);
+    tally += getDailyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month, day);
     tally += getDailyFarcasterMessagesTally(
       farcasterMessages,
       POINTS_PER_FARCASTER_MESSAGE,
