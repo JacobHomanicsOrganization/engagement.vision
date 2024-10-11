@@ -20,6 +20,12 @@ import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
+import {
+  getAllTimeTransactionsPoints,
+  getDailyTransactionsPoints,
+  getMonthlyTransactionsPoints,
+  getYearlyTransactionsPoints,
+} from "~~/utils/how-based-are-you/filterTransactionsForScore";
 import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 
 // const BASE_FID = 12142;
@@ -472,86 +478,39 @@ export default function UserPage({ params }: { params: { chain: string; address:
   //   return count;
   // }
 
-  function getTransactionPoints(
-    transactions: any,
-    pointsPer: number,
-    filterFn: (tx: any) => boolean = () => {
-      return true;
-    },
-  ) {
-    const filteredTransactions = transactions.filter(filterFn) as any;
+  function getAllTimeScore(transactions: any) {
+    let score = 0;
 
-    let count = 0;
-
-    for (let i = 0; i < filteredTransactions.length; i++) {
-      count += pointsPer;
-    }
-
-    return count;
-  }
-
-  function getAllTimeTransactionsPoints(transactions: any, pointsPer: number) {
-    return getTransactionPoints(transactions, pointsPer);
-  }
-
-  function getYearlyTransactionsPoints(transactions: any, pointsPer: number, year: number) {
-    return getTransactionPoints(transactions, pointsPer, (tx: any) => {
-      const txDate = new Date(tx.timeStamp * 1000);
-      return txDate.getFullYear() === year;
-    });
-  }
-
-  function getMonthlyTransactionsPoints(transactions: any, pointsPer: number, year: number, month: number) {
-    return getTransactionPoints(transactions, pointsPer, (tx: any) => {
-      const txDate = new Date(tx.timeStamp * 1000);
-      return txDate.getFullYear() === year && txDate.getMonth() + 1 === month;
-    });
-  }
-
-  function getDailyTransactionsPoints(transactions: any, pointsPer: number, year: number, month: number, day: number) {
-    return getTransactionPoints(transactions, pointsPer, (tx: any) => {
-      const txDate = new Date(tx.timeStamp * 1000);
-
-      const isWithinYear = txDate.getFullYear() === year;
-      const isWithinMonth = txDate.getMonth() + 1 === month;
-      const isWithinDay = txDate.getDate() === day;
-      return isWithinYear && isWithinMonth && isWithinDay;
-    }) as any;
-  }
-
-  function getAllTimeCount(transactions: any) {
-    let count = 0;
-
-    count += getAllTimeTransactionsPoints(transactions, POINTS_PER_TRANSACTION);
+    score += getAllTimeTransactionsPoints(transactions, POINTS_PER_TRANSACTION);
     // count += getAllTimeCredentialsCount();
     // count += getAllTimeCastsCount();
 
-    return count;
+    return score;
   }
 
-  function getYearlyPoints(transactions: any, selectedYear: number) {
-    let count = 0;
+  function getYearlyScore(transactions: any, selectedYear: number) {
+    let score = 0;
 
-    count += getYearlyTransactionsPoints(transactions, POINTS_PER_TRANSACTION, selectedYear);
+    score += getYearlyTransactionsPoints(transactions, POINTS_PER_TRANSACTION, selectedYear);
 
-    return count;
+    return score;
   }
 
-  function getMonthlyPoints(transactions: any, year: number, month: number) {
-    let count = 0;
+  function getMonthlyScore(transactions: any, year: number, month: number) {
+    let score = 0;
 
-    count += getMonthlyTransactionsPoints(transactions, POINTS_PER_TRANSACTION, year, month);
+    score += getMonthlyTransactionsPoints(transactions, POINTS_PER_TRANSACTION, year, month);
 
-    return count;
+    return score;
   }
 
   function getDailyScore(transactions: any, year: number, month: number, day: number) {
     return getDailyTransactionsPoints(transactions, POINTS_PER_TRANSACTION, year, month, day);
   }
 
-  const allTimeScore = getAllTimeCount(transactions);
-  const yearlyScore = getYearlyPoints(transactions, selectedYear);
-  const totalMonthlyScore = getMonthlyPoints(transactions, selectedYear, selectedMonth);
+  const allTimeScore = getAllTimeScore(transactions);
+  const yearlyScore = getYearlyScore(transactions, selectedYear);
+  const totalMonthlyScore = getMonthlyScore(transactions, selectedYear, selectedMonth);
 
   const dailyScores = [];
   for (let i = 0; i < numOfDays; i++) {
