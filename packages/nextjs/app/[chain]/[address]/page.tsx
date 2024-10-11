@@ -21,6 +21,12 @@ import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import {
+  getAllTimeFarcasterMessagesTally,
+  getDailyFarcasterMessagesTally,
+  getMonthlyFarcasterMessagesTally,
+  getYearlyFarcasterMessagesTally,
+} from "~~/utils/how-based-are-you/filterFarcasterMessagesForScore";
+import {
   getAllTimeTransactionsTally,
   getDailyTransactionsTally,
   getMonthlyTransactionsTally,
@@ -439,7 +445,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
   // const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
 
   const POINTS_PER_TRANSACTION = 1;
-  // const POINTS_PER_FARCASTER_MESSAGE = 100;
+  const POINTS_PER_FARCASTER_MESSAGE = 100;
   // const POINTS_PER_CREDENTIAL = 10;
 
   // function getAllTimeCredentialsCount() {
@@ -482,30 +488,44 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let tally = 0;
 
     tally += getAllTimeTransactionsTally(transactions, POINTS_PER_TRANSACTION);
+    tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain);
     // count += getAllTimeCredentialsCount();
     // count += getAllTimeCastsCount();
 
     return tally;
   }
 
-  function getYearlyTally(transactions: any, selectedYear: number) {
-    let score = 0;
+  function getYearlyTally(transactions: any, year: number) {
+    let tally = 0;
 
-    score += getYearlyTransactionsTally(transactions, POINTS_PER_TRANSACTION, selectedYear);
+    tally += getYearlyTransactionsTally(transactions, POINTS_PER_TRANSACTION, year);
+    tally += getYearlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year);
 
-    return score;
+    return tally;
   }
 
   function getMonthlyTally(transactions: any, year: number, month: number) {
-    let score = 0;
+    let tally = 0;
 
-    score += getMonthlyTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month);
+    tally += getMonthlyTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month);
+    tally += getMonthlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year, month);
 
-    return score;
+    return tally;
   }
 
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
-    return getDailyTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month, day);
+    let tally = 0;
+
+    tally += getDailyTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month, day);
+    tally += getDailyFarcasterMessagesTally(
+      farcasterMessages,
+      POINTS_PER_FARCASTER_MESSAGE,
+      chain,
+      selectedYear,
+      selectedMonth,
+      day,
+    );
+    return tally;
   }
 
   const allTimeScore = getAllTimeTally(transactions);

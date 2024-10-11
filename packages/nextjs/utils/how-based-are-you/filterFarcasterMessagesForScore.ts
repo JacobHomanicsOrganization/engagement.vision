@@ -1,30 +1,94 @@
 import { getTallyForFilteredArray } from "./getTallyForFilteredArray";
+import { Chain } from "viem";
 
-export function getAllTimeTransactionsTally(array: [], pointsPer: number) {
-  return getTallyForFilteredArray(array, pointsPer);
-}
+const FARCASTER_START_EPOCH = 1609459200;
 
-export function getYearlyTransactionsTally(array: [], pointsPer: number, year: number) {
+const chainsObjs = {
+  Base: {
+    mentionFids: [
+      12142, //Base,
+      309857, //Coinbase Wallet
+    ],
+  },
+};
+
+export function getAllTimeFarcasterMessagesTally(array: any[], pointsPer: number, chain: Chain) {
   return getTallyForFilteredArray(array, pointsPer, (element: any) => {
-    const date = new Date(element.timeStamp * 1000);
-    return date.getFullYear() === year;
+    let isPresent = false;
+
+    for (let i = 0; i < element.data.castAddBody?.mentions.length; i++) {
+      for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
+        if (
+          element.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]
+        ) {
+          isPresent = true;
+        }
+      }
+    }
+    return isPresent;
   });
 }
 
-export function getMonthlyTransactionsTally(array: [], pointsPer: number, year: number, month: number) {
+export function getYearlyFarcasterMessagesTally(array: any[], pointsPer: number, chain: Chain, year: number) {
   return getTallyForFilteredArray(array, pointsPer, (element: any) => {
-    const date = new Date(element.timeStamp * 1000);
-    return date.getFullYear() === year && date.getMonth() + 1 === month;
+    const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
+    let isPresent = false;
+    for (let i = 0; i < element.data.castAddBody?.mentions.length; i++) {
+      for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
+        if (
+          element.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]
+        ) {
+          isPresent = true;
+        }
+      }
+    }
+    return isPresent && date.getFullYear() === year;
   });
 }
 
-export function getDailyTransactionsTally(array: [], pointsPer: number, year: number, month: number, day: number) {
+export function getMonthlyFarcasterMessagesTally(
+  array: any[],
+  pointsPer: number,
+  chain: Chain,
+  year: number,
+  month: number,
+) {
   return getTallyForFilteredArray(array, pointsPer, (element: any) => {
-    const date = new Date(element.timeStamp * 1000);
+    const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
+    let isPresent = false;
+    for (let i = 0; i < element.data.castAddBody?.mentions.length; i++) {
+      for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
+        if (
+          element.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]
+        ) {
+          isPresent = true;
+        }
+      }
+    }
+    return isPresent && date.getFullYear() === year && date.getMonth() + 1 === month;
+  });
+}
 
-    const isWithinYear = date.getFullYear() === year;
-    const isWithinMonth = date.getMonth() + 1 === month;
-    const isWithinDay = date.getDate() === day;
-    return isWithinYear && isWithinMonth && isWithinDay;
+export function getDailyFarcasterMessagesTally(
+  array: any[],
+  pointsPer: number,
+  chain: Chain,
+  year: number,
+  month: number,
+  day: number,
+) {
+  return getTallyForFilteredArray(array, pointsPer, (element: any) => {
+    const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
+    let isPresent = false;
+    for (let i = 0; i < element.data.castAddBody?.mentions.length; i++) {
+      for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
+        if (
+          element.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]
+        ) {
+          isPresent = true;
+        }
+      }
+    }
+    return isPresent && date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day;
   });
 }
