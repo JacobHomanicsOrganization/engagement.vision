@@ -474,6 +474,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   function getTransactionPoints(
     transactions: any,
+    pointsPer: number,
     filterFn: (tx: any) => boolean = () => {
       return true;
     },
@@ -483,32 +484,32 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let count = 0;
 
     for (let i = 0; i < filteredTransactions.length; i++) {
-      count += POINTS_PER_TRANSACTION;
+      count += pointsPer;
     }
 
     return count;
   }
 
-  function getAllTimeTransactionsPoints(transactions: any) {
-    return getTransactionPoints(transactions);
+  function getAllTimeTransactionsPoints(transactions: any, pointsPer: number) {
+    return getTransactionPoints(transactions, pointsPer);
   }
 
-  function getYearlyTransactionsPoints(transactions: any, year: number) {
-    return getTransactionPoints(transactions, (tx: any) => {
+  function getYearlyTransactionsPoints(transactions: any, pointsPer: number, year: number) {
+    return getTransactionPoints(transactions, pointsPer, (tx: any) => {
       const txDate = new Date(tx.timeStamp * 1000);
       return txDate.getFullYear() === year;
     });
   }
 
-  function getMonthlyTransactionsPoints(transactions: any, year: number, month: number) {
-    return getTransactionPoints(transactions, (tx: any) => {
+  function getMonthlyTransactionsPoints(transactions: any, pointsPer: number, year: number, month: number) {
+    return getTransactionPoints(transactions, pointsPer, (tx: any) => {
       const txDate = new Date(tx.timeStamp * 1000);
       return txDate.getFullYear() === year && txDate.getMonth() + 1 === month;
     });
   }
 
-  function getDailyTransactionsPoints(transactions: any, year: number, month: number, day: number) {
-    return getTransactionPoints(transactions, (tx: any) => {
+  function getDailyTransactionsPoints(transactions: any, pointsPer: number, year: number, month: number, day: number) {
+    return getTransactionPoints(transactions, pointsPer, (tx: any) => {
       const txDate = new Date(tx.timeStamp * 1000);
 
       const isWithinYear = txDate.getFullYear() === year;
@@ -521,7 +522,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
   function getAllTimeCount(transactions: any) {
     let count = 0;
 
-    count += getAllTimeTransactionsPoints(transactions);
+    count += getAllTimeTransactionsPoints(transactions, POINTS_PER_TRANSACTION);
     // count += getAllTimeCredentialsCount();
     // count += getAllTimeCastsCount();
 
@@ -531,21 +532,21 @@ export default function UserPage({ params }: { params: { chain: string; address:
   function getYearlyPoints(transactions: any, selectedYear: number) {
     let count = 0;
 
-    count += getYearlyTransactionsPoints(transactions, selectedYear);
+    count += getYearlyTransactionsPoints(transactions, POINTS_PER_TRANSACTION, selectedYear);
 
     return count;
   }
 
-  function getMonthlyPoints(transactions: any, selectedYear: number, selectedMonth: number) {
+  function getMonthlyPoints(transactions: any, year: number, month: number) {
     let count = 0;
 
-    count += getMonthlyTransactionsPoints(transactions, selectedYear, selectedMonth);
+    count += getMonthlyTransactionsPoints(transactions, POINTS_PER_TRANSACTION, year, month);
 
     return count;
   }
 
   function getDailyScore(transactions: any, year: number, month: number, day: number) {
-    return getDailyTransactionsPoints(transactions, selectedYear, selectedMonth, day);
+    return getDailyTransactionsPoints(transactions, POINTS_PER_TRANSACTION, year, month, day);
   }
 
   const allTimeScore = getAllTimeCount(transactions);
