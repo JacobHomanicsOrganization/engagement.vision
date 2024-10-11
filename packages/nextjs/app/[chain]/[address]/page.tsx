@@ -21,11 +21,11 @@ import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import {
-  getAllTimeTransactionsPoints,
-  getDailyTransactionsPoints,
-  getMonthlyTransactionsPoints,
-  getYearlyTransactionsPoints,
-} from "~~/utils/how-based-are-you/filterTransactionsForScore";
+  getAllTimeTransactionsTally,
+  getDailyTransactionsTally,
+  getMonthlyTransactionsTally,
+  getYearlyTransactionsTally,
+} from "~~/utils/how-based-are-you/filterTransactionsTally";
 import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 
 // const BASE_FID = 12142;
@@ -478,43 +478,43 @@ export default function UserPage({ params }: { params: { chain: string; address:
   //   return count;
   // }
 
-  function getAllTimeScore(transactions: any) {
-    let score = 0;
+  function getAllTimeTally(transactions: any) {
+    let tally = 0;
 
-    score += getAllTimeTransactionsPoints(transactions, POINTS_PER_TRANSACTION);
+    tally += getAllTimeTransactionsTally(transactions, POINTS_PER_TRANSACTION);
     // count += getAllTimeCredentialsCount();
     // count += getAllTimeCastsCount();
 
-    return score;
+    return tally;
   }
 
-  function getYearlyScore(transactions: any, selectedYear: number) {
+  function getYearlyTally(transactions: any, selectedYear: number) {
     let score = 0;
 
-    score += getYearlyTransactionsPoints(transactions, POINTS_PER_TRANSACTION, selectedYear);
+    score += getYearlyTransactionsTally(transactions, POINTS_PER_TRANSACTION, selectedYear);
 
     return score;
   }
 
-  function getMonthlyScore(transactions: any, year: number, month: number) {
+  function getMonthlyTally(transactions: any, year: number, month: number) {
     let score = 0;
 
-    score += getMonthlyTransactionsPoints(transactions, POINTS_PER_TRANSACTION, year, month);
+    score += getMonthlyTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month);
 
     return score;
   }
 
-  function getDailyScore(transactions: any, year: number, month: number, day: number) {
-    return getDailyTransactionsPoints(transactions, POINTS_PER_TRANSACTION, year, month, day);
+  function getDailyTally(transactions: any, year: number, month: number, day: number) {
+    return getDailyTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month, day);
   }
 
-  const allTimeScore = getAllTimeScore(transactions);
-  const yearlyScore = getYearlyScore(transactions, selectedYear);
-  const totalMonthlyScore = getMonthlyScore(transactions, selectedYear, selectedMonth);
+  const allTimeScore = getAllTimeTally(transactions);
+  const yearlyTally = getYearlyTally(transactions, selectedYear);
+  const totalMonthlyTally = getMonthlyTally(transactions, selectedYear, selectedMonth);
 
-  const dailyScores = [];
+  const dailyTallies = [];
   for (let i = 0; i < numOfDays; i++) {
-    dailyScores.push(getDailyScore(transactions, selectedYear, selectedMonth, i + 1));
+    dailyTallies.push(getDailyTally(transactions, selectedYear, selectedMonth, i + 1));
   }
 
   useEffect(() => {
@@ -644,7 +644,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     chain?.id,
   ]);
 
-  const monthsComponents = dailyScores.map((value, index) => {
+  const monthsComponents = dailyTallies.map((value, index) => {
     return (
       <div className="m-0.5 md:m-1" key={index}>
         <DayCard day={index + 1} score={value} />
@@ -671,8 +671,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
       <div className="bg-secondary rounded-lg">
         <div className="p-1 md:p-4">
           <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">
-            <Score title="Monthly Score" score={totalMonthlyScore} />
-            <Score title="Yearly Score" score={yearlyScore} />
+            <Score title="Monthly Score" score={totalMonthlyTally} />
+            <Score title="Yearly Score" score={yearlyTally} />
             <Score title="All Time Score" score={allTimeScore} />
           </div>
 
