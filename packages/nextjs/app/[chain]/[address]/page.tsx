@@ -484,14 +484,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let tally = 0;
 
     tally += getDailyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month, day);
-    tally += getDailyFarcasterMessagesTally(
-      farcasterMessages,
-      POINTS_PER_FARCASTER_MESSAGE,
-      chain,
-      selectedYear,
-      selectedMonth,
-      day,
-    );
+    tally += getDailyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year, month, day);
     tally += getDailyTalentProtocolTally(credentials, POINTS_PER_CREDENTIAL, year, month, day);
     return tally;
   }
