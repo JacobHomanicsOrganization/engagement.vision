@@ -25,13 +25,13 @@ import {
   getDailyFarcasterMessagesTally,
   getMonthlyFarcasterMessagesTally,
   getYearlyFarcasterMessagesTally,
-} from "~~/utils/how-based-are-you/filterFarcasterMessagesForScore";
+} from "~~/utils/how-based-are-you/filterFarcasterMessagesForTally";
 import {
   getAllTimeTransactionsTally,
   getDailyTransactionsTally,
   getMonthlyTransactionsTally,
   getYearlyTransactionsTally,
-} from "~~/utils/how-based-are-you/filterTransactionsTally";
+} from "~~/utils/how-based-are-you/filterTransactionsForTally";
 import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 
 // const BASE_FID = 12142;
