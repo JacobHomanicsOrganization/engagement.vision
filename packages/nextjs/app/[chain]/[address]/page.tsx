@@ -301,6 +301,9 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   let transactionOutput;
   if (isError) {
+    console.log("ERROR");
+    console.log(errorMessage);
+
     transactionOutput = <div>{errorMessage}</div>;
   } else {
     transactionOutput = (
