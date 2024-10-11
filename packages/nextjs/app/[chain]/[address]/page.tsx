@@ -32,11 +32,11 @@ import {
   getMonthlyOnchainTransactionsTally,
   getYearlyOnchainTransactionsTally,
 } from "~~/utils/how-based-are-you/filterOnchainTransactionsForTally";
-import {
-  getAllTimeTalentProtocolBadgesTally, // getDailyTalentProtocolBadgesTally,
-  // getMonthlyTalentProtocolBadgesTally,
-  // getYearlyTalentProtocolBadgesTally,
-} from "~~/utils/how-based-are-you/filterTalentProtocolBadgesForTally";
+// import {
+//   getAllTimeTalentProtocolBadgesTally, // getDailyTalentProtocolBadgesTally,
+//   getMonthlyTalentProtocolBadgesTally,
+//   getYearlyTalentProtocolBadgesTally,
+// } from "~~/utils/how-based-are-you/filterTalentProtocolBadgesForTally";
 import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 
 // const BASE_FID = 12142;
@@ -415,7 +415,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
       const result = await getPassport(chosenProfile.addr || "");
 
       const result2 = await getPassportCredentials(result.passport["passport_id"]);
-      setCredentials(result2["passport_credentials"]);
+      // setCredentials(result2["passport_credentials"]);
 
       const validPassports = result2["passport_credentials"].filter((x: any) => {
         return x["onchain_at"] !== null;
@@ -438,7 +438,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   const [farcasterMessages, setFarcasterMessages] = useState([]);
 
-  const [credentials, setCredentials] = useState([]);
+  // const [credentials, setCredentials] = useState([]);
 
   const numOfDays = 31;
 
@@ -447,16 +447,16 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   const { transactions, isError, errorMessage } = useTransactions({ chainId: chain?.id, address: profile?.addr });
 
-  const POINTS_PER_TRANSACTION = 1;
-  const POINTS_PER_FARCASTER_MESSAGE = 100;
-  const POINTS_PER_CREDENTIAL = 10;
+  const POINTS_PER_TRANSACTION = 100;
+  const POINTS_PER_FARCASTER_MESSAGE = 25;
+  // const POINTS_PER_CREDENTIAL = 10;
 
   function getAllTimeTally(transactions: any) {
     let tally = 0;
 
     tally += getAllTimeOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION);
     tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain);
-    tally += getAllTimeTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL);
+    // tally += getAllTimeTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL);
 
     return tally;
   }
@@ -480,12 +480,27 @@ export default function UserPage({ params }: { params: { chain: string; address:
   }
 
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
-    let tally = 0;
-
-    tally += getDailyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month, day);
-    tally += getDailyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year, month, day);
+    const onchainTransactionTally = getDailyOnchainTransactionsTally(
+      transactions,
+      POINTS_PER_TRANSACTION,
+      year,
+      month,
+      day,
+    );
+    const farcasterMessagesTally = getDailyFarcasterMessagesTally(
+      farcasterMessages,
+      POINTS_PER_FARCASTER_MESSAGE,
+      chain,
+      year,
+      month,
+      day,
+    );
     // tally += getDailyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month, day);
-    return tally;
+    return {
+      totalTally: onchainTransactionTally + farcasterMessagesTally,
+      onchainTransactionTally,
+      farcasterMessagesTally,
+    };
   }
 
   const allTimeScore = getAllTimeTally(transactions);
@@ -495,13 +510,46 @@ export default function UserPage({ params }: { params: { chain: string; address:
   const dailyTallies = [];
   for (let i = 0; i < numOfDays; i++) {
     const selectedDay = i + 1;
-    dailyTallies.push(getDailyTally(transactions, selectedYear, selectedMonth, selectedDay));
+    const { totalTally, onchainTransactionTally, farcasterMessagesTally } = getDailyTally(
+      transactions,
+      selectedYear,
+      selectedMonth,
+      selectedDay,
+    );
+
+    dailyTallies.push({ totalTally, onchainTransactionTally, farcasterMessagesTally });
   }
 
   const monthsComponents = dailyTallies.map((value, index) => {
+    const sources = [];
+    if (value.farcasterMessagesTally > 0) {
+      sources.push(
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          alt="Logo"
+          src={`/farcaster.webp`}
+          className="h-[25px] rounded-lg"
+          style={{ aspectRatio: "1 / 1" }}
+          key={"source" + sources.length}
+        />,
+      );
+    }
+    if (value.onchainTransactionTally) {
+      sources.push(
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          alt="Logo"
+          src={`/etherscan.png`}
+          className="h-[25px] rounded-lg"
+          style={{ aspectRatio: "1 / 1" }}
+          key={"source" + sources.length}
+        />,
+      );
+    }
+
     return (
       <div className="m-0.5 md:m-1" key={index}>
-        <DayCard day={index + 1} score={value} />
+        <DayCard day={index + 1} score={value.totalTally} sources={sources} />
       </div>
     );
   });
@@ -521,13 +569,32 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     transactionOutput = <div>{errorMessage}</div>;
   } else {
+    function customNotation(num: any) {
+      if (num < 1000) {
+        return num.toString(); // Return the number as a string if it's less than 1000
+      }
+
+      const units = ["K", "M", "B", "T"]; // K = Thousand, M = Million, B = Billion, T = Trillion
+      let index = 0; // Index for the units
+      let result = num;
+
+      // Loop to find the appropriate unit
+      while (result >= 1000 && index < units.length) {
+        result /= 1000;
+        index++;
+      }
+
+      // Format the result to one decimal place if necessary
+      return `${result.toFixed(1)}${units[index - 1] || ""}`;
+    }
+
     transactionOutput = (
       <div className="bg-secondary rounded-lg">
         <div className="p-1 md:p-4">
           <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">
-            <Score title="Monthly Score" score={totalMonthlyTally} />
-            <Score title="Yearly Score" score={yearlyTally} />
-            <Score title="All Time Score" score={allTimeScore} />
+            <Score title="Monthly Score" score={customNotation(totalMonthlyTally)} />
+            <Score title="Yearly Score" score={customNotation(yearlyTally)} />
+            <Score title="All Time Score" score={customNotation(allTimeScore)} />
           </div>
 
           <div className="flex flex-col bg-base-100">
