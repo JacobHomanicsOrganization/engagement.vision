@@ -58,23 +58,23 @@ import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 //   return Math.floor(Math.random() * (max - min + 1)) + min;
 // }
 
-const getPassport = async (username: string) => {
-  try {
-    const response = await axios.get(`/api/talent-protocol/passport/${username}`);
-    return response.data;
-  } catch (err) {
-    console.log(err);
-  }
-};
+// const getPassport = async (username: string) => {
+//   try {
+//     const response = await axios.get(`/api/talent-protocol/passport/${username}`);
+//     return response.data;
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
 
-const getPassportCredentials = async (username: string) => {
-  try {
-    const response = await axios.get(`/api/talent-protocol/credentials/${username}`);
-    return response.data;
-  } catch (err) {
-    console.log(err);
-  }
-};
+// const getPassportCredentials = async (username: string) => {
+//   try {
+//     const response = await axios.get(`/api/talent-protocol/credentials/${username}`);
+//     return response.data;
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
 
 const getUserWarpcastFid = async (username: string) => {
   const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
@@ -412,16 +412,16 @@ export default function UserPage({ params }: { params: { chain: string; address:
         }
       }
 
-      const result = await getPassport(chosenProfile.addr || "");
+      // const result = await getPassport(chosenProfile.addr || "");
 
-      const result2 = await getPassportCredentials(result.passport["passport_id"]);
+      // const result2 = await getPassportCredentials(result.passport["passport_id"]);
       // setCredentials(result2["passport_credentials"]);
 
-      const validPassports = result2["passport_credentials"].filter((x: any) => {
-        return x["onchain_at"] !== null;
-      });
+      // const validPassports = result2["passport_credentials"].filter((x: any) => {
+      //   return x["onchain_at"] !== null;
+      // });
 
-      console.log(validPassports);
+      // console.log(validPassports);
       // for (let i = 0; i < result2["passport_credentials"].length; i++) {
       //   if (result2["passport_credentials"][i]["onchain_at"] !== null) {
       //     console.log(result2["passport_credentials"][i]);
