@@ -24,16 +24,16 @@ import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 
 // const BASE_FID = 12142;
 // const COINBASE_WALLET_FID = 309857;
-const FARCASTER_START_EPOCH = 1609459200;
+// const FARCASTER_START_EPOCH = 1609459200;
 
-const chainsObjs = {
-  Base: {
-    mentionFids: [
-      12142, //Base,
-      309857, //Coinbase Wallet
-    ],
-  },
-};
+// const chainsObjs = {
+//   Base: {
+//     mentionFids: [
+//       12142, //Base,
+//       309857, //Coinbase Wallet
+//     ],
+//   },
+// };
 
 // function getRandomInt(min: number, max: number): number {
 //   min = Math.ceil(min); // Ensure the minimum is rounded up
@@ -391,7 +391,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
             return x;
           });
 
-          setMessages(msgs);
+          setFarcasterMessages(msgs);
         }
       }
 
@@ -419,8 +419,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     fetchData();
   }, [chain, chain?.id, params.address]);
 
-  const [messages, setMessages] = useState([]);
-  // console.log(messages);
+  const [farcasterMessages, setFarcasterMessages] = useState([]);
 
   const [credentials, setCredentials] = useState([]);
 
@@ -431,73 +430,27 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   const { transactions, isError, errorMessage } = useTransactions({ chainId: chain?.id, address: profile?.addr });
 
-  const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
+  // const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
 
-  const GLOBAL_TRANSACTIONS_POINTS = 1;
-  const GLOBAL_WARPCAST_POINTS = 100;
-  const GLOBAL_CREDENTIAL_POINTS = 10;
+  const POINTS_PER_TRANSACTION = 1;
+  // const POINTS_PER_FARCASTER_MESSAGE = 100;
+  // const POINTS_PER_CREDENTIAL = 10;
 
-  function getAllTimeCredentialsCount() {
-    const filteredCredentials = credentials.filter((tx: any) => {
-      return tx["onchain_at"] !== null;
-    });
+  // function getAllTimeCredentialsCount() {
+  //   const filteredCredentials = credentials.filter((tx: any) => {
+  //     return tx["onchain_at"] !== null;
+  //   });
 
-    let count = 0;
-    for (let i = 0; i < filteredCredentials.length; i++) {
-      count += GLOBAL_CREDENTIAL_POINTS;
-    }
+  //   let count = 0;
+  //   for (let i = 0; i < filteredCredentials.length; i++) {
+  //     count += POINTS_PER_CREDENTIAL;
+  //   }
 
-    return count;
-  }
+  //   return count;
+  // }
 
-  function getAllTimeCastsCount() {
-    const filteredCasts = messages?.filter((tx: any) => {
-      let isPresent = false;
-
-      for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
-        for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
-          if (tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]) {
-            isPresent = true;
-          }
-        }
-      }
-      return isPresent;
-    }) as any;
-
-    let count = 0;
-
-    for (let i = 0; i < filteredCasts.length; i++) {
-      count += GLOBAL_WARPCAST_POINTS;
-    }
-
-    return count;
-  }
-
-  function getAllTimeTransactionCount() {
-    let count = 0;
-
-    for (let i = 0; i < transactions.length; i++) {
-      count += GLOBAL_TRANSACTIONS_POINTS;
-    }
-
-    return count;
-  }
-
-  function getAllTimeCount() {
-    let count = 0;
-
-    count += getAllTimeTransactionCount();
-    count += getAllTimeCredentialsCount();
-    count += getAllTimeCastsCount();
-
-    return count;
-  }
-
-  const allTimeScore = getAllTimeCount();
-
-  // const [allTimeScore, setAllTimeScore] = useState(0);
-  // useEffect(() => {
-  //   const filteredCasts = messages?.filter((tx: any) => {
+  // function getAllTimeCastsCount() {
+  //   const filteredCasts = farcasterMessages?.filter((tx: any) => {
   //     let isPresent = false;
 
   //     for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
@@ -507,181 +460,219 @@ export default function UserPage({ params }: { params: { chain: string; address:
   //         }
   //       }
   //     }
-  //     // console.log(txDate);
   //     return isPresent;
   //   }) as any;
 
-  //   const filteredCredentials = credentials.filter((tx: any) => {
-  //     return tx["onchain_at"] !== null;
-  //   });
-
   //   let count = 0;
 
-  //   for (let i = 0; i < transactions.length; i++) {
-  //     count += GLOBAL_TRANSACTIONS_POINTS;
-  //   }
-
-  //   for (let i = 0; i < filteredCredentials.length; i++) {
-  //     count += GLOBAL_CREDENTIAL_POINTS;
-  //   }
-
   //   for (let i = 0; i < filteredCasts.length; i++) {
-  //     count += GLOBAL_WARPCAST_POINTS;
+  //     count += POINTS_PER_FARCASTER_MESSAGE;
   //   }
 
-  //   setAllTimeScore(count);
-  // }, [transactions, transactions?.length, messages?.length, credentials?.length]);
+  //   return count;
+  // }
 
-  const [yearlyScore, setYearlyScore] = useState(0);
-
-  useEffect(() => {
-    const filteredCasts = messages?.filter((tx: any) => {
-      const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
-
-      let isPresent = false;
-
-      for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
-        for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
-          if (tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]) {
-            isPresent = true;
-          }
-        }
-      }
-      // console.log(txDate);
-      return isPresent && txDate.getFullYear() === selectedYear;
-    }) as any;
-
-    const filteredCredentials = credentials.filter((tx: any) => {
-      const date = new Date(tx["onchain_at"]);
-
-      return date.getFullYear() === selectedYear;
-    });
-
-    const filteredTransactions = transactions.filter((tx: any) => {
-      const txDate = new Date(tx.timeStamp * 1000);
-      return txDate.getFullYear() === selectedYear;
-    }) as any;
+  function getTransactionPoints(
+    transactions: any,
+    filterFn: (tx: any) => boolean = () => {
+      return true;
+    },
+  ) {
+    const filteredTransactions = transactions.filter(filterFn) as any;
 
     let count = 0;
 
     for (let i = 0; i < filteredTransactions.length; i++) {
-      count += GLOBAL_TRANSACTIONS_POINTS;
+      count += POINTS_PER_TRANSACTION;
     }
 
-    for (let i = 0; i < filteredCredentials.length; i++) {
-      count += GLOBAL_CREDENTIAL_POINTS;
-    }
+    return count;
+  }
 
-    for (let i = 0; i < filteredCasts.length; i++) {
-      count += GLOBAL_WARPCAST_POINTS;
-    }
+  function getAllTimeTransactionsPoints(transactions: any) {
+    return getTransactionPoints(transactions);
+  }
 
-    setYearlyScore(count);
+  function getYearlyTransactionsPoints(transactions: any, year: number) {
+    return getTransactionPoints(transactions, (tx: any) => {
+      const txDate = new Date(tx.timeStamp * 1000);
+      return txDate.getFullYear() === year;
+    });
+  }
+
+  function getMonthlyTransactionsPoints(transactions: any, year: number, month: number) {
+    return getTransactionPoints(transactions, (tx: any) => {
+      const txDate = new Date(tx.timeStamp * 1000);
+      return txDate.getFullYear() === year && txDate.getMonth() + 1 === month;
+    });
+  }
+
+  function getDailyTransactionsPoints(transactions: any, year: number, month: number, day: number) {
+    return getTransactionPoints(transactions, (tx: any) => {
+      const txDate = new Date(tx.timeStamp * 1000);
+
+      const isWithinYear = txDate.getFullYear() === year;
+      const isWithinMonth = txDate.getMonth() + 1 === month;
+      const isWithinDay = txDate.getDate() === day;
+      return isWithinYear && isWithinMonth && isWithinDay;
+    }) as any;
+  }
+
+  function getAllTimeCount(transactions: any) {
+    let count = 0;
+
+    count += getAllTimeTransactionsPoints(transactions);
+    // count += getAllTimeCredentialsCount();
+    // count += getAllTimeCastsCount();
+
+    return count;
+  }
+
+  function getYearlyPoints(transactions: any, selectedYear: number) {
+    let count = 0;
+
+    count += getYearlyTransactionsPoints(transactions, selectedYear);
+
+    return count;
+  }
+
+  function getMonthlyPoints(transactions: any, selectedYear: number, selectedMonth: number) {
+    let count = 0;
+
+    count += getMonthlyTransactionsPoints(transactions, selectedYear, selectedMonth);
+
+    return count;
+  }
+
+  function getDailyScore(transactions: any, year: number, month: number, day: number) {
+    return getDailyTransactionsPoints(transactions, selectedYear, selectedMonth, day);
+  }
+
+  const allTimeScore = getAllTimeCount(transactions);
+  const yearlyScore = getYearlyPoints(transactions, selectedYear);
+  const totalMonthlyScore = getMonthlyPoints(transactions, selectedYear, selectedMonth);
+
+  const dailyScores = [];
+  for (let i = 0; i < numOfDays; i++) {
+    dailyScores.push(getDailyScore(transactions, selectedYear, selectedMonth, i + 1));
+  }
+
+  useEffect(() => {
+    // const filteredCasts = farcasterMessages?.filter((tx: any) => {
+    //   const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
+    //   let isPresent = false;
+    //   for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
+    //     for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
+    //       if (tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]) {
+    //         isPresent = true;
+    //       }
+    //     }
+    //   }
+    //   // console.log(txDate);
+    //   return isPresent && txDate.getFullYear() === selectedYear;
+    // }) as any;
+    // const filteredCredentials = credentials.filter((tx: any) => {
+    //   const date = new Date(tx["onchain_at"]);
+    //   return date.getFullYear() === selectedYear;
+    // });
+    // const filteredTransactions = transactions.filter((tx: any) => {
+    //   const txDate = new Date(tx.timeStamp * 1000);
+    //   return txDate.getFullYear() === selectedYear;
+    // }) as any;
+    // let count = 0;
+    // for (let i = 0; i < filteredTransactions.length; i++) {
+    //   count += POINTS_PER_TRANSACTION;
+    // }
+    // for (let i = 0; i < filteredCredentials.length; i++) {
+    //   count += POINTS_PER_CREDENTIAL;
+    // }
+    // for (let i = 0; i < filteredCasts.length; i++) {
+    //   count += POINTS_PER_FARCASTER_MESSAGE;
+    // }
+    // setYearlyScore(count);
   }, [transactions, transactions?.length, selectedYear, credentials?.length]);
 
-  const [totalMonthlyScore, setTotalMonthlyScore] = useState(0);
+  // const [totalMonthlyScore, setTotalMonthlyScore] = useState(0);
   useEffect(() => {
-    const filteredCasts = messages?.filter((tx: any) => {
-      const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
-
-      let isPresent = false;
-
-      for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
-        for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
-          if (tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]) {
-            isPresent = true;
-          }
-        }
-      }
-      // console.log(txDate);
-      return isPresent && txDate.getFullYear() === selectedYear && txDate.getMonth() + 1 === selectedMonth;
-    }) as any;
-
-    const filteredCredentials = credentials.filter((tx: any) => {
-      const date = new Date(tx["onchain_at"]);
-
-      return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth;
-    });
-
-    const filteredTransactions = transactions.filter((tx: any) => {
-      const txDate = new Date(tx.timeStamp * 1000);
-      return txDate.getFullYear() === selectedYear && txDate.getMonth() + 1 === selectedMonth;
-    }) as any;
-
-    let count = 0;
-
-    for (let i = 0; i < filteredTransactions.length; i++) {
-      count += GLOBAL_TRANSACTIONS_POINTS;
-    }
-
-    for (let i = 0; i < filteredCredentials.length; i++) {
-      count += GLOBAL_CREDENTIAL_POINTS;
-    }
-
-    for (let i = 0; i < filteredCasts.length; i++) {
-      count += GLOBAL_WARPCAST_POINTS;
-    }
-
-    setTotalMonthlyScore(count);
+    // const filteredCasts = farcasterMessages?.filter((tx: any) => {
+    //   const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
+    //   let isPresent = false;
+    //   for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
+    //     for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
+    //       if (tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]) {
+    //         isPresent = true;
+    //       }
+    //     }
+    //   }
+    //   // console.log(txDate);
+    //   return isPresent && txDate.getFullYear() === selectedYear && txDate.getMonth() + 1 === selectedMonth;
+    // }) as any;
+    // const filteredCredentials = credentials.filter((tx: any) => {
+    //   const date = new Date(tx["onchain_at"]);
+    //   return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth;
+    // });
+    // const filteredTransactions = transactions.filter((tx: any) => {
+    //   const txDate = new Date(tx.timeStamp * 1000);
+    //   return txDate.getFullYear() === selectedYear && txDate.getMonth() + 1 === selectedMonth;
+    // }) as any;
+    // let count = 0;
+    // for (let i = 0; i < filteredTransactions.length; i++) {
+    //   count += POINTS_PER_TRANSACTION;
+    // }
+    // for (let i = 0; i < filteredCredentials.length; i++) {
+    //   count += POINTS_PER_CREDENTIAL;
+    // }
+    // for (let i = 0; i < filteredCasts.length; i++) {
+    //   count += POINTS_PER_FARCASTER_MESSAGE;
+    // }
+    // setTotalMonthlyScore(count);
   }, [transactions, transactions?.length, selectedMonth, selectedYear, credentials?.length]);
 
   useEffect(() => {
-    const randomNumbers = [];
-
-    for (let i = 0; i < numOfDays; i++) {
-      const theDayCasts = messages?.filter((tx: any) => {
-        const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
-
-        let isPresent = false;
-
-        for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
-          for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
-            if (
-              tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]
-            ) {
-              isPresent = true;
-            }
-          }
-        }
-        return (
-          isPresent &&
-          txDate.getFullYear() === selectedYear &&
-          txDate.getMonth() + 1 === selectedMonth &&
-          txDate.getDate() === i + 1
-        );
-      }) as any;
-
-      const theDayCredentials = credentials.filter((tx: any) => {
-        const date = new Date(tx["onchain_at"]);
-
-        return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth && date.getDate() === i + 1;
-      });
-
-      const theDayTransactions = transactions.filter((tx: any) => {
-        const txDate = new Date(tx.timeStamp * 1000);
-        return (
-          txDate.getFullYear() === selectedYear && txDate.getMonth() + 1 === selectedMonth && txDate.getDate() === i + 1
-        );
-      }) as any;
-
-      let count = 0;
-
-      for (let i = 0; i < theDayCasts.length; i++) {
-        count += GLOBAL_WARPCAST_POINTS;
-      }
-
-      for (let i = 0; i < theDayCredentials.length; i++) {
-        count += GLOBAL_CREDENTIAL_POINTS;
-      }
-
-      for (let i = 0; i < theDayTransactions.length; i++) {
-        count += GLOBAL_TRANSACTIONS_POINTS;
-      }
-
-      randomNumbers.push(count);
-    }
-
-    setRandomNumbers([...randomNumbers]);
+    // const randomNumbers = [];
+    // for (let i = 0; i < numOfDays; i++) {
+    //   const theDayCasts = farcasterMessages?.filter((tx: any) => {
+    //     const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
+    //     let isPresent = false;
+    //     for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
+    //       for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
+    //         if (
+    //           tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]
+    //         ) {
+    //           isPresent = true;
+    //         }
+    //       }
+    //     }
+    //     return (
+    //       isPresent &&
+    //       txDate.getFullYear() === selectedYear &&
+    //       txDate.getMonth() + 1 === selectedMonth &&
+    //       txDate.getDate() === i + 1
+    //     );
+    //   }) as any;
+    //   const theDayCredentials = credentials.filter((tx: any) => {
+    //     const date = new Date(tx["onchain_at"]);
+    //     return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth && date.getDate() === i + 1;
+    //   });
+    //   const theDayTransactions = transactions.filter((tx: any) => {
+    //     const txDate = new Date(tx.timeStamp * 1000);
+    //     return (
+    //       txDate.getFullYear() === selectedYear && txDate.getMonth() + 1 === selectedMonth && txDate.getDate() === i + 1
+    //     );
+    //   }) as any;
+    //   let count = 0;
+    //   for (let i = 0; i < theDayTransactions.length; i++) {
+    //     count += POINTS_PER_TRANSACTION;
+    //   }
+    // for (let i = 0; i < theDayCasts.length; i++) {
+    //   count += POINTS_PER_FARCASTER_MESSAGE;
+    // }
+    // for (let i = 0; i < theDayCredentials.length; i++) {
+    //   count += POINTS_PER_CREDENTIAL;
+    // }
+    // randomNumbers.push(count);
+    // }
+    // setRandomNumbers([...randomNumbers]);
   }, [
     numOfDays,
     transactions,
@@ -689,11 +680,11 @@ export default function UserPage({ params }: { params: { chain: string; address:
     selectedMonth,
     selectedYear,
     credentials?.length,
-    messages?.length,
+    farcasterMessages?.length,
     chain?.id,
   ]);
 
-  const monthsComponents = randomNumbers.map((value, index) => {
+  const monthsComponents = dailyScores.map((value, index) => {
     return (
       <div className="m-0.5 md:m-1" key={index}>
         <DayCard day={index + 1} score={value} />
