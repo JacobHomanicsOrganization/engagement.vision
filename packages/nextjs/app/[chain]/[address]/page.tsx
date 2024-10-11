@@ -27,6 +27,12 @@ import {
   getYearlyFarcasterMessagesTally,
 } from "~~/utils/how-based-are-you/filterFarcasterMessagesForTally";
 import {
+  getAllTimeBadgesTally,
+  getDailyBadgesTally,
+  getMonthlyBadgesTally,
+  getYearlyBadgesTally,
+} from "~~/utils/how-based-are-you/filterTalentProtocolBadgesForTally";
+import {
   getAllTimeTransactionsTally,
   getDailyTransactionsTally,
   getMonthlyTransactionsTally,
@@ -446,7 +452,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   const POINTS_PER_TRANSACTION = 1;
   const POINTS_PER_FARCASTER_MESSAGE = 100;
-  // const POINTS_PER_CREDENTIAL = 10;
+  const POINTS_PER_CREDENTIAL = 10;
 
   // function getAllTimeCredentialsCount() {
   //   const filteredCredentials = credentials.filter((tx: any) => {
@@ -489,6 +495,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     tally += getAllTimeTransactionsTally(transactions, POINTS_PER_TRANSACTION);
     tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain);
+    tally += getAllTimeBadgesTally(credentials, POINTS_PER_CREDENTIAL);
     // count += getAllTimeCredentialsCount();
     // count += getAllTimeCastsCount();
 
@@ -500,7 +507,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     tally += getYearlyTransactionsTally(transactions, POINTS_PER_TRANSACTION, year);
     tally += getYearlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year);
-
+    tally += getYearlyBadgesTally(credentials, POINTS_PER_CREDENTIAL, year);
     return tally;
   }
 
@@ -509,7 +516,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     tally += getMonthlyTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month);
     tally += getMonthlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year, month);
-
+    tally += getMonthlyBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month);
     return tally;
   }
 
@@ -525,6 +532,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
       selectedMonth,
       day,
     );
+    tally += getDailyBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month, day);
     return tally;
   }
 
