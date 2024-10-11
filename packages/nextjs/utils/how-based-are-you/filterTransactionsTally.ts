@@ -1,52 +1,46 @@
 export function getTransactionsTally(
-  transactions: [],
+  array: [],
   pointsPer: number,
-  filterFn: (tx: any) => boolean = () => {
+  filterFn: (element: any) => boolean = () => {
     return true;
   },
 ) {
-  const filteredTransactions = transactions.filter(filterFn) as any;
+  const filteredArray = array.filter(filterFn) as any;
 
   let tally = 0;
 
-  for (let i = 0; i < filteredTransactions.length; i++) {
+  for (let i = 0; i < filteredArray.length; i++) {
     tally += pointsPer;
   }
 
   return tally;
 }
 
-export function getAllTimeTransactionsTally(transactions: [], pointsPer: number) {
-  return getTransactionsTally(transactions, pointsPer);
+export function getAllTimeTransactionsTally(array: [], pointsPer: number) {
+  return getTransactionsTally(array, pointsPer);
 }
 
-export function getYearlyTransactionsTally(transactions: [], pointsPer: number, year: number) {
-  return getTransactionsTally(transactions, pointsPer, (tx: any) => {
-    const txDate = new Date(tx.timeStamp * 1000);
-    return txDate.getFullYear() === year;
+export function getYearlyTransactionsTally(array: [], pointsPer: number, year: number) {
+  return getTransactionsTally(array, pointsPer, (element: any) => {
+    const date = new Date(element.timeStamp * 1000);
+    return date.getFullYear() === year;
   });
 }
 
-export function getMonthlyTransactionsTally(transactions: [], pointsPer: number, year: number, month: number) {
-  return getTransactionsTally(transactions, pointsPer, (tx: any) => {
-    const txDate = new Date(tx.timeStamp * 1000);
-    return txDate.getFullYear() === year && txDate.getMonth() + 1 === month;
+export function getMonthlyTransactionsTally(array: [], pointsPer: number, year: number, month: number) {
+  return getTransactionsTally(array, pointsPer, (element: any) => {
+    const date = new Date(element.timeStamp * 1000);
+    return date.getFullYear() === year && date.getMonth() + 1 === month;
   });
 }
 
-export function getDailyTransactionsTally(
-  transactions: [],
-  pointsPer: number,
-  year: number,
-  month: number,
-  day: number,
-) {
-  return getTransactionsTally(transactions, pointsPer, (tx: any) => {
-    const txDate = new Date(tx.timeStamp * 1000);
+export function getDailyTransactionsTally(array: [], pointsPer: number, year: number, month: number, day: number) {
+  return getTransactionsTally(array, pointsPer, (element: any) => {
+    const date = new Date(element.timeStamp * 1000);
 
-    const isWithinYear = txDate.getFullYear() === year;
-    const isWithinMonth = txDate.getMonth() + 1 === month;
-    const isWithinDay = txDate.getDate() === day;
+    const isWithinYear = date.getFullYear() === year;
+    const isWithinMonth = date.getMonth() + 1 === month;
+    const isWithinDay = date.getDate() === day;
     return isWithinYear && isWithinMonth && isWithinDay;
-  }) as any;
+  });
 }
