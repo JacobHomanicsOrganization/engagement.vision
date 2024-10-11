@@ -33,10 +33,10 @@ import {
   getYearlyOnchainTransactionsTally,
 } from "~~/utils/how-based-are-you/filterOnchainTransactionsForTally";
 import {
-  getAllTimeBadgesTally,
-  getDailyBadgesTally,
-  getMonthlyBadgesTally,
-  getYearlyBadgesTally,
+  getAllTimeTalentProtocolBadgesTally,
+  getDailyTalentProtocolTally,
+  getMonthlyTalentProtocolBadgesTally,
+  getYearlyTalentProtocolBadgesTally,
 } from "~~/utils/how-based-are-you/filterTalentProtocolBadgesForTally";
 import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 
@@ -457,7 +457,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     tally += getAllTimeOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION);
     tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain);
-    tally += getAllTimeBadgesTally(credentials, POINTS_PER_CREDENTIAL);
+    tally += getAllTimeTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL);
 
     return tally;
   }
@@ -467,7 +467,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     tally += getYearlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year);
     tally += getYearlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year);
-    tally += getYearlyBadgesTally(credentials, POINTS_PER_CREDENTIAL, year);
+    tally += getYearlyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year);
     return tally;
   }
 
@@ -476,7 +476,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     tally += getMonthlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month);
     tally += getMonthlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year, month);
-    tally += getMonthlyBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month);
+    tally += getMonthlyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month);
     return tally;
   }
 
@@ -492,7 +492,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
       selectedMonth,
       day,
     );
-    tally += getDailyBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month, day);
+    tally += getDailyTalentProtocolTally(credentials, POINTS_PER_CREDENTIAL, year, month, day);
     return tally;
   }
 
