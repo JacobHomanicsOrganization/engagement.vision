@@ -9,7 +9,7 @@ const chainsObjs = {
   },
 };
 
-export function getFarcasterMessagesScore(
+export function getFarcasterMessagesTally(
   transactions: any,
   pointsPer: number,
   filterFn: (tx: any) => boolean = () => {
@@ -27,8 +27,8 @@ export function getFarcasterMessagesScore(
   return score;
 }
 
-export function getAllTimeFarcasterMessagesScore(transactions: any, pointsPer: number, chain: Chain) {
-  return getFarcasterMessagesScore(transactions, pointsPer, (tx: any) => {
+export function getAllTimeFarcasterMessagesTally(transactions: any, pointsPer: number, chain: Chain) {
+  return getFarcasterMessagesTally(transactions, pointsPer, (tx: any) => {
     let isPresent = false;
 
     for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
@@ -42,28 +42,28 @@ export function getAllTimeFarcasterMessagesScore(transactions: any, pointsPer: n
   }) as any;
 }
 
-export function getYearlyTransactionsPoints(transactions: any, pointsPer: number, year: number) {
-  return getFarcasterMessagesScore(transactions, pointsPer, (tx: any) => {
+export function getYearlyTransactionsTally(transactions: any, pointsPer: number, year: number) {
+  return getFarcasterMessagesTally(transactions, pointsPer, (tx: any) => {
     const txDate = new Date(tx.timeStamp * 1000);
     return txDate.getFullYear() === year;
   });
 }
 
-export function getMonthlyTransactionsPoints(transactions: any, pointsPer: number, year: number, month: number) {
-  return getFarcasterMessagesScore(transactions, pointsPer, (tx: any) => {
+export function getMonthlyTransactionsTally(transactions: any, pointsPer: number, year: number, month: number) {
+  return getFarcasterMessagesTally(transactions, pointsPer, (tx: any) => {
     const txDate = new Date(tx.timeStamp * 1000);
     return txDate.getFullYear() === year && txDate.getMonth() + 1 === month;
   });
 }
 
-export function getDailyTransactionsPoints(
+export function getDailyTransactionsTally(
   transactions: any,
   pointsPer: number,
   year: number,
   month: number,
   day: number,
 ) {
-  return getFarcasterMessagesScore(transactions, pointsPer, (tx: any) => {
+  return getFarcasterMessagesTally(transactions, pointsPer, (tx: any) => {
     const txDate = new Date(tx.timeStamp * 1000);
 
     const isWithinYear = txDate.getFullYear() === year;

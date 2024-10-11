@@ -1,5 +1,5 @@
 export function getTransactionsTally(
-  transactions: any,
+  transactions: [],
   pointsPer: number,
   filterFn: (tx: any) => boolean = () => {
     return true;
@@ -16,18 +16,18 @@ export function getTransactionsTally(
   return tally;
 }
 
-export function getAllTimeTransactionsTally(transactions: any, pointsPer: number) {
+export function getAllTimeTransactionsTally(transactions: [], pointsPer: number) {
   return getTransactionsTally(transactions, pointsPer);
 }
 
-export function getYearlyTransactionsTally(transactions: any, pointsPer: number, year: number) {
+export function getYearlyTransactionsTally(transactions: [], pointsPer: number, year: number) {
   return getTransactionsTally(transactions, pointsPer, (tx: any) => {
     const txDate = new Date(tx.timeStamp * 1000);
     return txDate.getFullYear() === year;
   });
 }
 
-export function getMonthlyTransactionsTally(transactions: any, pointsPer: number, year: number, month: number) {
+export function getMonthlyTransactionsTally(transactions: [], pointsPer: number, year: number, month: number) {
   return getTransactionsTally(transactions, pointsPer, (tx: any) => {
     const txDate = new Date(tx.timeStamp * 1000);
     return txDate.getFullYear() === year && txDate.getMonth() + 1 === month;
@@ -35,7 +35,7 @@ export function getMonthlyTransactionsTally(transactions: any, pointsPer: number
 }
 
 export function getDailyTransactionsTally(
-  transactions: any,
+  transactions: [],
   pointsPer: number,
   year: number,
   month: number,
