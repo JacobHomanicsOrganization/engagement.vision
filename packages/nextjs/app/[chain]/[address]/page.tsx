@@ -448,47 +448,9 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   const { transactions, isError, errorMessage } = useTransactions({ chainId: chain?.id, address: profile?.addr });
 
-  // const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
-
   const POINTS_PER_TRANSACTION = 1;
   const POINTS_PER_FARCASTER_MESSAGE = 100;
   const POINTS_PER_CREDENTIAL = 10;
-
-  // function getAllTimeCredentialsCount() {
-  //   const filteredCredentials = credentials.filter((tx: any) => {
-  //     return tx["onchain_at"] !== null;
-  //   });
-
-  //   let count = 0;
-  //   for (let i = 0; i < filteredCredentials.length; i++) {
-  //     count += POINTS_PER_CREDENTIAL;
-  //   }
-
-  //   return count;
-  // }
-
-  // function getAllTimeCastsCount() {
-  //   const filteredCasts = farcasterMessages?.filter((tx: any) => {
-  //     let isPresent = false;
-
-  //     for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
-  //       for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
-  //         if (tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]) {
-  //           isPresent = true;
-  //         }
-  //       }
-  //     }
-  //     return isPresent;
-  //   }) as any;
-
-  //   let count = 0;
-
-  //   for (let i = 0; i < filteredCasts.length; i++) {
-  //     count += POINTS_PER_FARCASTER_MESSAGE;
-  //   }
-
-  //   return count;
-  // }
 
   function getAllTimeTally(transactions: any) {
     let tally = 0;
@@ -496,8 +458,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
     tally += getAllTimeTransactionsTally(transactions, POINTS_PER_TRANSACTION);
     tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain);
     tally += getAllTimeBadgesTally(credentials, POINTS_PER_CREDENTIAL);
-    // count += getAllTimeCredentialsCount();
-    // count += getAllTimeCastsCount();
 
     return tally;
   }
@@ -544,133 +504,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
   for (let i = 0; i < numOfDays; i++) {
     dailyTallies.push(getDailyTally(transactions, selectedYear, selectedMonth, i + 1));
   }
-
-  useEffect(() => {
-    // const filteredCasts = farcasterMessages?.filter((tx: any) => {
-    //   const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
-    //   let isPresent = false;
-    //   for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
-    //     for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
-    //       if (tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]) {
-    //         isPresent = true;
-    //       }
-    //     }
-    //   }
-    //   // console.log(txDate);
-    //   return isPresent && txDate.getFullYear() === selectedYear;
-    // }) as any;
-    // const filteredCredentials = credentials.filter((tx: any) => {
-    //   const date = new Date(tx["onchain_at"]);
-    //   return date.getFullYear() === selectedYear;
-    // });
-    // const filteredTransactions = transactions.filter((tx: any) => {
-    //   const txDate = new Date(tx.timeStamp * 1000);
-    //   return txDate.getFullYear() === selectedYear;
-    // }) as any;
-    // let count = 0;
-    // for (let i = 0; i < filteredTransactions.length; i++) {
-    //   count += POINTS_PER_TRANSACTION;
-    // }
-    // for (let i = 0; i < filteredCredentials.length; i++) {
-    //   count += POINTS_PER_CREDENTIAL;
-    // }
-    // for (let i = 0; i < filteredCasts.length; i++) {
-    //   count += POINTS_PER_FARCASTER_MESSAGE;
-    // }
-    // setYearlyScore(count);
-  }, [transactions, transactions?.length, selectedYear, credentials?.length]);
-
-  // const [totalMonthlyScore, setTotalMonthlyScore] = useState(0);
-  useEffect(() => {
-    // const filteredCasts = farcasterMessages?.filter((tx: any) => {
-    //   const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
-    //   let isPresent = false;
-    //   for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
-    //     for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
-    //       if (tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]) {
-    //         isPresent = true;
-    //       }
-    //     }
-    //   }
-    //   // console.log(txDate);
-    //   return isPresent && txDate.getFullYear() === selectedYear && txDate.getMonth() + 1 === selectedMonth;
-    // }) as any;
-    // const filteredCredentials = credentials.filter((tx: any) => {
-    //   const date = new Date(tx["onchain_at"]);
-    //   return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth;
-    // });
-    // const filteredTransactions = transactions.filter((tx: any) => {
-    //   const txDate = new Date(tx.timeStamp * 1000);
-    //   return txDate.getFullYear() === selectedYear && txDate.getMonth() + 1 === selectedMonth;
-    // }) as any;
-    // let count = 0;
-    // for (let i = 0; i < filteredTransactions.length; i++) {
-    //   count += POINTS_PER_TRANSACTION;
-    // }
-    // for (let i = 0; i < filteredCredentials.length; i++) {
-    //   count += POINTS_PER_CREDENTIAL;
-    // }
-    // for (let i = 0; i < filteredCasts.length; i++) {
-    //   count += POINTS_PER_FARCASTER_MESSAGE;
-    // }
-    // setTotalMonthlyScore(count);
-  }, [transactions, transactions?.length, selectedMonth, selectedYear, credentials?.length]);
-
-  useEffect(() => {
-    // const randomNumbers = [];
-    // for (let i = 0; i < numOfDays; i++) {
-    //   const theDayCasts = farcasterMessages?.filter((tx: any) => {
-    //     const txDate = new Date((FARCASTER_START_EPOCH + tx.data.timestamp) * 1000);
-    //     let isPresent = false;
-    //     for (let i = 0; i < tx.data.castAddBody?.mentions.length; i++) {
-    //       for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
-    //         if (
-    //           tx.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]
-    //         ) {
-    //           isPresent = true;
-    //         }
-    //       }
-    //     }
-    //     return (
-    //       isPresent &&
-    //       txDate.getFullYear() === selectedYear &&
-    //       txDate.getMonth() + 1 === selectedMonth &&
-    //       txDate.getDate() === i + 1
-    //     );
-    //   }) as any;
-    //   const theDayCredentials = credentials.filter((tx: any) => {
-    //     const date = new Date(tx["onchain_at"]);
-    //     return date.getFullYear() === selectedYear && date.getMonth() + 1 === selectedMonth && date.getDate() === i + 1;
-    //   });
-    //   const theDayTransactions = transactions.filter((tx: any) => {
-    //     const txDate = new Date(tx.timeStamp * 1000);
-    //     return (
-    //       txDate.getFullYear() === selectedYear && txDate.getMonth() + 1 === selectedMonth && txDate.getDate() === i + 1
-    //     );
-    //   }) as any;
-    //   let count = 0;
-    //   for (let i = 0; i < theDayTransactions.length; i++) {
-    //     count += POINTS_PER_TRANSACTION;
-    //   }
-    // for (let i = 0; i < theDayCasts.length; i++) {
-    //   count += POINTS_PER_FARCASTER_MESSAGE;
-    // }
-    // for (let i = 0; i < theDayCredentials.length; i++) {
-    //   count += POINTS_PER_CREDENTIAL;
-    // }
-    // randomNumbers.push(count);
-    // }
-    // setRandomNumbers([...randomNumbers]);
-  }, [
-    numOfDays,
-    transactions,
-    transactions?.length,
-    selectedMonth,
-    selectedYear,
-    credentials?.length,
-    farcasterMessages?.length,
-    chain?.id,
-  ]);
 
   const monthsComponents = dailyTallies.map((value, index) => {
     return (
