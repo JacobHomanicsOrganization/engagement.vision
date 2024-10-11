@@ -18,7 +18,7 @@ type HeaderMenuLink = {
 };
 
 function getProperGlasses(isDarkMode: boolean) {
-  return isDarkMode ? "glasses-optic-white.png" : "glasses-optic.svg";
+  return isDarkMode ? "meeple-circle-white.png" : "meeple-circle.png";
 }
 
 const chainObjs = {

@@ -23,8 +23,6 @@ export function getBlockExplorerApiLink(chainId: number, address: any) {
 
   const targetChain = targetChainArr[0] as keyof typeof chains;
 
-  console.log(targetChain);
-
   const blockExplorerApiUrl = (chains[targetChain]?.blockExplorers?.default as { apiUrl?: string })?.apiUrl;
 
   if (!blockExplorerApiUrl) {
@@ -41,8 +39,6 @@ const fetchTransactions = async (chainId: number, address: any) => {
 
   const response = await axios.get(url);
 
-  console.log(response);
-
   if (response.status === 200 && response.data.status !== "1") {
     let eMessage;
 
@@ -56,6 +52,10 @@ const fetchTransactions = async (chainId: number, address: any) => {
 
     if (response.data.result === "Error! Invalid address format") {
       eMessage = "The address is invalid!";
+    }
+
+    if (response.data.message === "No transactions found") {
+      eMessage = "No transactions found!";
     }
 
     return { transactions: [], isError: true, eMessage };

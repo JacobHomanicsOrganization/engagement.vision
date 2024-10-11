@@ -9,7 +9,7 @@ import { useGlobalState } from "~~/services/store/store";
 const chainObjs = [
   {
     name: "Engagement.Vision",
-    logo: "glasses-optic.svg",
+    logo: "favicon.svg",
     link: "/",
   },
   {
