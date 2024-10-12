@@ -236,7 +236,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     if (!isAddress(params.address) && hasUppercase(params.address)) {
       router.push(`/${params.chain}/${(params.address as string).toLowerCase()}`);
     }
-  }, [params.address, router]);
+  }, [params.chain, params.address, router]);
 
   // const currentDate = new Date();
 
