@@ -45,7 +45,7 @@ const Home: NextPage = () => {
     if (obj.name === "Engagement.Vision") return;
     return (
       <Link href={obj.link} key={index}>
-        <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl hover:brightness-75">
+        <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs w-[200px] rounded-3xl transform scale-100 hover:scale-90 transition duration-300 ease-in-out">
           <div className="flex relative w-10 h-10">
             <Image alt="Logo" className="cursor-pointer" fill src={`/${obj.logo || ""}`} />
           </div>
