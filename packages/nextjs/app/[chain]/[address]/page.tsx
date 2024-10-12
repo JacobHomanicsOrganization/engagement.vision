@@ -23,12 +23,14 @@ import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import {
   getAllTimeFarcasterMessagesTally,
+  getDailyFarcasterMessage,
   getDailyFarcasterMessagesTally,
   getMonthlyFarcasterMessagesTally,
   getYearlyFarcasterMessagesTally,
 } from "~~/utils/how-based-are-you/filterFarcasterMessagesForTally";
 import {
   getAllTimeOnchainTransactionsTally,
+  getDailyOnchainTransactions,
   getDailyOnchainTransactionsTally,
   getMonthlyOnchainTransactionsTally,
   getYearlyOnchainTransactionsTally,
@@ -39,6 +41,7 @@ import {
 //   getYearlyTalentProtocolBadgesTally,
 // } from "~~/utils/how-based-are-you/filterTalentProtocolBadgesForTally";
 import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
+import { getBlockExplorerTxLink } from "~~/utils/scaffold-eth";
 
 // const BASE_FID = 12142;
 // const COINBASE_WALLET_FID = 309857;
@@ -481,6 +484,20 @@ export default function UserPage({ params }: { params: { chain: string; address:
   }
 
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
+    const chainsObjs = {
+      Base: {
+        mentionFids: [
+          12142, //Base,
+          309857, //Coinbase Wallet
+        ],
+      },
+    };
+
+    const mentions = chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids;
+
+    const onchainTransactions = getDailyOnchainTransactions(transactions, year, month, day);
+    const filteredFarcasterMessages = getDailyFarcasterMessage(farcasterMessages, year, month, day, mentions);
+
     const onchainTransactionTally = getDailyOnchainTransactionsTally(
       transactions,
       POINTS_PER_TRANSACTION,
@@ -498,6 +515,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
     );
     // tally += getDailyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month, day);
     return {
+      transactions: onchainTransactions,
+      filteredFarcasterMessages,
       totalTally: onchainTransactionTally + farcasterMessagesTally,
       onchainTransactionTally,
       farcasterMessagesTally,
@@ -511,15 +530,77 @@ export default function UserPage({ params }: { params: { chain: string; address:
   const dailyTallies = [];
   for (let i = 0; i < numOfDays; i++) {
     const selectedDay = i + 1;
-    const { totalTally, onchainTransactionTally, farcasterMessagesTally } = getDailyTally(
-      transactions,
-      selectedYear,
-      selectedMonth,
-      selectedDay,
-    );
+    const {
+      transactions: filteredTransactions,
+      filteredFarcasterMessages,
+      totalTally,
+      onchainTransactionTally,
+      farcasterMessagesTally,
+    } = getDailyTally(transactions, selectedYear, selectedMonth, selectedDay);
 
-    dailyTallies.push({ totalTally, onchainTransactionTally, farcasterMessagesTally });
+    dailyTallies.push({
+      filteredTransactions,
+      filteredFarcasterMessages,
+      totalTally,
+      onchainTransactionTally,
+      farcasterMessagesTally,
+    });
   }
+
+  const [isInDayView, setIsInDayView] = useState(false);
+
+  const [selectedDay, setSelectedDay] = useState(4);
+
+  const farcasterMessagesComponents = dailyTallies[selectedDay - 1]?.filteredFarcasterMessages?.map((value, index) => {
+    const mentionsDatabase = {
+      12142: "base",
+      309857: "coinbasewallet",
+      12144: "wbnns",
+      99: "jessepollack",
+    };
+
+    const textArray = value.data.castAddBody.text.split("");
+
+    for (let i = 0; i < value.data.castAddBody.mentions.length; i++) {
+      const adjustedPosition = value.data.castAddBody.mentionsPositions[i] + i;
+
+      const valueToInsert = mentionsDatabase[value.data.castAddBody.mentions[i] as keyof typeof mentionsDatabase];
+
+      if (valueToInsert !== undefined) {
+        textArray.splice(adjustedPosition, 0, "@" + valueToInsert.toString());
+      }
+    }
+
+    const reconstructedText = textArray.join("");
+
+    return (
+      <Link key={"Farcaster Messages" + index} href={getBlockExplorerTxLink(chain.id, value.hash)} target="#">
+        <div className="flex space-x-1 bg-base-100 rounded-lg p-2">
+          <div>#{index}</div>
+          <div>{reconstructedText}</div>
+          {/* {value.functionName.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>} */}
+        </div>
+      </Link>
+    );
+  });
+
+  const transactionsComponents = dailyTallies[selectedDay - 1]?.filteredTransactions?.map((value, index) => {
+    function removeTextBetweenChars(input: string, startChar: string, endChar: string): string {
+      // Create a regex pattern to match everything between the first occurrence of startChar and endChar, including the characters themselves
+      const regex = new RegExp(`\\${startChar}[^\\${startChar}\\${endChar}]*?\\${endChar}`, "g");
+      const result = input.replace(regex, "").trim(); // Remove matched content and trim any extra whitespace
+      return result;
+    }
+
+    return (
+      <Link key={"Transactions" + index} href={getBlockExplorerTxLink(chain.id, value.hash)} target="#">
+        <div className="flex space-x-1 bg-base-100 rounded-lg p-2">
+          <div>#{index}</div>
+          {value.functionName.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>}
+        </div>
+      </Link>
+    );
+  });
 
   const monthsComponents = dailyTallies.map((value, index) => {
     const sources = [];
@@ -549,11 +630,17 @@ export default function UserPage({ params }: { params: { chain: string; address:
     }
 
     return (
-      <Link href={"/"} key={index}>
+      <button
+        key={index}
+        onClick={() => {
+          setIsInDayView(true);
+          setSelectedDay(index + 1);
+        }}
+      >
         <div className="m-0.5 md:m-1">
           <DayCard day={index + 1} score={value.totalTally} sources={sources} />
         </div>
-      </Link>
+      </button>
     );
   });
 
@@ -601,6 +688,18 @@ export default function UserPage({ params }: { params: { chain: string; address:
           </div>
 
           <div className="flex flex-col bg-base-100">
+            {isInDayView ? (
+              <button
+                className="btn btn-primary m-10"
+                onClick={() => {
+                  setIsInDayView(false);
+                }}
+              >
+                Monthly View
+              </button>
+            ) : (
+              <></>
+            )}
             <div className="flex flex-wrap justify-center items-center space-x-1 m-4 rounded-xl">
               <button
                 onClick={() => {
@@ -638,7 +737,61 @@ export default function UserPage({ params }: { params: { chain: string; address:
                 {">"}
               </button>
             </div>
-            <div className="flex flex-wrap justify-center rounded-lg mx-1 md:mx-[450px]">{monthsComponents}</div>
+            <div className="flex flex-col bg-base-100">
+              {isInDayView ? (
+                <div className="flex flex-wrap justify-center items-center space-x-1 m-4 rounded-xl">
+                  <button
+                    onClick={() => {
+                      if (selectedDay === 1) {
+                        setSelectedDay(31);
+                        setSelectedMonth(selectedMonth - 1);
+                        return;
+                      }
+
+                      setSelectedDay(selectedDay - 1);
+                    }}
+                    className="btn btn-primary btn-sm md:btn-md"
+                  >
+                    {"<"}
+                  </button>
+                  <div className="w-56 md:w-[600px] flex flex-col items-center justify-center">
+                    <p className="text-center text-2xl md:text-6xl m-0">
+                      {selectedDay}
+                      {/* {monthsAsStrings[selectedMonth - 1]} {selectedYear} */}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      if (selectedDay === 31) {
+                        setSelectedDay(1);
+                        setSelectedMonth(selectedMonth + 1);
+
+                        return;
+                      }
+
+                      setSelectedDay(selectedDay + 1);
+                    }}
+                    className="btn btn-primary btn-sm md:btn-md"
+                  >
+                    {">"}
+                  </button>
+                </div>
+              ) : (
+                <></>
+              )}
+            </div>
+
+            {isInDayView ? (
+              <div>
+                <div>Farcaster Messages</div>
+                <div className="flex flex-col space-y-1">{farcasterMessagesComponents}</div>
+                <div>Transactions</div>
+                <div className="flex flex-col space-y-1">{transactionsComponents}</div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap justify-center rounded-lg mx-1 md:mx-[450px]">{monthsComponents}</div>
+            )}
           </div>
         </div>
       </div>
