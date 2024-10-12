@@ -545,13 +545,11 @@ export default function DayPage({ params }: { params: { chain: string; address: 
   }
 
   const farcasterMessagesComponents = dailyTallies[selectedDay - 1]?.filteredFarcasterMessages?.map((value, index) => {
-    const chainsObjs = {
-      Base: {
-        12142: "base",
-        309857: "coinbasewallet",
-        12144: "wbnns",
-        99: "jessepollack",
-      },
+    const mentionsDatabase = {
+      12142: "base",
+      309857: "coinbasewallet",
+      12144: "wbnns",
+      99: "jessepollack",
     };
 
     const textArray = value.data.castAddBody.text.split("");
@@ -559,9 +557,7 @@ export default function DayPage({ params }: { params: { chain: string; address: 
     for (let i = 0; i < value.data.castAddBody.mentions.length; i++) {
       const adjustedPosition = value.data.castAddBody.mentionsPositions[i] + i;
 
-      const chainKey = chain?.name as keyof typeof chainsObjs;
-      const valueToInsert =
-        chainsObjs[chainKey][value.data.castAddBody.mentions[i] as keyof (typeof chainsObjs)[typeof chainKey]];
+      const valueToInsert = mentionsDatabase[value.data.castAddBody.mentions[i] as keyof typeof mentionsDatabase];
 
       if (valueToInsert !== undefined) {
         textArray.splice(adjustedPosition, 0, "@" + valueToInsert.toString());
@@ -569,8 +565,6 @@ export default function DayPage({ params }: { params: { chain: string; address: 
     }
 
     const reconstructedText = textArray.join("");
-
-    console.log(reconstructedText);
 
     return (
       <Link key={"Farcaster Messages" + index} href={getBlockExplorerTxLink(chain.id, value.hash)} target="#">
