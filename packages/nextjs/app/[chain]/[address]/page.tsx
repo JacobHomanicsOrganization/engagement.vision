@@ -215,6 +215,7 @@ type Profile = {
   description?: string;
   twitter?: string;
   farcaster?: string;
+  farcasterName?: string;
 };
 
 export default function UserPage({ params }: { params: { chain: string; address: string } }) {
@@ -391,8 +392,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
           fid = chosenProfile.farcaster;
         } else {
           if (!isEnsName(chosenProfile.farcaster)) {
+            chosenProfile.farcasterName = chosenProfile.farcaster;
             fid = await getUserWarpcastFid(chosenProfile.farcaster);
-            console.log(fid);
           } else {
             //is ENS name and supported.
             throw "Error with ENS support";
@@ -592,8 +593,14 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     const reconstructedText = textArray.join("");
 
+    console.log(value);
+
     return (
-      <Link key={"Farcaster Messages" + index} href={getBlockExplorerTxLink(chain.id, value.hash)} target="#">
+      <Link
+        key={"Farcaster Messages" + index}
+        href={`https://warpcast.com/${profile.farcasterName}/${value.hash}`}
+        target="#"
+      >
         <div className="flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary">
           <div className="bg-secondary rounded-lg">#{index}</div>
           <div>{reconstructedText}</div>
