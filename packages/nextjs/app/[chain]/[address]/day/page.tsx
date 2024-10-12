@@ -534,19 +534,6 @@ export default function DayPage({ params }: { params: { chain: string; address: 
   }
 
   const farcasterMessagesComponents = dailyTallies[selectedDay - 1]?.filteredFarcasterMessages?.map((value, index) => {
-    // function insertAt(original: string, index: number, substring: string): string {
-    //   if (index < 0) {
-    //     // If the index is negative, insert at the beginning
-    //     return substring + original;
-    //   } else if (index > original.length) {
-    //     // If the index is greater than the string length, append to the end
-    //     return original + substring;
-    //   }
-    //   // Return the new string with the substring inserted
-    //   return original.slice(0, index) + substring + original.slice(index);
-    // }
-    console.log(value);
-
     const chainsObjs = {
       Base: {
         12142: "base",
@@ -558,46 +545,19 @@ export default function DayPage({ params }: { params: { chain: string; address: 
 
     const textArray = value.data.castAddBody.text.split("");
 
-    // Insert mentions into the text
     for (let i = 0; i < value.data.castAddBody.mentions.length; i++) {
-      // Adjust position to account for previous insertions
-      const adjustedPosition = value.data.castAddBody.mentionsPositions[i] + i; // i accounts for how many inserts have been made
+      const adjustedPosition = value.data.castAddBody.mentionsPositions[i] + i;
 
-      const chainKey = chain?.name as keyof typeof chainsObjs; // Assuming you want to access the "Base" chain
+      const chainKey = chain?.name as keyof typeof chainsObjs;
       const valueToInsert =
         chainsObjs[chainKey][value.data.castAddBody.mentions[i] as keyof (typeof chainsObjs)[typeof chainKey]];
-
-      // finalCast = insertAt(
-      //   value.data.castAddBody.text,
-      //   value.data.castAddBody.mentionsPositions[i],
-      //   "@" + valueToInsert,
-      // );
 
       textArray.splice(adjustedPosition, 0, "@" + valueToInsert.toString());
     }
 
-    // Join the array back into a string
     const reconstructedText = textArray.join("");
 
     console.log(reconstructedText);
-
-    // let finalCast;
-
-    // for (let i = 0; i < value.data.castAddBody.mentions.length; i++) {
-    //   // console.log(value.data.castAddBody.text);
-    //   // console.log(value.data.castAddBody.mentionsPositions[i]);
-    //   // console.log(value.data.castAddBody.mentions[i]);
-
-    //   const chainKey = chain?.name as keyof typeof chainsObjs; // Assuming you want to access the "Base" chain
-    //   const valueToInsert =
-    //     chainsObjs[chainKey][value.data.castAddBody.mentions[i] as keyof (typeof chainsObjs)[typeof chainKey]];
-
-    //   finalCast = insertAt(
-    //     value.data.castAddBody.text,
-    //     value.data.castAddBody.mentionsPositions[i],
-    //     "@" + valueToInsert,
-    //   );
-    // }
 
     return (
       <Link key={"Farcaster Messages" + index} href={getBlockExplorerTxLink(chain.id, value.hash)} target="#">
