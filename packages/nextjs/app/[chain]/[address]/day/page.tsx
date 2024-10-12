@@ -22,7 +22,7 @@ import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import {
-  // getAllTimeFarcasterMessagesTally,
+  getDailyFarcasterMessage, // getAllTimeFarcasterMessagesTally,
   getDailyFarcasterMessagesTally, // getMonthlyFarcasterMessagesTally,
   // getYearlyFarcasterMessagesTally,
 } from "~~/utils/how-based-are-you/filterFarcasterMessagesForTally";
@@ -483,7 +483,7 @@ export default function DayPage({ params }: { params: { chain: string; address: 
 
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
     const onchainTransactions = getDailyOnchainTransactions(transactions, year, month, day);
-
+    const filteredFarcasterMessages = getDailyFarcasterMessage(farcasterMessages, year, month, day, chain);
     const onchainTransactionTally = getDailyOnchainTransactionsTally(
       transactions,
       POINTS_PER_TRANSACTION,
@@ -502,6 +502,7 @@ export default function DayPage({ params }: { params: { chain: string; address: 
     // tally += getDailyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month, day);
     return {
       transactions: onchainTransactions,
+      filteredFarcasterMessages,
       totalTally: onchainTransactionTally + farcasterMessagesTally,
       onchainTransactionTally,
       farcasterMessagesTally,
@@ -517,13 +518,97 @@ export default function DayPage({ params }: { params: { chain: string; address: 
     const selectedDay = i + 1;
     const {
       transactions: filteredTransactions,
+      filteredFarcasterMessages,
       totalTally,
       onchainTransactionTally,
       farcasterMessagesTally,
     } = getDailyTally(transactions, selectedYear, selectedMonth, selectedDay);
 
-    dailyTallies.push({ filteredTransactions, totalTally, onchainTransactionTally, farcasterMessagesTally });
+    dailyTallies.push({
+      filteredTransactions,
+      filteredFarcasterMessages,
+      totalTally,
+      onchainTransactionTally,
+      farcasterMessagesTally,
+    });
   }
+
+  const farcasterMessagesComponents = dailyTallies[selectedDay - 1]?.filteredFarcasterMessages?.map((value, index) => {
+    // function insertAt(original: string, index: number, substring: string): string {
+    //   if (index < 0) {
+    //     // If the index is negative, insert at the beginning
+    //     return substring + original;
+    //   } else if (index > original.length) {
+    //     // If the index is greater than the string length, append to the end
+    //     return original + substring;
+    //   }
+    //   // Return the new string with the substring inserted
+    //   return original.slice(0, index) + substring + original.slice(index);
+    // }
+    console.log(value);
+
+    const chainsObjs = {
+      Base: {
+        12142: "base",
+        309857: "coinbasewallet",
+        12144: "wbnns",
+        99: "jessepollack",
+      },
+    };
+
+    const textArray = value.data.castAddBody.text.split("");
+
+    // Insert mentions into the text
+    for (let i = 0; i < value.data.castAddBody.mentions.length; i++) {
+      // Adjust position to account for previous insertions
+      const adjustedPosition = value.data.castAddBody.mentionsPositions[i] + i; // i accounts for how many inserts have been made
+
+      const chainKey = chain?.name as keyof typeof chainsObjs; // Assuming you want to access the "Base" chain
+      const valueToInsert =
+        chainsObjs[chainKey][value.data.castAddBody.mentions[i] as keyof (typeof chainsObjs)[typeof chainKey]];
+
+      // finalCast = insertAt(
+      //   value.data.castAddBody.text,
+      //   value.data.castAddBody.mentionsPositions[i],
+      //   "@" + valueToInsert,
+      // );
+
+      textArray.splice(adjustedPosition, 0, "@" + valueToInsert.toString());
+    }
+
+    // Join the array back into a string
+    const reconstructedText = textArray.join("");
+
+    console.log(reconstructedText);
+
+    // let finalCast;
+
+    // for (let i = 0; i < value.data.castAddBody.mentions.length; i++) {
+    //   // console.log(value.data.castAddBody.text);
+    //   // console.log(value.data.castAddBody.mentionsPositions[i]);
+    //   // console.log(value.data.castAddBody.mentions[i]);
+
+    //   const chainKey = chain?.name as keyof typeof chainsObjs; // Assuming you want to access the "Base" chain
+    //   const valueToInsert =
+    //     chainsObjs[chainKey][value.data.castAddBody.mentions[i] as keyof (typeof chainsObjs)[typeof chainKey]];
+
+    //   finalCast = insertAt(
+    //     value.data.castAddBody.text,
+    //     value.data.castAddBody.mentionsPositions[i],
+    //     "@" + valueToInsert,
+    //   );
+    // }
+
+    return (
+      <Link key={"Farcaster Messages" + index} href={getBlockExplorerTxLink(chain.id, value.hash)} target="#">
+        <div className="flex space-x-1 bg-base-100 rounded-lg p-2">
+          <div>#{index}</div>
+          <div>{reconstructedText}</div>
+          {/* {value.functionName.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>} */}
+        </div>
+      </Link>
+    );
+  });
 
   const transactionsComponents = dailyTallies[selectedDay - 1]?.filteredTransactions?.map((value, index) => {
     function removeTextBetweenChars(input: string, startChar: string, endChar: string): string {
@@ -533,7 +618,6 @@ export default function DayPage({ params }: { params: { chain: string; address: 
       return result;
     }
 
-    console.log(value);
     return (
       <Link key={"Transactions" + index} href={getBlockExplorerTxLink(chain.id, value.hash)} target="#">
         <div className="flex space-x-1 bg-base-100 rounded-lg p-2">
@@ -595,7 +679,14 @@ export default function DayPage({ params }: { params: { chain: string; address: 
 
     transactionOutput = <div>{errorMessage}</div>;
   } else {
-    transactionOutput = <div className="flex flex-col space-y-1">{transactionsComponents}</div>;
+    transactionOutput = (
+      <div>
+        <div>Farcaster Messages</div>
+        <div className="flex flex-col space-y-1">{farcasterMessagesComponents}</div>
+        <div>Transactions</div>
+        <div className="flex flex-col space-y-1">{transactionsComponents}</div>
+      </div>
+    );
   }
 
   return (
