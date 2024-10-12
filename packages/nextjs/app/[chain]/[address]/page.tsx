@@ -660,6 +660,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     return (
       <button
         key={index}
+        className="transform hover:scale-90 transition duration-300 ease-in-out"
         onClick={() => {
           setIsInDayView(true);
           setSelectedDay(index + 1);
