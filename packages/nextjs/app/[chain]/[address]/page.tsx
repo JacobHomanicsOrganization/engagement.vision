@@ -223,6 +223,10 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
 
+  // const currentDate = new Date();
+
+  const [selectedDate] = useState(new Date());
+
   useEffect(() => {
     setAppTheme(params.chain);
   }, [params.chain, setAppTheme]);
@@ -466,8 +470,9 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   const numOfDays = 31;
 
-  const [selectedMonth, setSelectedMonth] = useState(9);
-  const [selectedYear, setSelectedYear] = useState(2024);
+  const [selectedDay, setSelectedDay] = useState(selectedDate.getDay());
+  const [selectedMonth, setSelectedMonth] = useState(selectedDate.getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(selectedDate.getFullYear());
 
   const { transactions, isError, errorMessage } = useTransactions({ chainId: chain?.id, address: profile?.addr });
 
@@ -568,8 +573,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
   }
 
   const [isInDayView, setIsInDayView] = useState(false);
-
-  const [selectedDay, setSelectedDay] = useState(4);
 
   const farcasterMessagesComponents = dailyTallies[selectedDay - 1]?.filteredFarcasterMessages?.map((value, index) => {
     const mentionsDatabase = {
