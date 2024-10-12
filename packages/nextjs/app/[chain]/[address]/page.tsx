@@ -601,7 +601,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
         href={`https://warpcast.com/${profile.farcasterName}/${value.hash}`}
         target="#"
       >
-        <div className="flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary">
+        <div className="flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary hover:brightness-50">
           <div className="bg-secondary rounded-lg">#{index}</div>
           <div>{reconstructedText}</div>
         </div>
@@ -619,7 +619,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     return (
       <Link key={"Transactions" + index} href={getBlockExplorerTxLink(chain.id, value.hash)} target="#">
-        <div className="flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary">
+        <div className="flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary hover:brightness-50">
           <div className="bg-secondary rounded-lg">#{index}</div>
           {value.functionName.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>}
         </div>
