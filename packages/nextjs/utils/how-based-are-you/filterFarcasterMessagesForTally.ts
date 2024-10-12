@@ -3,7 +3,7 @@ import { Chain } from "viem";
 
 const FARCASTER_START_EPOCH = 1609459200;
 
-export function getAllTimeFarcasterMessages(array: any[], mentions: any[]) {
+export function getAllTimeFarcasterMessages(array: any[], mentions: any[] = []) {
   return array.filter(element => {
     let isPresent = false;
 
@@ -18,7 +18,7 @@ export function getAllTimeFarcasterMessages(array: any[], mentions: any[]) {
   });
 }
 
-export function getYearlyFarcasterMessages(array: any[], year: number, mentions: any[]) {
+export function getYearlyFarcasterMessages(array: any[], year: number, mentions: any[] = []) {
   return array.filter(element => {
     const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
     let isPresent = false;
@@ -33,7 +33,7 @@ export function getYearlyFarcasterMessages(array: any[], year: number, mentions:
   });
 }
 
-export function getMonthlyFarcasterMessages(array: any[], year: number, month: number, mentions: any[]) {
+export function getMonthlyFarcasterMessages(array: any[], year: number, month: number, mentions: any[] = []) {
   return array.filter(element => {
     const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
     let isPresent = false;
@@ -48,7 +48,7 @@ export function getMonthlyFarcasterMessages(array: any[], year: number, month: n
   });
 }
 
-export function getDailyFarcasterMessage(array: any[], year: number, month: number, day: number, mentions: any[]) {
+export function getDailyFarcasterMessage(array: any[], year: number, month: number, day: number, mentions: any[] = []) {
   return array.filter(element => {
     const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
     let isPresent = false;

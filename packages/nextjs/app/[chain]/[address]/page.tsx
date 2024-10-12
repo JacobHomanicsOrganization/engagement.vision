@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Chain, isAddress } from "viem";
 import { base, mainnet } from "viem/chains";
@@ -224,19 +224,19 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
 
-  // const router = useRouter();
+  const router = useRouter();
 
-  // useEffect(() => {
-  //   if (params.address === undefined) return;
+  useEffect(() => {
+    if (params.address === undefined) return;
 
-  //   function hasUppercase(str: string): boolean {
-  //     return str.split("").some(char => char === char.toUpperCase() && char !== char.toLowerCase());
-  //   }
+    function hasUppercase(str: string): boolean {
+      return str.split("").some(char => char === char.toUpperCase() && char !== char.toLowerCase());
+    }
 
-  //   if (!isAddress(params.address) && hasUppercase(params.address)) {
-  //     router.push(`/${params.chain}/${(params.address as string).toLowerCase()}`);
-  //   }
-  // }, [params.chain, params.address, router]);
+    if (!isAddress(params.address) && hasUppercase(params.address)) {
+      router.push(`/${params.chain}/${(params.address as string).toLowerCase()}`);
+    }
+  }, [params.chain, params.address, router]);
 
   // const currentDate = new Date();
 
