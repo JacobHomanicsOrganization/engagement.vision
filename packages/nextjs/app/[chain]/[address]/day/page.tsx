@@ -16,22 +16,21 @@ import {
 } from "~~/abis/basenames";
 import { getEnsAddress, getEnsAvatar, getEnsDescription, getEnsName, isEnsName } from "~~/abis/ens";
 import { getEnsText } from "~~/abis/ens";
-import { DayCard } from "~~/components/how-based-are-you/DayCard";
+// import { DayCard } from "~~/components/how-based-are-you/DayCard";
 import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
-import { Score } from "~~/components/how-based-are-you/Score";
+// import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import {
-  getAllTimeFarcasterMessagesTally,
-  getDailyFarcasterMessagesTally,
-  getMonthlyFarcasterMessagesTally,
-  getYearlyFarcasterMessagesTally,
+  // getAllTimeFarcasterMessagesTally,
+  getDailyFarcasterMessagesTally, // getMonthlyFarcasterMessagesTally,
+  // getYearlyFarcasterMessagesTally,
 } from "~~/utils/how-based-are-you/filterFarcasterMessagesForTally";
 import {
-  getAllTimeOnchainTransactionsTally,
-  getDailyOnchainTransactionsTally,
-  getMonthlyOnchainTransactionsTally,
-  getYearlyOnchainTransactionsTally,
+  // getAllTimeOnchainTransactionsTally,
+  getDailyOnchainTransactions,
+  getDailyOnchainTransactionsTally, // getMonthlyOnchainTransactionsTally,
+  // getYearlyOnchainTransactionsTally,
 } from "~~/utils/how-based-are-you/filterOnchainTransactionsForTally";
 // import {
 //   getAllTimeTalentProtocolBadgesTally, // getDailyTalentProtocolBadgesTally,
@@ -39,6 +38,7 @@ import {
 //   getYearlyTalentProtocolBadgesTally,
 // } from "~~/utils/how-based-are-you/filterTalentProtocolBadgesForTally";
 import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
+import { getBlockExplorerTxLink } from "~~/utils/scaffold-eth";
 
 // const BASE_FID = 12142;
 // const COINBASE_WALLET_FID = 309857;
@@ -443,6 +443,7 @@ export default function DayPage({ params }: { params: { chain: string; address: 
 
   const numOfDays = 31;
 
+  const [selectedDay, setSelectedDay] = useState(1);
   const [selectedMonth, setSelectedMonth] = useState(9);
   const [selectedYear, setSelectedYear] = useState(2024);
 
@@ -452,35 +453,37 @@ export default function DayPage({ params }: { params: { chain: string; address: 
   const POINTS_PER_FARCASTER_MESSAGE = 25;
   // const POINTS_PER_CREDENTIAL = 10;
 
-  function getAllTimeTally(transactions: any) {
-    let tally = 0;
+  // function getAllTimeTally(transactions: any) {
+  //   let tally = 0;
 
-    tally += getAllTimeOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION);
-    tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain);
-    // tally += getAllTimeTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL);
+  //   tally += getAllTimeOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION);
+  //   tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain);
+  //   // tally += getAllTimeTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL);
 
-    return tally;
-  }
+  //   return tally;
+  // }
 
-  function getYearlyTally(transactions: any, year: number) {
-    let tally = 0;
+  // function getYearlyTally(transactions: any, year: number) {
+  //   let tally = 0;
 
-    tally += getYearlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year);
-    tally += getYearlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year);
-    // tally += getYearlyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year);
-    return tally;
-  }
+  //   tally += getYearlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year);
+  //   tally += getYearlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year);
+  //   // tally += getYearlyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year);
+  //   return tally;
+  // }
 
-  function getMonthlyTally(transactions: any, year: number, month: number) {
-    let tally = 0;
+  // function getMonthlyTally(transactions: any, year: number, month: number) {
+  //   let tally = 0;
 
-    tally += getMonthlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month);
-    tally += getMonthlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year, month);
-    // tally += getMonthlyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month);
-    return tally;
-  }
+  //   tally += getMonthlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month);
+  //   tally += getMonthlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year, month);
+  //   // tally += getMonthlyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month);
+  //   return tally;
+  // }
 
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
+    const onchainTransactions = getDailyOnchainTransactions(transactions, year, month, day);
+
     const onchainTransactionTally = getDailyOnchainTransactionsTally(
       transactions,
       POINTS_PER_TRANSACTION,
@@ -498,64 +501,84 @@ export default function DayPage({ params }: { params: { chain: string; address: 
     );
     // tally += getDailyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month, day);
     return {
+      transactions: onchainTransactions,
       totalTally: onchainTransactionTally + farcasterMessagesTally,
       onchainTransactionTally,
       farcasterMessagesTally,
     };
   }
 
-  const allTimeScore = getAllTimeTally(transactions);
-  const yearlyTally = getYearlyTally(transactions, selectedYear);
-  const totalMonthlyTally = getMonthlyTally(transactions, selectedYear, selectedMonth);
+  // const allTimeScore = getAllTimeTally(transactions);
+  // const yearlyTally = getYearlyTally(transactions, selectedYear);
+  // const totalMonthlyTally = getMonthlyTally(transactions, selectedYear, selectedMonth);
 
   const dailyTallies = [];
   for (let i = 0; i < numOfDays; i++) {
     const selectedDay = i + 1;
-    const { totalTally, onchainTransactionTally, farcasterMessagesTally } = getDailyTally(
-      transactions,
-      selectedYear,
-      selectedMonth,
-      selectedDay,
-    );
+    const {
+      transactions: filteredTransactions,
+      totalTally,
+      onchainTransactionTally,
+      farcasterMessagesTally,
+    } = getDailyTally(transactions, selectedYear, selectedMonth, selectedDay);
 
-    dailyTallies.push({ totalTally, onchainTransactionTally, farcasterMessagesTally });
+    dailyTallies.push({ filteredTransactions, totalTally, onchainTransactionTally, farcasterMessagesTally });
   }
 
-  const monthsComponents = dailyTallies.map((value, index) => {
-    const sources = [];
-    if (value.farcasterMessagesTally > 0) {
-      sources.push(
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          alt="Logo"
-          src={`/farcaster.webp`}
-          className="h-[25px] rounded-lg"
-          style={{ aspectRatio: "1 / 1" }}
-          key={"source" + sources.length}
-        />,
-      );
-    }
-    if (value.onchainTransactionTally) {
-      sources.push(
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          alt="Logo"
-          src={`/etherscan.png`}
-          className="h-[25px] rounded-lg"
-          style={{ aspectRatio: "1 / 1" }}
-          key={"source" + sources.length}
-        />,
-      );
+  const transactionsComponents = dailyTallies[selectedDay - 1]?.filteredTransactions?.map((value, index) => {
+    function removeTextBetweenChars(input: string, startChar: string, endChar: string): string {
+      // Create a regex pattern to match everything between the first occurrence of startChar and endChar, including the characters themselves
+      const regex = new RegExp(`\\${startChar}[^\\${startChar}\\${endChar}]*?\\${endChar}`, "g");
+      const result = input.replace(regex, "").trim(); // Remove matched content and trim any extra whitespace
+      return result;
     }
 
+    console.log(value);
     return (
-      <Link href={"/"} key={index}>
-        <div className="m-0.5 md:m-1">
-          <DayCard day={index + 1} score={value.totalTally} sources={sources} />
+      <Link key={"Transactions" + index} href={getBlockExplorerTxLink(chain.id, value.hash)} target="#">
+        <div className="flex space-x-1 bg-base-100 rounded-lg p-2">
+          <div>#{index}</div>
+          {value.functionName.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>}
         </div>
       </Link>
     );
   });
+
+  // const monthsComponents = dailyTallies.map((value, index) => {
+  //   const sources = [];
+  //   if (value.farcasterMessagesTally > 0) {
+  //     sources.push(
+  //       /* eslint-disable-next-line @next/next/no-img-element */
+  //       <img
+  //         alt="Logo"
+  //         src={`/farcaster.webp`}
+  //         className="h-[25px] rounded-lg"
+  //         style={{ aspectRatio: "1 / 1" }}
+  //         key={"source" + sources.length}
+  //       />,
+  //     );
+  //   }
+  //   if (value.onchainTransactionTally) {
+  //     sources.push(
+  //       /* eslint-disable-next-line @next/next/no-img-element */
+  //       <img
+  //         alt="Logo"
+  //         src={`/etherscan.png`}
+  //         className="h-[25px] rounded-lg"
+  //         style={{ aspectRatio: "1 / 1" }}
+  //         key={"source" + sources.length}
+  //       />,
+  //     );
+  //   }
+
+  //   return (
+  //     <Link href={"/"} key={index}>
+  //       <div className="m-0.5 md:m-1">
+  //         <DayCard day={index + 1} score={value.totalTally} sources={sources} />
+  //       </div>
+  //     </Link>
+  //   );
+  // });
 
   const [isLoadingWebsite, setIsLoadingWebsite] = useState(false);
   useEffect(() => {
@@ -572,80 +595,8 @@ export default function DayPage({ params }: { params: { chain: string; address: 
 
     transactionOutput = <div>{errorMessage}</div>;
   } else {
-    function customNotation(num: any) {
-      if (num < 1000) {
-        return num.toString(); // Return the number as a string if it's less than 1000
-      }
-
-      const units = ["K", "M", "B", "T"]; // K = Thousand, M = Million, B = Billion, T = Trillion
-      let index = 0; // Index for the units
-      let result = num;
-
-      // Loop to find the appropriate unit
-      while (result >= 1000 && index < units.length) {
-        result /= 1000;
-        index++;
-      }
-
-      // Format the result to one decimal place if necessary
-      return `${result.toFixed(1)}${units[index - 1] || ""}`;
-    }
-
-    transactionOutput = (
-      <div className="bg-secondary rounded-lg">
-        <div className="p-1 md:p-4">
-          <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">
-            <Score title="Monthly Score" score={customNotation(totalMonthlyTally)} />
-            <Score title="Yearly Score" score={customNotation(yearlyTally)} />
-            <Score title="All Time Score" score={customNotation(allTimeScore)} />
-          </div>
-
-          <div className="flex flex-col bg-base-100">
-            <div className="flex flex-wrap justify-center items-center space-x-1 m-4 rounded-xl">
-              <button
-                onClick={() => {
-                  if (selectedMonth === 1) {
-                    setSelectedMonth(12);
-                    setSelectedYear(selectedYear - 1);
-                    return;
-                  }
-
-                  setSelectedMonth(selectedMonth - 1);
-                }}
-                className="btn btn-primary btn-sm md:btn-md"
-              >
-                {"<"}
-              </button>
-              <div className="w-56 md:w-[600px] flex flex-col items-center justify-center">
-                <p className="text-center text-2xl md:text-6xl m-0">
-                  {monthsAsStrings[selectedMonth - 1]} {selectedYear}
-                </p>
-              </div>
-
-              <button
-                onClick={() => {
-                  if (selectedMonth === 12) {
-                    setSelectedMonth(1);
-                    setSelectedYear(selectedYear + 1);
-
-                    return;
-                  }
-
-                  setSelectedMonth(selectedMonth + 1);
-                }}
-                className="btn btn-primary btn-sm md:btn-md"
-              >
-                {">"}
-              </button>
-            </div>
-            <div className="flex flex-wrap justify-center rounded-lg mx-1 md:mx-[450px]">{monthsComponents}</div>
-          </div>
-        </div>
-      </div>
-    );
+    transactionOutput = <div className="flex flex-col space-y-1">{transactionsComponents}</div>;
   }
-
-  console.log(transactionOutput);
 
   return (
     <>
@@ -662,8 +613,87 @@ export default function DayPage({ params }: { params: { chain: string; address: 
           />
         </div>
         <p>This is the day page</p>
+        <div className="flex flex-col bg-base-100">
+          <div className="flex flex-wrap justify-center items-center space-x-1 m-4 rounded-xl">
+            <button
+              onClick={() => {
+                if (selectedMonth === 1) {
+                  setSelectedMonth(12);
+                  setSelectedYear(selectedYear - 1);
+                  return;
+                }
 
-        {/* {transactionOutput} */}
+                setSelectedMonth(selectedMonth - 1);
+              }}
+              className="btn btn-primary btn-sm md:btn-md"
+            >
+              {"<"}
+            </button>
+            <div className="w-56 md:w-[600px] flex flex-col items-center justify-center">
+              <p className="text-center text-2xl md:text-6xl m-0">
+                {monthsAsStrings[selectedMonth - 1]} {selectedYear}
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                if (selectedMonth === 12) {
+                  setSelectedMonth(1);
+                  setSelectedYear(selectedYear + 1);
+
+                  return;
+                }
+
+                setSelectedMonth(selectedMonth + 1);
+              }}
+              className="btn btn-primary btn-sm md:btn-md"
+            >
+              {">"}
+            </button>
+          </div>
+        </div>
+        <div className="flex flex-col bg-base-100">
+          <div className="flex flex-wrap justify-center items-center space-x-1 m-4 rounded-xl">
+            <button
+              onClick={() => {
+                if (selectedDay === 1) {
+                  setSelectedDay(31);
+                  setSelectedMonth(selectedMonth - 1);
+                  return;
+                }
+
+                setSelectedDay(selectedDay - 1);
+              }}
+              className="btn btn-primary btn-sm md:btn-md"
+            >
+              {"<"}
+            </button>
+            <div className="w-56 md:w-[600px] flex flex-col items-center justify-center">
+              <p className="text-center text-2xl md:text-6xl m-0">
+                {selectedDay}
+                {/* {monthsAsStrings[selectedMonth - 1]} {selectedYear} */}
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                if (selectedDay === 31) {
+                  setSelectedDay(1);
+                  setSelectedMonth(selectedMonth + 1);
+
+                  return;
+                }
+
+                setSelectedDay(selectedDay + 1);
+              }}
+              className="btn btn-primary btn-sm md:btn-md"
+            >
+              {">"}
+            </button>
+          </div>
+        </div>
+
+        {transactionOutput}
       </div>
     </>
   );
