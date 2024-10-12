@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { isAddress } from "viem";
 import { InputBase } from "~~/components/scaffold-eth";
 import { useGlobalState } from "~~/services/store/store";
 
@@ -38,10 +39,23 @@ export default function WelcomePage({ params }: { params: { chain: string } }) {
   const chainObj = chainObjs[params.chain as keyof typeof chainObjs];
 
   return (
-    <div className="flex flex-col justify-center items-center space-y-32">
+    <form
+      onSubmit={e => {
+        e.preventDefault();
+
+        let finalNameValue = nameValue;
+
+        if (!isAddress(nameValue)) {
+          finalNameValue = finalNameValue.toLowerCase();
+        }
+        router.push(`/${params.chain}/${finalNameValue}`);
+      }}
+      className="flex flex-col justify-center items-center space-y-32"
+    >
       <p className="text-4xl md:text-8xl text-center text-primary">{chainObj.titleCard}</p>
       <div className="w-[300px] md:w-[800px] flex justify-center flex-col text-center">
         <p className="text-xl md:text-4xl">Enter an Address/ENS Name/Basename</p>
+
         <InputBase
           value={nameValue}
           onChange={updatedValue => {
@@ -52,15 +66,10 @@ export default function WelcomePage({ params }: { params: { chain: string } }) {
       </div>
       <div className="flex flex-col justify-center">
         <p className="text-xl md:text-4xl text-center">{chainObj.ctaCard}</p>
-        <button
-          onClick={() => {
-            router.push(`/${params.chain}/${nameValue}`);
-          }}
-          className="btn btn-primary btn-lg text-4xl"
-        >
+        <button type="submit" className="btn btn-primary btn-lg text-4xl">
           Go!
         </button>
       </div>
-    </div>
+    </form>
   );
 }
