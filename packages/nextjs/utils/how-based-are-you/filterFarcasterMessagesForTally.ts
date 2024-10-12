@@ -12,15 +12,13 @@ const chainsObjs = {
   },
 };
 
-export function getAllTimeFarcasterMessages(array: any[], chain: Chain) {
+export function getAllTimeFarcasterMessages(array: any[], mentions: any[]) {
   return array.filter(element => {
     let isPresent = false;
 
     for (let i = 0; i < element.data.castAddBody?.mentions.length; i++) {
-      for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
-        if (
-          element.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]
-        ) {
+      for (let j = 0; j < mentions.length; j++) {
+        if (element.data.castAddBody.mentions[i] === mentions[j]) {
           isPresent = true;
         }
       }
@@ -29,15 +27,13 @@ export function getAllTimeFarcasterMessages(array: any[], chain: Chain) {
   });
 }
 
-export function getYearlyFarcasterMessages(array: any[], year: number, chain: Chain) {
+export function getYearlyFarcasterMessages(array: any[], year: number, mentions: any[]) {
   return array.filter(element => {
     const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
     let isPresent = false;
     for (let i = 0; i < element.data.castAddBody?.mentions.length; i++) {
-      for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
-        if (
-          element.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]
-        ) {
+      for (let j = 0; j < mentions.length; j++) {
+        if (element.data.castAddBody.mentions[i] === mentions[j]) {
           isPresent = true;
         }
       }
@@ -46,15 +42,13 @@ export function getYearlyFarcasterMessages(array: any[], year: number, chain: Ch
   });
 }
 
-export function getMonthlyFarcasterMessages(array: any[], year: number, month: number, chain: Chain) {
+export function getMonthlyFarcasterMessages(array: any[], year: number, month: number, mentions: any[]) {
   return array.filter(element => {
     const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
     let isPresent = false;
     for (let i = 0; i < element.data.castAddBody?.mentions.length; i++) {
-      for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
-        if (
-          element.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]
-        ) {
+      for (let j = 0; j < mentions.length; j++) {
+        if (element.data.castAddBody.mentions[i] === mentions[j]) {
           isPresent = true;
         }
       }
@@ -63,15 +57,13 @@ export function getMonthlyFarcasterMessages(array: any[], year: number, month: n
   });
 }
 
-export function getDailyFarcasterMessage(array: any[], year: number, month: number, day: number, chain: Chain) {
+export function getDailyFarcasterMessage(array: any[], year: number, month: number, day: number, mentions: any[]) {
   return array.filter(element => {
     const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
     let isPresent = false;
     for (let i = 0; i < element.data.castAddBody?.mentions.length; i++) {
-      for (let j = 0; j < chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids.length; j++) {
-        if (
-          element.data.castAddBody.mentions[i] === chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids[j]
-        ) {
+      for (let j = 0; j < mentions.length; j++) {
+        if (element.data.castAddBody.mentions[i] === mentions[j]) {
           isPresent = true;
         }
       }
@@ -81,7 +73,9 @@ export function getDailyFarcasterMessage(array: any[], year: number, month: numb
 }
 
 export function getAllTimeFarcasterMessagesTally(array: any[], pointsPer: number, chain: Chain) {
-  return getAllTimeFarcasterMessages(array, chain).length * pointsPer;
+  const mentions = chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids;
+
+  return getAllTimeFarcasterMessages(array, mentions).length * pointsPer;
   // return getTallyForFilteredArray(array, pointsPer, (element: any) => {
   //   let isPresent = false;
 
@@ -99,7 +93,8 @@ export function getAllTimeFarcasterMessagesTally(array: any[], pointsPer: number
 }
 
 export function getYearlyFarcasterMessagesTally(array: any[], pointsPer: number, chain: Chain, year: number) {
-  return getYearlyFarcasterMessages(array, year, chain).length * pointsPer;
+  const mentions = chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids;
+  return getYearlyFarcasterMessages(array, year, mentions).length * pointsPer;
 
   // return getTallyForFilteredArray(array, pointsPer, (element: any) => {
   //   const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
@@ -124,7 +119,8 @@ export function getMonthlyFarcasterMessagesTally(
   year: number,
   month: number,
 ) {
-  return getMonthlyFarcasterMessages(array, year, month, chain).length * pointsPer;
+  const mentions = chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids;
+  return getMonthlyFarcasterMessages(array, year, month, mentions).length * pointsPer;
 
   // return getTallyForFilteredArray(array, pointsPer, (element: any) => {
   //   const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
@@ -150,7 +146,8 @@ export function getDailyFarcasterMessagesTally(
   month: number,
   day: number,
 ) {
-  return getDailyFarcasterMessage(array, year, month, day, chain).length * pointsPer;
+  const mentions = chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids;
+  return getDailyFarcasterMessage(array, year, month, day, mentions).length * pointsPer;
 
   // return getTallyForFilteredArray(array, pointsPer, (element: any) => {
   //   const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);

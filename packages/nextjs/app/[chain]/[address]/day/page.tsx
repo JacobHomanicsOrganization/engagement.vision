@@ -482,8 +482,19 @@ export default function DayPage({ params }: { params: { chain: string; address: 
   // }
 
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
+    const chainsObjs = {
+      Base: {
+        mentionFids: [
+          12142, //Base,
+          309857, //Coinbase Wallet
+        ],
+      },
+    };
+
+    const mentions = chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids;
+
     const onchainTransactions = getDailyOnchainTransactions(transactions, year, month, day);
-    const filteredFarcasterMessages = getDailyFarcasterMessage(farcasterMessages, year, month, day, chain);
+    const filteredFarcasterMessages = getDailyFarcasterMessage(farcasterMessages, year, month, day, mentions);
     const onchainTransactionTally = getDailyOnchainTransactionsTally(
       transactions,
       POINTS_PER_TRANSACTION,
@@ -552,7 +563,9 @@ export default function DayPage({ params }: { params: { chain: string; address: 
       const valueToInsert =
         chainsObjs[chainKey][value.data.castAddBody.mentions[i] as keyof (typeof chainsObjs)[typeof chainKey]];
 
-      textArray.splice(adjustedPosition, 0, "@" + valueToInsert.toString());
+      if (valueToInsert !== undefined) {
+        textArray.splice(adjustedPosition, 0, "@" + valueToInsert.toString());
+      }
     }
 
     const reconstructedText = textArray.join("");
