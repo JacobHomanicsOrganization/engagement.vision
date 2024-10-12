@@ -43,6 +43,25 @@ import {
 import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 import { getBlockExplorerTxLink } from "~~/utils/scaffold-eth";
 
+function customNotation(num: any) {
+  if (num < 1000) {
+    return num.toString(); // Return the number as a string if it's less than 1000
+  }
+
+  const units = ["K", "M", "B", "T"]; // K = Thousand, M = Million, B = Billion, T = Trillion
+  let index = 0; // Index for the units
+  let result = num;
+
+  // Loop to find the appropriate unit
+  while (result >= 1000 && index < units.length) {
+    result /= 1000;
+    index++;
+  }
+
+  // Format the result to one decimal place if necessary
+  return `${result.toFixed(1)}${units[index - 1] || ""}`;
+}
+
 // const BASE_FID = 12142;
 // const COINBASE_WALLET_FID = 309857;
 // const FARCASTER_START_EPOCH = 1609459200;
@@ -575,10 +594,9 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     return (
       <Link key={"Farcaster Messages" + index} href={getBlockExplorerTxLink(chain.id, value.hash)} target="#">
-        <div className="flex space-x-1 bg-base-100 rounded-lg p-2">
-          <div>#{index}</div>
+        <div className="flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary">
+          <div className="bg-secondary rounded-lg">#{index}</div>
           <div>{reconstructedText}</div>
-          {/* {value.functionName.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>} */}
         </div>
       </Link>
     );
@@ -594,8 +612,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     return (
       <Link key={"Transactions" + index} href={getBlockExplorerTxLink(chain.id, value.hash)} target="#">
-        <div className="flex space-x-1 bg-base-100 rounded-lg p-2">
-          <div>#{index}</div>
+        <div className="flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary">
+          <div className="bg-secondary rounded-lg">#{index}</div>
           {value.functionName.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>}
         </div>
       </Link>
@@ -659,47 +677,10 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     transactionOutput = <div>{errorMessage}</div>;
   } else {
-    function customNotation(num: any) {
-      if (num < 1000) {
-        return num.toString(); // Return the number as a string if it's less than 1000
-      }
-
-      const units = ["K", "M", "B", "T"]; // K = Thousand, M = Million, B = Billion, T = Trillion
-      let index = 0; // Index for the units
-      let result = num;
-
-      // Loop to find the appropriate unit
-      while (result >= 1000 && index < units.length) {
-        result /= 1000;
-        index++;
-      }
-
-      // Format the result to one decimal place if necessary
-      return `${result.toFixed(1)}${units[index - 1] || ""}`;
-    }
-
     transactionOutput = (
       <div className="bg-secondary rounded-lg">
         <div className="p-1 md:p-4">
-          <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">
-            <Score title="Monthly Score" score={customNotation(totalMonthlyTally)} />
-            <Score title="Yearly Score" score={customNotation(yearlyTally)} />
-            <Score title="All Time Score" score={customNotation(allTimeScore)} />
-          </div>
-
           <div className="flex flex-col bg-base-100">
-            {isInDayView ? (
-              <button
-                className="btn btn-primary m-10"
-                onClick={() => {
-                  setIsInDayView(false);
-                }}
-              >
-                Monthly View
-              </button>
-            ) : (
-              <></>
-            )}
             <div className="flex flex-wrap justify-center items-center space-x-1 m-4 rounded-xl">
               <button
                 onClick={() => {
@@ -783,11 +764,38 @@ export default function UserPage({ params }: { params: { chain: string; address:
             </div>
 
             {isInDayView ? (
-              <div>
-                <div>Farcaster Messages</div>
-                <div className="flex flex-col space-y-1">{farcasterMessagesComponents}</div>
-                <div>Transactions</div>
-                <div className="flex flex-col space-y-1">{transactionsComponents}</div>
+              <div className="mx-1 md:mx-[450px] text-center">
+                {farcasterMessagesComponents.length === 0 && transactionsComponents.length === 0 ? (
+                  <p>No points were earned on this day!</p>
+                ) : (
+                  <></>
+                )}
+                {farcasterMessagesComponents.length > 0 ? (
+                  <>
+                    <div className="text-4xl">Farcaster Messages</div>
+                    <div className="flex flex-col space-y-1">{farcasterMessagesComponents}</div>
+                  </>
+                ) : (
+                  <></>
+                )}
+
+                {transactionsComponents.length > 0 ? (
+                  <>
+                    <div className="text-4xl">Transactions</div>
+                    <div className="flex flex-col space-y-1">{transactionsComponents}</div>{" "}
+                  </>
+                ) : (
+                  <></>
+                )}
+
+                <button
+                  className="btn btn-primary m-10"
+                  onClick={() => {
+                    setIsInDayView(false);
+                  }}
+                >
+                  Back to Monthly View
+                </button>
               </div>
             ) : (
               <div className="flex flex-wrap justify-center rounded-lg mx-1 md:mx-[450px]">{monthsComponents}</div>
@@ -803,14 +811,22 @@ export default function UserPage({ params }: { params: { chain: string; address:
       {/* <TransactionList address={params.address} year={selectedYear} month={selectedMonth} /> */}
       <div className="flex items-center flex-col flex-grow">
         <div className="m-4">
-          <PfpCard
-            name={profile?.name ?? profile?.addr}
-            image={profile?.avatar}
-            description={profile?.description}
-            chain={chain}
-            address={profile?.addr}
-            size="sm"
-          />
+          <div className="flex">
+            <PfpCard
+              name={profile?.name ?? profile?.addr}
+              image={profile?.avatar}
+              description={profile?.description}
+              chain={chain}
+              address={profile?.addr}
+              size="sm"
+            />
+
+            <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">
+              <Score title="Monthly Score" score={customNotation(totalMonthlyTally)} />
+              <Score title="Yearly Score" score={customNotation(yearlyTally)} />
+              <Score title="All Time Score" score={customNotation(allTimeScore)} />
+            </div>
+          </div>
         </div>
         {transactionOutput}
       </div>
