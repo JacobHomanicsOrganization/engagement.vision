@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import axios from "axios";
 import { Chain, isAddress } from "viem";
 import { base, mainnet } from "viem/chains";
@@ -548,9 +549,11 @@ export default function UserPage({ params }: { params: { chain: string; address:
     }
 
     return (
-      <div className="m-0.5 md:m-1" key={index}>
-        <DayCard day={index + 1} score={value.totalTally} sources={sources} />
-      </div>
+      <Link href={"/"} key={index}>
+        <div className="m-0.5 md:m-1">
+          <DayCard day={index + 1} score={value.totalTally} sources={sources} />
+        </div>
+      </Link>
     );
   });
 

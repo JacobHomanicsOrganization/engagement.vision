@@ -56,7 +56,7 @@ const Home: NextPage = () => {
   });
   return (
     <>
-      <div className="flex items-center flex-col flex-grow">
+      <div className="flex items-center flex-col flex-grow bg-gradient-to-t from-primary to-secondary">
         <div className="px-5 mt-4">
           <h1 className="text-center">
             <span className="block text-2xl mb-2">Welcome to</span>
@@ -73,8 +73,8 @@ const Home: NextPage = () => {
           </p>
         </div>
 
-        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="bg-primary rounded-lg">
+        <div className="flex-grow w-full mt-16 px-8 py-12">
+          <div className="rounded-lg">
             {" "}
             <p className="text-center text-lg">Select a blockchain to get started! </p>
           </div>
