@@ -23,6 +23,31 @@ function areAnyMentionsPresent(mentionsCriteria: any[] = [], observedMentions: a
   return isPresent;
 }
 
+function getFarcasterDate(farcasterMessageTimestamp: number) {
+  return new Date((FARCASTER_START_EPOCH + farcasterMessageTimestamp) * 1000);
+}
+
+function isWithinYear(farcasterMessageTimestamp: number, year: number) {
+  const date = getFarcasterDate(farcasterMessageTimestamp);
+  return date.getFullYear() === year;
+}
+
+function isWithinMonth(farcasterMessageTimestamp: number, year: number, month: number) {
+  const date = getFarcasterDate(farcasterMessageTimestamp);
+  return date.getFullYear() === year && date.getMonth() + 1 === month;
+}
+
+function isWithinDay(farcasterMessageTimestamp: number, year: number, month: number, day: number) {
+  const date = getFarcasterDate(farcasterMessageTimestamp);
+  return date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day;
+}
+
+//
+//
+// Mentions
+//
+//
+
 export function getAllTimeFarcasterMessages(array: any[], criteria: any[] = []) {
   return array.filter(element => {
     return areAnyMentionsPresent(criteria, element.data.castAddBody?.mentions);
@@ -31,31 +56,26 @@ export function getAllTimeFarcasterMessages(array: any[], criteria: any[] = []) 
 
 export function getYearlyFarcasterMessages(array: any[], year: number, criteria: any[] = []) {
   return array.filter(element => {
-    const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
-    return areAnyMentionsPresent(criteria, element.data.castAddBody?.mentions) && date.getFullYear() === year;
+    return (
+      areAnyMentionsPresent(criteria, element.data.castAddBody?.mentions) && isWithinYear(element.data.timestamp, year)
+    );
   });
 }
 
 export function getMonthlyFarcasterMessages(array: any[], year: number, month: number, criteria: any[] = []) {
   return array.filter(element => {
-    const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
     return (
       areAnyMentionsPresent(criteria, element.data.castAddBody?.mentions) &&
-      date.getFullYear() === year &&
-      date.getMonth() + 1 === month
+      isWithinMonth(element.data.timestamp, year, month)
     );
   });
 }
 
 export function getDailyFarcasterMessage(array: any[], year: number, month: number, day: number, criteria: any[] = []) {
   return array.filter(element => {
-    const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
-
     return (
       areAnyMentionsPresent(criteria, element.data.castAddBody?.mentions) &&
-      date.getFullYear() === year &&
-      date.getMonth() + 1 === month &&
-      date.getDate() === day
+      isWithinDay(element.data.timestamp, year, month, day)
     );
   });
 }
@@ -89,7 +109,11 @@ export function getDailyFarcasterMessagesTally(
   return getDailyFarcasterMessage(array, year, month, day, criteria).length * pointsPer;
 }
 
-//https://warpcast.com/~/channel/base
+//
+//
+// Channels
+//
+//
 export function getAllTimeFarcasterMessagesInSpecificChannel(array: any[], criteria: any[] = []) {
   return array.filter(element => {
     return getIsPresent(criteria, element.data.castAddBody?.parentUrl);
@@ -98,8 +122,7 @@ export function getAllTimeFarcasterMessagesInSpecificChannel(array: any[], crite
 
 export function getYearlyFarcasterMessagesInSpecificChannel(array: any[], year: number, criteria: any[] = []) {
   return array.filter(element => {
-    const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
-    return getIsPresent(criteria, element.data.castAddBody?.parentUrl) && date.getFullYear() === year;
+    return getIsPresent(criteria, element.data.castAddBody?.parentUrl) && isWithinYear(element.data.timestamp, year);
   });
 }
 
@@ -110,11 +133,8 @@ export function getMonthlyFarcasterMessagesInSpecificChannel(
   criteria: any[] = [],
 ) {
   return array.filter(element => {
-    const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
     return (
-      getIsPresent(criteria, element.data.castAddBody?.parentUrl) &&
-      date.getFullYear() === year &&
-      date.getMonth() + 1 === month
+      getIsPresent(criteria, element.data.castAddBody?.parentUrl) && isWithinMonth(element.data.timestamp, year, month)
     );
   });
 }
@@ -127,13 +147,9 @@ export function getDailyFarcasterMessageInSpecificChannel(
   criteria: any[] = [],
 ) {
   return array.filter(element => {
-    const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
-
     return (
       getIsPresent(criteria, element.data.castAddBody?.parentUrl) &&
-      date.getFullYear() === year &&
-      date.getMonth() + 1 === month &&
-      date.getDate() === day
+      isWithinDay(element.data.timestamp, year, month, day)
     );
   });
 }
