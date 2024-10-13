@@ -405,26 +405,33 @@ export default function UserPage({ params }: { params: { chain: string; address:
         return /^\d+$/.test(str);
       }
 
-      if (chosenProfile.farcaster) {
-        console.log("I TRIED");
+      if (!chosenProfile.farcaster) {
+        if (isEnsName(chosenProfile.name) || isBasename(chosenProfile.name)) {
+          chosenProfile.farcaster = chosenProfile.name;
+        }
+      }
 
+      if (chosenProfile.farcaster) {
         let fid;
         if (isNumeric(chosenProfile.farcaster)) {
           fid = chosenProfile.farcaster;
         } else {
-          if (!isEnsName(chosenProfile.farcaster)) {
+          const isEnsNameResult = isEnsName(chosenProfile.farcaster);
+          const isBasenameResult = isBasename(chosenProfile.farcaster);
+
+          if (isEnsNameResult === false && isBasenameResult === false) {
             chosenProfile.farcasterName = chosenProfile.farcaster;
 
             fid = await getUserWarpcastFid(chosenProfile.farcaster);
           } else {
             const response = await fetch(`/api/neynar?address=${chosenProfile.addr}`);
             const data = await response.json();
-            const user = data[chosenProfile.addr?.toLowerCase() || ""];
-            fid = user[0].fid;
-            chosenProfile.farcasterName = chosenProfile.farcaster;
 
-            //is ENS name and supported.
-            // throw "Error with ENS support";
+            if (!data.error) {
+              const user = data[chosenProfile.addr?.toLowerCase() || ""];
+              fid = user[0].fid;
+              chosenProfile.farcasterName = chosenProfile.farcaster;
+            }
           }
         }
 
