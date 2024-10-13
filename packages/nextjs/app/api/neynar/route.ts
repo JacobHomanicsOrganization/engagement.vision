@@ -6,7 +6,7 @@ export const GET = async (req: Request) => {
     const { searchParams } = new URL(req.url);
     const address = searchParams.get("address");
 
-    const channels = await neynarClient.fetchBulkUsersByEthereumAddress([address!]);
+    const channels = await neynarClient.fetchBulkUsersByEthereumAddress([address || ""]);
 
     return NextResponse.json(channels, { status: 200 });
   } catch (error) {
