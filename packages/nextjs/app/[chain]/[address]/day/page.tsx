@@ -505,7 +505,7 @@ export default function DayPage({ params }: { params: { chain: string; address: 
     const farcasterMessagesTally = getDailyFarcasterMessagesTally(
       farcasterMessages,
       POINTS_PER_FARCASTER_MESSAGE,
-      chain,
+      mentions,
       year,
       month,
       day,

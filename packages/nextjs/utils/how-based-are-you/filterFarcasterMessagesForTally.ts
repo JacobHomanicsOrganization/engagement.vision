@@ -1,5 +1,4 @@
 // import { getTallyForFilteredArray } from "./getTallyForFilteredArray";
-import { Chain } from "viem";
 
 const FARCASTER_START_EPOCH = 1609459200;
 
@@ -63,45 +62,31 @@ export function getDailyFarcasterMessage(array: any[], year: number, month: numb
   });
 }
 
-const mentionsCriteria = {
-  Base: {
-    fids: [
-      12142, //Base,
-      309857, //Coinbase Wallet
-    ],
-  },
-};
-
-export function getAllTimeFarcasterMessagesTally(array: any[], pointsPer: number, chain: Chain) {
-  const mentions = mentionsCriteria[chain?.name as keyof typeof mentionsCriteria]?.fids;
-
+export function getAllTimeFarcasterMessagesTally(array: any[], pointsPer: number, mentions: any[] = []) {
   return getAllTimeFarcasterMessages(array, mentions).length * pointsPer;
 }
 
-export function getYearlyFarcasterMessagesTally(array: any[], pointsPer: number, chain: Chain, year: number) {
-  const mentions = mentionsCriteria[chain?.name as keyof typeof mentionsCriteria]?.fids;
+export function getYearlyFarcasterMessagesTally(array: any[], pointsPer: number, mentions: any[] = [], year: number) {
   return getYearlyFarcasterMessages(array, year, mentions).length * pointsPer;
 }
 
 export function getMonthlyFarcasterMessagesTally(
   array: any[],
   pointsPer: number,
-  chain: Chain,
+  mentions: any[] = [],
   year: number,
   month: number,
 ) {
-  const mentions = mentionsCriteria[chain?.name as keyof typeof mentionsCriteria]?.fids;
   return getMonthlyFarcasterMessages(array, year, month, mentions).length * pointsPer;
 }
 
 export function getDailyFarcasterMessagesTally(
   array: any[],
   pointsPer: number,
-  chain: Chain,
+  mentions: any[] = [],
   year: number,
   month: number,
   day: number,
 ) {
-  const mentions = mentionsCriteria[chain?.name as keyof typeof mentionsCriteria]?.fids;
   return getDailyFarcasterMessage(array, year, month, day, mentions).length * pointsPer;
 }

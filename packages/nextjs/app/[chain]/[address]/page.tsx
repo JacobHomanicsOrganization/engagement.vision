@@ -406,16 +406,25 @@ export default function UserPage({ params }: { params: { chain: string; address:
       }
 
       if (chosenProfile.farcaster) {
+        console.log("I TRIED");
+
         let fid;
         if (isNumeric(chosenProfile.farcaster)) {
           fid = chosenProfile.farcaster;
         } else {
           if (!isEnsName(chosenProfile.farcaster)) {
             chosenProfile.farcasterName = chosenProfile.farcaster;
+
             fid = await getUserWarpcastFid(chosenProfile.farcaster);
           } else {
+            const response = await fetch(`/api/neynar?address=${chosenProfile.addr}`);
+            const data = await response.json();
+            const user = data[chosenProfile.addr?.toLowerCase() || ""];
+            fid = user[0].fid;
+            chosenProfile.farcasterName = chosenProfile.farcaster;
+
             //is ENS name and supported.
-            throw "Error with ENS support";
+            // throw "Error with ENS support";
           }
         }
 
@@ -495,11 +504,37 @@ export default function UserPage({ params }: { params: { chain: string; address:
   const POINTS_PER_FARCASTER_MESSAGE = 25;
   // const POINTS_PER_CREDENTIAL = 10;
 
+  const mentionsCriteriaDatabase = {
+    Base: {
+      fids: [
+        12142, //Base,
+        309857, //Coinbase Wallet
+        20910, //Zora
+      ],
+    },
+    "OP Mainnet": {
+      fids: [
+        300898, //Optimism
+      ],
+    },
+  };
+
+  const mentionsDatabase = {
+    12142: "base",
+    309857: "coinbasewallet",
+    12144: "wbnns",
+    99: "jessepollack",
+    20910: "zora",
+    300898: "optimism",
+  };
+
+  const mentionsCriteria = mentionsCriteriaDatabase[chain?.name as keyof typeof mentionsCriteriaDatabase]?.fids;
+
   function getAllTimeTally(transactions: any) {
     let tally = 0;
 
     tally += getAllTimeOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION);
-    tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain);
+    tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, mentionsCriteria);
     // tally += getAllTimeTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL);
 
     return tally;
@@ -509,7 +544,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let tally = 0;
 
     tally += getYearlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year);
-    tally += getYearlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year);
+    tally += getYearlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, mentionsCriteria, year);
     // tally += getYearlyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year);
     return tally;
   }
@@ -518,25 +553,20 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let tally = 0;
 
     tally += getMonthlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month);
-    tally += getMonthlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, chain, year, month);
+    tally += getMonthlyFarcasterMessagesTally(
+      farcasterMessages,
+      POINTS_PER_FARCASTER_MESSAGE,
+      mentionsCriteria,
+      year,
+      month,
+    );
     // tally += getMonthlyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month);
     return tally;
   }
 
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
-    const chainsObjs = {
-      Base: {
-        mentionFids: [
-          12142, //Base,
-          309857, //Coinbase Wallet
-        ],
-      },
-    };
-
-    const mentions = chainsObjs[chain?.name as keyof typeof chainsObjs]?.mentionFids;
-
     const onchainTransactions = getDailyOnchainTransactions(transactions, year, month, day);
-    const filteredFarcasterMessages = getDailyFarcasterMessage(farcasterMessages, year, month, day, mentions);
+    const filteredFarcasterMessages = getDailyFarcasterMessage(farcasterMessages, year, month, day, mentionsCriteria);
 
     const onchainTransactionTally = getDailyOnchainTransactionsTally(
       transactions,
@@ -548,11 +578,12 @@ export default function UserPage({ params }: { params: { chain: string; address:
     const farcasterMessagesTally = getDailyFarcasterMessagesTally(
       farcasterMessages,
       POINTS_PER_FARCASTER_MESSAGE,
-      chain,
+      mentionsCriteria,
       year,
       month,
       day,
     );
+
     // tally += getDailyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month, day);
     return {
       transactions: onchainTransactions,
@@ -589,14 +620,10 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   const [isInDayView, setIsInDayView] = useState(false);
 
-  const farcasterMessagesComponents = dailyTallies[selectedDay - 1]?.filteredFarcasterMessages?.map((value, index) => {
-    const mentionsDatabase = {
-      12142: "base",
-      309857: "coinbasewallet",
-      12144: "wbnns",
-      99: "jessepollack",
-    };
+  // console.log(farcasterMessages);
+  // console.log(dailyTallies[selectedDay - 1]?.filteredFarcasterMessages);
 
+  const farcasterMessagesComponents = dailyTallies[selectedDay - 1]?.filteredFarcasterMessages?.map((value, index) => {
     const textArray = value.data.castAddBody.text.split("");
 
     for (let i = 0; i < value.data.castAddBody.mentions.length; i++) {
@@ -610,8 +637,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
     }
 
     const reconstructedText = textArray.join("");
-
-    console.log(value);
 
     return (
       <Link
