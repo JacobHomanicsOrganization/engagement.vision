@@ -2,63 +2,53 @@
 
 const FARCASTER_START_EPOCH = 1609459200;
 
-export function getAllTimeFarcasterMessages(array: any[], mentions: any[] = []) {
-  return array.filter(element => {
-    let isPresent = false;
+function areAnyMentionsPresent(mentionsCriteria: any[] = [], observedMentions: any[] = []) {
+  let isPresent = false;
 
-    for (let i = 0; i < element.data.castAddBody?.mentions.length; i++) {
-      for (let j = 0; j < mentions.length; j++) {
-        if (element.data.castAddBody.mentions[i] === mentions[j]) {
-          isPresent = true;
-        }
+  for (let i = 0; i < observedMentions.length; i++) {
+    for (let j = 0; j < mentionsCriteria.length; j++) {
+      if (observedMentions[i] === mentionsCriteria[j]) {
+        isPresent = true;
       }
     }
-    return isPresent;
+  }
+  return isPresent;
+}
+
+export function getAllTimeFarcasterMessages(array: any[], mentions: any[] = []) {
+  return array.filter(element => {
+    return areAnyMentionsPresent(mentions, element.data.castAddBody?.mentions);
   });
 }
 
 export function getYearlyFarcasterMessages(array: any[], year: number, mentions: any[] = []) {
   return array.filter(element => {
     const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
-    let isPresent = false;
-    for (let i = 0; i < element.data.castAddBody?.mentions.length; i++) {
-      for (let j = 0; j < mentions.length; j++) {
-        if (element.data.castAddBody.mentions[i] === mentions[j]) {
-          isPresent = true;
-        }
-      }
-    }
-    return isPresent && date.getFullYear() === year;
+    return areAnyMentionsPresent(mentions, element.data.castAddBody?.mentions) && date.getFullYear() === year;
   });
 }
 
 export function getMonthlyFarcasterMessages(array: any[], year: number, month: number, mentions: any[] = []) {
   return array.filter(element => {
     const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
-    let isPresent = false;
-    for (let i = 0; i < element.data.castAddBody?.mentions.length; i++) {
-      for (let j = 0; j < mentions.length; j++) {
-        if (element.data.castAddBody.mentions[i] === mentions[j]) {
-          isPresent = true;
-        }
-      }
-    }
-    return isPresent && date.getFullYear() === year && date.getMonth() + 1 === month;
+    return (
+      areAnyMentionsPresent(mentions, element.data.castAddBody?.mentions) &&
+      date.getFullYear() === year &&
+      date.getMonth() + 1 === month
+    );
   });
 }
 
 export function getDailyFarcasterMessage(array: any[], year: number, month: number, day: number, mentions: any[] = []) {
   return array.filter(element => {
     const date = new Date((FARCASTER_START_EPOCH + element.data.timestamp) * 1000);
-    let isPresent = false;
-    for (let i = 0; i < element.data.castAddBody?.mentions.length; i++) {
-      for (let j = 0; j < mentions.length; j++) {
-        if (element.data.castAddBody.mentions[i] === mentions[j]) {
-          isPresent = true;
-        }
-      }
-    }
-    return isPresent && date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day;
+
+    return (
+      areAnyMentionsPresent(mentions, element.data.castAddBody?.mentions) &&
+      date.getFullYear() === year &&
+      date.getMonth() + 1 === month &&
+      date.getDate() === day
+    );
   });
 }
 

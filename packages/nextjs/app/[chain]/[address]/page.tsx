@@ -435,6 +435,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
           }
         }
 
+        console.log(fid);
         // if (isEnsName(chosenProfile.farcaster)) {
         //   fid = await getUserWarpcastFid("jacobhomanics");
         // } else {
@@ -629,6 +630,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   // console.log(farcasterMessages);
   // console.log(dailyTallies[selectedDay - 1]?.filteredFarcasterMessages);
+
+  console.log(farcasterMessages);
 
   const farcasterMessagesComponents = dailyTallies[selectedDay - 1]?.filteredFarcasterMessages?.map((value, index) => {
     const textArray = value.data.castAddBody.text.split("");
