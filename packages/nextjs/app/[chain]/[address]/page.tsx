@@ -25,6 +25,8 @@ import { useGlobalState } from "~~/services/store/store";
 import {
   getAllTimeFarcasterMessagesTally,
   getDailyFarcasterMessage,
+  getDailyFarcasterMessageInSpecificChannel,
+  getDailyFarcasterMessagesInSpecificChannelTally,
   getDailyFarcasterMessagesTally,
   getMonthlyFarcasterMessagesTally,
   getYearlyFarcasterMessagesTally,
@@ -512,8 +514,9 @@ export default function UserPage({ params }: { params: { chain: string; address:
   const POINTS_PER_FARCASTER_MESSAGE = 25;
   // const POINTS_PER_CREDENTIAL = 10;
 
-  const mentionsCriteriaDatabase = {
+  const criteriaDatabase = {
     Base: {
+      channels: ["https://onchainsummer.xyz", "https://warpcast.com/~/channel/base-builds"],
       fids: [
         12142, //Base,
         309857, //Coinbase Wallet
@@ -521,6 +524,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
       ],
     },
     "OP Mainnet": {
+      channels: [],
       fids: [
         300898, //Optimism
       ],
@@ -536,13 +540,15 @@ export default function UserPage({ params }: { params: { chain: string; address:
     300898: "optimism",
   };
 
-  const mentionsCriteria = mentionsCriteriaDatabase[chain?.name as keyof typeof mentionsCriteriaDatabase]?.fids;
+  const mentionsCriteria = criteriaDatabase[chain?.name as keyof typeof criteriaDatabase]?.fids;
+  const channelsCriteria = criteriaDatabase[chain?.name as keyof typeof criteriaDatabase]?.channels;
 
   function getAllTimeTally(transactions: any) {
     let tally = 0;
 
     tally += getAllTimeOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION);
     tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, mentionsCriteria);
+
     // tally += getAllTimeTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL);
 
     return tally;
@@ -575,6 +581,13 @@ export default function UserPage({ params }: { params: { chain: string; address:
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
     const onchainTransactions = getDailyOnchainTransactions(transactions, year, month, day);
     const filteredFarcasterMessages = getDailyFarcasterMessage(farcasterMessages, year, month, day, mentionsCriteria);
+    const filteredFarcasterMessagesChannelCriteria = getDailyFarcasterMessageInSpecificChannel(
+      farcasterMessages,
+      year,
+      month,
+      day,
+      channelsCriteria,
+    );
 
     const onchainTransactionTally = getDailyOnchainTransactionsTally(
       transactions,
@@ -591,14 +604,23 @@ export default function UserPage({ params }: { params: { chain: string; address:
       month,
       day,
     );
+    //https://warpcast.com/~/channel/base
+    const farcasterMessagesInSpecificChannelTally = getDailyFarcasterMessagesInSpecificChannelTally(
+      farcasterMessages,
+      POINTS_PER_FARCASTER_MESSAGE,
+      channelsCriteria,
+      year,
+      month,
+      day,
+    );
 
     // tally += getDailyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month, day);
     return {
       transactions: onchainTransactions,
-      filteredFarcasterMessages,
+      filteredFarcasterMessages: filteredFarcasterMessages.concat(filteredFarcasterMessagesChannelCriteria),
       totalTally: onchainTransactionTally + farcasterMessagesTally,
       onchainTransactionTally,
-      farcasterMessagesTally,
+      farcasterMessagesTally: farcasterMessagesTally + farcasterMessagesInSpecificChannelTally,
     };
   }
 
@@ -616,6 +638,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
       onchainTransactionTally,
       farcasterMessagesTally,
     } = getDailyTally(transactions, selectedYear, selectedMonth, selectedDay);
+
+    console.log(filteredFarcasterMessages);
 
     dailyTallies.push({
       filteredTransactions,
@@ -648,6 +672,15 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     const reconstructedText = textArray.join("");
 
+    let channel;
+    if (value.data.castAddBody.parentUrl) {
+      if (value.data.castAddBody.parentUrl === "https://onchainsummer.xyz") {
+        channel = "/base";
+      } else {
+        channel = value.data.castAddBody.parentUrl.replace("https://warpcast.com/~/channel", "");
+      }
+    }
+
     return (
       <Link
         key={"Farcaster Messages" + index}
@@ -655,7 +688,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
         target="#"
       >
         <div className="flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
-          <div className="bg-secondary rounded-lg">#{index}</div>
+          {channel ? <div className="bg-secondary rounded-lg p-1">{channel}</div> : <></>}
+          <div className="bg-secondary rounded-lg p-1">#{index + 1}</div>
           <div>{reconstructedText}</div>
         </div>
       </Link>
@@ -673,7 +707,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     return (
       <Link key={"Transactions" + index} href={getBlockExplorerTxLink(chain.id, value.hash)} target="#">
         <div className="flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
-          <div className="bg-secondary rounded-lg">#{index}</div>
+          <div className="bg-secondary rounded-lg">#{index + 1}</div>
           {value.functionName.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>}
         </div>
       </Link>
