@@ -13,9 +13,9 @@ const chainObjs = [
     link: "/",
   },
   {
-    name: "Ethereum",
-    logo: "ethereum-eth.svg",
-    link: "/mainnet/welcome",
+    name: "Nouns",
+    logo: "noggles.svg",
+    link: "/nouns/welcome",
   },
   {
     name: "Base",
@@ -23,14 +23,21 @@ const chainObjs = [
     link: "/base/welcome",
   },
   {
-    name: "Arbitrum",
-    logo: "arbitrum-arb-logo.png",
-    link: "/arbitrum/welcome",
-  },
-  {
     name: "OP Mainnet",
     logo: "optimism-ethereum-op-logo.png",
     link: "/optimism/welcome",
+  },
+
+  {
+    name: "Ethereum",
+    logo: "ethereum-eth.svg",
+    link: "/mainnet/welcome",
+  },
+
+  {
+    name: "Arbitrum",
+    logo: "arbitrum-arb-logo.png",
+    link: "/arbitrum/welcome",
   },
 ];
 
@@ -63,7 +70,7 @@ const Home: NextPage = () => {
             <span className="block text-4xl font-bold">Engagement.Vision</span>
           </h1>
           <p className="text-center">
-            {"View a user's engagement with a blockchain through "}
+            {"View a user's engagement with a community through "}
             <span className="bg-primary rounded-lg p-1">Onchain Activity</span>
             {", "}
             <span className="bg-primary rounded-lg p-1">Twitter Interactions</span>
@@ -76,7 +83,7 @@ const Home: NextPage = () => {
         <div className="flex-grow w-full mt-16 px-8 py-12">
           <div className="rounded-lg">
             {" "}
-            <p className="text-center text-lg">Select a blockchain to get started! </p>
+            <p className="text-center text-lg">Select a community to get started! </p>
           </div>
           <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">{chainObjsComponent}</div>
         </div>
