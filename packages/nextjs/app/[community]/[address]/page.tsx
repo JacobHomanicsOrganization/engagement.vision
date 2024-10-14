@@ -224,10 +224,10 @@ export default function UserPage({ params }: { params: { community: string; addr
   let resolvedChain: Chain = mainnet;
   const { chain: selectedChain } = getChainByName(params.community);
 
-  console.log(selectedChain);
+  // console.log(selectedChain);
   if (selectedChain !== undefined) resolvedChain = selectedChain;
 
-  console.log(resolvedChain);
+  // console.log(resolvedChain);
   // if (resolvedChain) {
   //   chain = resolvedChain;
   //   community = chain.name;
@@ -523,17 +523,16 @@ export default function UserPage({ params }: { params: { community: string; addr
     return someCriterias;
   }
 
-  console.log(farcasterChecksCommunity);
-
   function getAllTimeTally(transactions: any) {
     let tally = 0;
 
-    const onchainChecks: any[] = [];
-    const filteredTransactions = getFilteredArrayForSome(transactions, onchainChecks);
+    // const onchainChecks: any[] = [];
+    const filteredTransactions = transactions; //getFilteredArrayForSome(transactions, onchainChecks);
     tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
 
     const filteredFarcasterMessages = getFilteredArrayForSome(farcasterMessages, buildFarcasterChecks());
 
+    console.log(filteredFarcasterMessages);
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
     return tally;
@@ -607,7 +606,6 @@ export default function UserPage({ params }: { params: { community: string; addr
   //   getChannelByName(community);
   // }, [community]);
 
-  console.log(farcasterMessages);
   // console.log(channelsCriteria);
 
   function getDailyTally(transactions: any, year: number, month: number, day: number) {

@@ -10,8 +10,6 @@ export const SwitchTheme = ({ className }: { className?: string }) => {
   const appTheme = useGlobalState(({ appTheme }) => appTheme);
   const community = communitiesConfig[appTheme as keyof typeof communitiesConfig];
 
-  console.log(community);
-
   const { setTheme, resolvedTheme } = useTheme();
 
   const isDarkMode = resolvedTheme?.includes("dark");
