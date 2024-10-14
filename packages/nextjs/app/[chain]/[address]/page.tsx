@@ -23,13 +23,16 @@ import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import {
+  areAnyMentionsPresent,
   getAllTimeFarcasterMessagesTally,
-  getDailyFarcasterMessage,
-  getDailyFarcasterMessageInSpecificChannel,
-  getDailyFarcasterMessagesInSpecificChannelTally,
-  getDailyFarcasterMessagesTally,
+  getDailyFarcasterMessages2, // getDailyFarcasterMessage,
+  // getDailyFarcasterMessageInSpecificChannel,
+  // getDailyFarcasterMessagesInSpecificChannelTally,
+  // getDailyFarcasterMessagesTally,
+  getIsPresent,
   getMonthlyFarcasterMessagesTally,
   getYearlyFarcasterMessagesTally,
+  isWithinDay,
 } from "~~/utils/how-based-are-you/filterFarcasterMessagesForTally";
 import {
   getAllTimeOnchainTransactionsTally,
@@ -516,7 +519,11 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   const criteriaDatabase = {
     Base: {
-      channels: ["https://onchainsummer.xyz", "https://warpcast.com/~/channel/base-builds"],
+      channels: [
+        "https://onchainsummer.xyz",
+        "https://warpcast.com/~/channel/base-builds",
+        "https://warpcast.com/~/channel/coinbase",
+      ],
       fids: [
         12142, //Base,
         309857, //Coinbase Wallet
@@ -580,14 +587,12 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
     const onchainTransactions = getDailyOnchainTransactions(transactions, year, month, day);
-    const filteredFarcasterMessages = getDailyFarcasterMessage(farcasterMessages, year, month, day, mentionsCriteria);
-    const filteredFarcasterMessagesChannelCriteria = getDailyFarcasterMessageInSpecificChannel(
-      farcasterMessages,
-      year,
-      month,
-      day,
-      channelsCriteria,
-    );
+
+    const filteredFarcasterMessages = getDailyFarcasterMessages2(farcasterMessages, year, month, day, [
+      element => getIsPresent(channelsCriteria, element.data.castAddBody?.parentUrl),
+      element => areAnyMentionsPresent(mentionsCriteria, element.data.castAddBody?.mentions),
+      (element, year, month, day) => isWithinDay(element.data.timestamp, year, month, day),
+    ]);
 
     const onchainTransactionTally = getDailyOnchainTransactionsTally(
       transactions,
@@ -596,31 +601,15 @@ export default function UserPage({ params }: { params: { chain: string; address:
       month,
       day,
     );
-    const farcasterMessagesTally = getDailyFarcasterMessagesTally(
-      farcasterMessages,
-      POINTS_PER_FARCASTER_MESSAGE,
-      mentionsCriteria,
-      year,
-      month,
-      day,
-    );
-    //https://warpcast.com/~/channel/base
-    const farcasterMessagesInSpecificChannelTally = getDailyFarcasterMessagesInSpecificChannelTally(
-      farcasterMessages,
-      POINTS_PER_FARCASTER_MESSAGE,
-      channelsCriteria,
-      year,
-      month,
-      day,
-    );
 
-    // tally += getDailyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month, day);
+    const farcasterMessagesTally = filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
+
     return {
       transactions: onchainTransactions,
-      filteredFarcasterMessages: filteredFarcasterMessages.concat(filteredFarcasterMessagesChannelCriteria),
+      filteredFarcasterMessages: filteredFarcasterMessages,
       totalTally: onchainTransactionTally + farcasterMessagesTally,
       onchainTransactionTally,
-      farcasterMessagesTally: farcasterMessagesTally + farcasterMessagesInSpecificChannelTally,
+      farcasterMessagesTally: farcasterMessagesTally,
     };
   }
 
