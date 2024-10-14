@@ -24,9 +24,9 @@ const Home: NextPage = () => {
 
       communitiesComponents.push(
         <Link href={community.link || "/"} key={index}>
-          <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs w-[140px] md:w-[200px] rounded-3xl transform scale-100 hover:scale-90 transition duration-300 ease-in-out">
-            <div className="flex relative w-10 h-10">
-              <Image alt="Logo" className="cursor-pointer" fill src={`/${community.logo || ""}`} />
+          <div className="flex flex-col bg-base-100 px-4 py-4 text-center items-center max-w-xs w-[140px] md:w-[200px] rounded-3xl transform scale-100 hover:scale-90 transition duration-300 ease-in-out">
+            <div className="flex relative w-10 h-10 md:w-20 md:h-20">
+              <Image alt="Logo" className="cursor-pointer rounded-lg" fill src={`/${community.logo || ""}`} />
             </div>
             <p className="truncate">{community.name}</p>
           </div>
@@ -69,9 +69,24 @@ const Home: NextPage = () => {
           </p>
         </div>
 
-        <div className="flex-grow w-full px-8">
-          <p className="text-center text-xl">Select a community to get started! </p>
+        <div className="flex flex-col w-full px-8">
+          <p className="text-center text-4xl">Select a community to get started! </p>
           <div className="flex justify-center items-center gap-12 flex-wrap">{communitiesComponents}</div>
+        </div>
+        <div className="pt-10 flex flex-col">
+          <p className="text-3xl text-center">Integrations</p>
+          <div className="flex flex-wrap">
+            <div className="flex relative w-24 h-24">
+              <Link href="https://ethfollow.xyz">
+                <Image alt="Logo" className="cursor-pointer" fill src={"/efp-first-100.png"} />
+              </Link>
+            </div>
+            <div className="flex relative w-24 h-24">
+              <Link href="https://ethfollow.xyz">
+                <Image alt="Logo" className="cursor-pointer" fill src={"/efp-logo.svg"} />
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </>

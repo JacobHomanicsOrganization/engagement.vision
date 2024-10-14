@@ -162,45 +162,45 @@ export const communitiesConfig: CriteriaDatabase = {
     onchainChecks: ["date"],
     followerChecks: ["date"],
   },
-  arbitrum: {
-    name: "Arbitrum",
-    logo: "arbitrum-arb-logo.png",
-    link: "/arbitrum/welcome",
-    themes: {
-      light: "lightArbitrum",
-      dark: "darkArbitrum",
-    },
-    welcomeCards: {
-      title: "How Stylized Are You?",
-      callToAction: "Find out how Stylized you are!",
-    },
-    onchainChecks: ["date"],
-  },
-  mode: {
-    name: "Mode Network",
-    logo: "mode.svg",
-    link: "/mode/welcome",
-    // chainName: "mode",
-    themes: {
-      light: "lightMode",
-      dark: "darkMode",
-    },
-    welcomeCards: {
-      title: "Are you scaling Defi with AIFi?",
-      callToAction: "Find out now!",
-    },
-    farcasterChecks: [
-      {
-        channels: ["https://warpcast.com/~/channel/mode"],
-      },
-      {
-        mentions: [
-          217750, //Mode
-        ],
-      },
-    ],
-    followerChecks: ["date"],
+  //   arbitrum: {
+  //     name: "Arbitrum",
+  //     logo: "arbitrum-arb-logo.png",
+  //     link: "/arbitrum/welcome",
+  //     themes: {
+  //       light: "lightArbitrum",
+  //       dark: "darkArbitrum",
+  //     },
+  //     welcomeCards: {
+  //       title: "How Stylized Are You?",
+  //       callToAction: "Find out how Stylized you are!",
+  //     },
+  //     onchainChecks: ["date"],
+  //   },
+  //   mode: {
+  //     name: "Mode Network",
+  //     logo: "mode.svg",
+  //     link: "/mode/welcome",
+  //     // chainName: "mode",
+  //     themes: {
+  //       light: "lightMode",
+  //       dark: "darkMode",
+  //     },
+  //     welcomeCards: {
+  //       title: "Are you scaling Defi with AIFi?",
+  //       callToAction: "Find out now!",
+  //     },
+  //     farcasterChecks: [
+  //       {
+  //         channels: ["https://warpcast.com/~/channel/mode"],
+  //       },
+  //       {
+  //         mentions: [
+  //           217750, //Mode
+  //         ],
+  //       },
+  //     ],
+  //     followerChecks: ["date"],
 
-    onchainChecks: ["date"],
-  },
+  //     onchainChecks: ["date"],
+  //   },
 };
