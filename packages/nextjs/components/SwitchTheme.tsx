@@ -3,53 +3,28 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
+import { communitiesConfig } from "~~/engagement.config";
 import { useGlobalState } from "~~/services/store/store";
-
-const appThemes = {
-  app: {
-    light: "light",
-    dark: "dark",
-  },
-  ethereum: {
-    light: "lightMainnet",
-    dark: "darkMainnet",
-  },
-  base: {
-    light: "lightBase",
-    dark: "darkBase",
-  },
-  arbitrum: {
-    light: "lightArbitrum",
-    dark: "darkArbitrum",
-  },
-  optimism: {
-    light: "lightOptimism",
-    dark: "darkOptimism",
-  },
-  nouns: {
-    light: "lightNouns",
-    dark: "darkNouns",
-  },
-};
 
 export const SwitchTheme = ({ className }: { className?: string }) => {
   const appTheme = useGlobalState(({ appTheme }) => appTheme);
-  const chainObj = appThemes[appTheme as keyof typeof appThemes];
+  const community = communitiesConfig[appTheme as keyof typeof communitiesConfig];
+
+  console.log(community);
 
   const { setTheme, resolvedTheme } = useTheme();
 
   const isDarkMode = resolvedTheme?.includes("dark");
 
   useEffect(() => {
-    if (chainObj?.light === undefined || chainObj?.dark === undefined) return;
+    if (community?.themes?.light === undefined || community?.themes?.dark === undefined) return;
 
-    console.log("we changing");
-    setTheme(isDarkMode ? chainObj.dark : chainObj.light);
-  }, [isDarkMode, setTheme, chainObj?.dark, chainObj?.light]);
+    setTheme(isDarkMode ? community.themes?.dark : community.themes?.light);
+  }, [isDarkMode, setTheme, community?.themes?.dark, community?.themes?.light]);
   const handleToggle = () => {
     console.log("we changing");
 
-    setTheme(isDarkMode ? chainObj.light : chainObj.dark);
+    setTheme(isDarkMode ? community.themes?.light || "light" : community.themes?.dark || "dark");
   };
 
   const [mounted, setMounted] = useState(false);

@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton } from "~~/components/scaffold-eth";
+import { communitiesConfig } from "~~/engagement.config";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 import { useGlobalState } from "~~/services/store/store";
 
@@ -16,43 +17,43 @@ type HeaderMenuLink = {
   icon?: React.ReactNode;
 };
 
-function getProperGlasses(isDarkMode: boolean) {
-  return isDarkMode ? "meeple-circle-white.png" : "meeple-circle.png";
-}
+// function getProperGlasses(isDarkMode: boolean) {
+//   return isDarkMode ? "meeple-circle-white.png" : "meeple-circle.png";
+// }
 
-const communities = {
-  app: {
-    logo: (isDarkMode: boolean) => {
-      return getProperGlasses(isDarkMode);
-    },
-    link: "/",
-  },
-  ethereum: {
-    name: "Ethereum",
-    logo: "ethereum-eth.svg",
-    link: "https://ethereum.org",
-  },
-  base: {
-    name: "Base",
-    logo: "Base_Network_Logo.svg",
-    link: "https://base.org",
-  },
-  arbitrum: {
-    name: "Arbitrum",
-    logo: "arbitrum-arb-logo.png",
-    link: "https://arbitrum.foundation",
-  },
-  optimism: {
-    name: "Optimism",
-    logo: "optimism-ethereum-op-logo.png",
-    link: "https://optimism.io",
-  },
-  nouns: {
-    name: "Nouns",
-    logo: "noggles.svg",
-    link: "https://nouns.wtf/",
-  },
-};
+// const communities = {
+//   app: {
+//     logo: (isDarkMode: boolean) => {
+//       return getProperGlasses(isDarkMode);
+//     },
+//     link: "/",
+//   },
+//   ethereum: {
+//     name: "Ethereum",
+//     logo: "ethereum-eth.svg",
+//     link: "https://ethereum.org",
+//   },
+//   base: {
+//     name: "Base",
+//     logo: "Base_Network_Logo.svg",
+//     link: "https://base.org",
+//   },
+//   arbitrum: {
+//     name: "Arbitrum",
+//     logo: "arbitrum-arb-logo.png",
+//     link: "https://arbitrum.foundation",
+//   },
+//   optimism: {
+//     name: "Optimism",
+//     logo: "optimism-ethereum-op-logo.png",
+//     link: "https://optimism.io",
+//   },
+//   nouns: {
+//     name: "Nouns",
+//     logo: "noggles.svg",
+//     link: "https://nouns.wtf/",
+//   },
+// };
 
 export const menuLinks: HeaderMenuLink[] = [
   {
@@ -104,7 +105,7 @@ export const Header = () => {
   );
 
   const appTheme = useGlobalState(({ appTheme }) => appTheme);
-  const community = communities[appTheme as keyof typeof communities] as any;
+  const community = communitiesConfig[appTheme as keyof typeof communitiesConfig] as any;
 
   const { resolvedTheme } = useTheme();
 
@@ -143,7 +144,7 @@ export const Header = () => {
                 alt="Logo"
                 className="cursor-pointer"
                 fill
-                src={`/${appTheme === "app" ? community?.logo(isDarkMode) : community?.logo || ""}`}
+                src={`/${appTheme === "engagement.vision" ? community?.logo(isDarkMode) : community?.logo || ""}`}
               />
             </Link>
           </div>

@@ -7,46 +7,11 @@ import type { NextPage } from "next";
 import { communitiesConfig } from "~~/engagement.config";
 import { useGlobalState } from "~~/services/store/store";
 
-// const communitiesConfig = [
-//   {
-//     name: "Engagement.Vision",
-//     logo: "favicon.svg",
-//     link: "/",
-//   },
-//   {
-//     name: "Nouns",
-//     logo: "noggles.svg",
-//     link: "/nouns/welcome",
-//   },
-//   {
-//     name: "Base",
-//     logo: "Base_Network_Logo.svg",
-//     link: "/base/welcome",
-//   },
-//   {
-//     name: "Optimism",
-//     logo: "optimism-ethereum-op-logo.png",
-//     link: "/optimism/welcome",
-//   },
-
-//   {
-//     name: "Ethereum",
-//     logo: "ethereum-eth.svg",
-//     link: "/ethereum/welcome",
-//   },
-
-//   {
-//     name: "Arbitrum",
-//     logo: "arbitrum-arb-logo.png",
-//     link: "/arbitrum/welcome",
-//   },
-// ];
-
 const Home: NextPage = () => {
   const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
 
   useEffect(() => {
-    setAppTheme("app");
+    setAppTheme("engagement.vision");
   }, [setAppTheme]);
 
   let index = 0;
