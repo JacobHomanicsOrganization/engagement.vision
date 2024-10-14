@@ -516,7 +516,23 @@ export default function UserPage({ params }: { params: { chain: string; address:
   const POINTS_PER_FARCASTER_MESSAGE = 25;
   // const POINTS_PER_CREDENTIAL = 10;
 
-  const criteriaDatabase = {
+  const mentionsDatabase = {
+    12142: "base",
+    309857: "coinbasewallet",
+    12144: "wbnns",
+    99: "jessepollack",
+    20910: "zora",
+    300898: "optimism",
+  };
+
+  interface CriteriaDatabase {
+    [key: string]: {
+      channels?: string[];
+      fids?: number[];
+    };
+  }
+
+  const criteriaDatabase: CriteriaDatabase = {
     Base: {
       channels: [
         "https://onchainsummer.xyz",
@@ -530,20 +546,10 @@ export default function UserPage({ params }: { params: { chain: string; address:
       ],
     },
     "OP Mainnet": {
-      channels: [],
       fids: [
         300898, //Optimism
       ],
     },
-  };
-
-  const mentionsDatabase = {
-    12142: "base",
-    309857: "coinbasewallet",
-    12144: "wbnns",
-    99: "jessepollack",
-    20910: "zora",
-    300898: "optimism",
   };
 
   const mentionsCriteria = criteriaDatabase[chain?.name as keyof typeof criteriaDatabase]?.fids;
@@ -553,9 +559,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let tally = 0;
 
     tally += getAllTimeOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION);
-    // tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, mentionsCriteria);
-
-    // tally += getAllTimeTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL);
 
     const farcasterChecks = [
       (element: any) => getIsPresent(channelsCriteria, element.data.castAddBody?.parentUrl),
@@ -573,7 +576,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let tally = 0;
 
     tally += getYearlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year);
-    // tally += getYearlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, mentionsCriteria, year);
 
     const farcasterChecks = [
       (element: any) => getIsPresent(channelsCriteria, element.data.castAddBody?.parentUrl),
@@ -585,7 +587,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
-    // tally += getYearlyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year);
     return tally;
   }
 
@@ -604,15 +605,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
-    // tally += getMonthlyFarcasterMessagesTally(
-    //   farcasterMessages,
-    //   POINTS_PER_FARCASTER_MESSAGE,
-    //   mentionsCriteria,
-    //   year,
-    //   month,
-    // );
-
-    // tally += getMonthlyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month);
     return tally;
   }
 
