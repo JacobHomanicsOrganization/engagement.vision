@@ -23,8 +23,9 @@ import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import {
-  areAnyValuesInCriteria, // getAllTimeFarcasterMessagesTally,
-  getDailyFarcasterMessages2, // getDailyFarcasterMessage,
+  areAnyValuesInCriteria,
+  getFarcasterDate, // getAllTimeFarcasterMessagesTally,
+  getFilteredArray, // getDailyFarcasterMessage,
   // getDailyFarcasterMessageInSpecificChannel,
   // getDailyFarcasterMessagesInSpecificChannelTally,
   // getDailyFarcasterMessagesTally,
@@ -34,12 +35,12 @@ import {
   isWithinMonth,
   isWithinYear,
 } from "~~/utils/how-based-are-you/filterFarcasterMessagesForTally";
-import {
-  getAllTimeOnchainTransactionsTally,
-  getDailyOnchainTransactions, // getDailyOnchainTransactionsTally,
-  getMonthlyOnchainTransactionsTally,
-  getYearlyOnchainTransactionsTally,
-} from "~~/utils/how-based-are-you/filterOnchainTransactionsForTally";
+// import {
+//   // getAllTimeOnchainTransactionsTally,
+//   // getDailyOnchainTransactions, // getDailyOnchainTransactionsTally,
+//   // getMonthlyOnchainTransactionsTally,
+//   // getYearlyOnchainTransactionsTally,
+// } from "~~/utils/how-based-are-you/filterOnchainTransactionsForTally";
 // import {
 //   getAllTimeTalentProtocolBadgesTally, // getDailyTalentProtocolBadgesTally,
 //   getMonthlyTalentProtocolBadgesTally,
@@ -91,7 +92,6 @@ function customNotation(num: any) {
 //     const response = await axios.get(`/api/talent-protocol/passport/${username}`);
 //     return response.data;
 //   } catch (err) {
-//     console.log(err);
 //   }
 // };
 
@@ -100,7 +100,6 @@ function customNotation(num: any) {
 //     const response = await axios.get(`/api/talent-protocol/credentials/${username}`);
 //     return response.data;
 //   } catch (err) {
-//     console.log(err);
 //   }
 // };
 
@@ -112,10 +111,8 @@ const getUserWarpcastFid = async (username: string) => {
   //   const response = await axios.get(`/api/farcaster/getUserByFid/${username}`);
   //   return response.data;
   // } catch (err) {
-  //   console.log(err);
   // }
 
-  // // console.log(username);
   // try {
   //   // const response = await axios.get(`/api/twitter/${username}`);
   //   // const response = await axios.get("https://hub.pinata.cloud/v1/castsByFid?fid=6023&pageSize=10&reverse=true");
@@ -125,7 +122,6 @@ const getUserWarpcastFid = async (username: string) => {
   //   const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
   //   return response.data.transfer.id;
   // } catch (err) {
-  //   console.log(err);
   // }
 };
 
@@ -136,7 +132,6 @@ const getUserCastsByFid = async (fid: number) => {
   //   const response = await axios.get(`/api/farcaster/getUserCastsByFid/${fid}`);
   //   return response.data;
   // } catch (err) {
-  //   console.log(err);
   // }
 
   // try {
@@ -146,7 +141,6 @@ const getUserCastsByFid = async (fid: number) => {
   //   const response = await axios.get(`https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&reverse=true`);
   //   return response.data;
   // } catch (err) {
-  //   console.log(err);
   // }
 };
 
@@ -160,41 +154,31 @@ const getUserCastsByFidNextPageToken = async (fid: number, nextPageToken: string
 // try {
 //   // const response = await axios.get(`/api/twitter/${username}`);
 
-//   // console.log(
 //   //   "Trying " + `https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&reverse=true&nextPageToken=${nextPageToken}`,
 //   // );
 //   //for setting a max limit: https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&pageSize=100&reverse=true
 //   const response = await axios.get(
 //     `https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&reverse=true&nextPageToken=${nextPageToken}`,
 //   );
-//   // console.log("Returned");
 
 //   return response.data;
 // } catch (err) {
-//   // console.log("errored");
-
-//   console.log(err);
 // }
 // };
 
 // const getUserByUsername = async (username: string) => {
 //   try {
 //     const response = await axios.get(`/api/twitter/${username}`);
-//     console.log(response.data);
 //     return response.data;
 //   } catch (err) {
-//     console.log(err);
 //   }
 // };
 
 // const getUserTweets = async (username: string) => {
-//   console.log(username);
 //   // try {
 //   //   const response = await axios.get(`/api/twitter2/${username}`);
-//   //   console.log(response.data);
 //   //   return response.data;
 //   // } catch (err) {
-//   //   console.log(err);
 //   // }
 // };
 
@@ -400,9 +384,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
       setProfile(chosenProfile);
       if (chosenProfile.twitter) {
         // const user = await getUserByUsername(chosenProfile.twitter);
-        // console.log(user);
         // const tweets = await getUserTweets(chosenProfile.twitter);
-        // console.log(tweets);
       }
 
       function isNumeric(str: string): boolean {
@@ -439,19 +421,15 @@ export default function UserPage({ params }: { params: { chain: string; address:
           }
         }
 
-        console.log(fid);
         // if (isEnsName(chosenProfile.farcaster)) {
         //   fid = await getUserWarpcastFid("jacobhomanics");
         // } else {
         //   fid = await getUserWarpcastFid(chosenProfile.farcaster);
         // }
 
-        // console.log(fid);
-
         // const JESSE_POLLACK_FID = 99;
         // const JACOB_HOMANICS_FID = 240799;
         // const fid = JESSE_POLLACK_FID;
-        // console.log(fid);
 
         if (fid) {
           let totalResults: any = [];
@@ -465,8 +443,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
             results = await getUserCastsByFidNextPageToken(fid, results.nextPageToken);
             totalResults = totalResults.concat(results.messages);
           }
-
-          // console.log(totalResults);
 
           const msgs = totalResults.filter((x: any) => {
             return x;
@@ -485,14 +461,10 @@ export default function UserPage({ params }: { params: { chain: string; address:
       //   return x["onchain_at"] !== null;
       // });
 
-      // console.log(validPassports);
       // for (let i = 0; i < result2["passport_credentials"].length; i++) {
       //   if (result2["passport_credentials"][i]["onchain_at"] !== null) {
-      //     console.log(result2["passport_credentials"][i]);
       //   }
       // }
-
-      // console.log(result2);
 
       setIsLoadingUserProfile(false);
     }
@@ -558,14 +530,16 @@ export default function UserPage({ params }: { params: { chain: string; address:
   function getAllTimeTally(transactions: any) {
     let tally = 0;
 
-    tally += getAllTimeOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION);
+    const onchainChecks: any[] = [];
+    const filteredTransactions = getFilteredArray(transactions, onchainChecks);
+    tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
 
     const farcasterChecks = [
       (element: any) => isValueInCriteria(channelsCriteria || [], element.data.castAddBody?.parentUrl),
       (element: any) => areAnyValuesInCriteria(mentionsCriteria || [], element.data.castAddBody?.mentions),
     ];
 
-    const filteredFarcasterMessages = getDailyFarcasterMessages2(farcasterMessages, farcasterChecks);
+    const filteredFarcasterMessages = getFilteredArray(farcasterMessages, farcasterChecks);
 
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
@@ -575,15 +549,17 @@ export default function UserPage({ params }: { params: { chain: string; address:
   function getYearlyTally(transactions: any, year: number) {
     let tally = 0;
 
-    tally += getYearlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year);
+    const onchainChecks = [(element: any) => isWithinYear(new Date(element.timeStamp * 1000), year)];
+    const filteredTransactions = getFilteredArray(transactions, onchainChecks);
+    tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
 
     const farcasterChecks = [
       (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
       (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      (element: any) => isWithinYear(element.data.timestamp, year),
+      (element: any) => isWithinYear(getFarcasterDate(element.data.timestamp), year),
     ];
 
-    const filteredFarcasterMessages = getDailyFarcasterMessages2(farcasterMessages, farcasterChecks);
+    const filteredFarcasterMessages = getFilteredArray(farcasterMessages, farcasterChecks);
 
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
@@ -593,45 +569,44 @@ export default function UserPage({ params }: { params: { chain: string; address:
   function getMonthlyTally(transactions: any, year: number, month: number) {
     let tally = 0;
 
-    tally += getMonthlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month);
+    const onchainChecks = [(element: any) => isWithinMonth(new Date(element.timeStamp * 1000), year, month)];
+    const filteredTransactions = getFilteredArray(transactions, onchainChecks);
+    tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
 
     const farcasterChecks = [
       (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
       (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      (element: any) => isWithinMonth(element.data.timestamp, year, month),
+      (element: any) => isWithinMonth(getFarcasterDate(element.data.timestamp), year, month),
     ];
 
-    const filteredFarcasterMessages = getDailyFarcasterMessages2(farcasterMessages, farcasterChecks);
-
+    const filteredFarcasterMessages = getFilteredArray(farcasterMessages, farcasterChecks);
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
     return tally;
   }
 
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
-    // const onchainChecks = [
-    //   (element: any) => isWithinDay(element.data.timestamp, year, month, day);
-    // ]
-
-    const onchainTransactions = getDailyOnchainTransactions(transactions, year, month, day);
+    let tally = 0;
+    const onchainChecks = [(element: any) => isWithinDay(new Date(element.timeStamp * 1000), year, month, day)];
+    const filteredTransactions = getFilteredArray(transactions, onchainChecks);
+    const filteredTransactionsTally = filteredTransactions.length * POINTS_PER_TRANSACTION;
+    tally += filteredTransactionsTally;
 
     const farcasterChecks = [
       (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
       (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      (element: any) => isWithinDay(element.data.timestamp, year, month, day),
+      (element: any) => isWithinDay(getFarcasterDate(element.data.timestamp), year, month, day),
     ];
-
-    const filteredFarcasterMessages = getDailyFarcasterMessages2(farcasterMessages, farcasterChecks);
-
-    const onchainTransactionTally = onchainTransactions.length * POINTS_PER_TRANSACTION;
-    const farcasterMessagesTally = filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
+    const filteredFarcasterMessages = getFilteredArray(farcasterMessages, farcasterChecks);
+    const filteredFarcasterMessagesTally = filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
+    tally += filteredFarcasterMessagesTally;
 
     return {
-      transactions: onchainTransactions,
+      transactions: filteredTransactions,
       filteredFarcasterMessages: filteredFarcasterMessages,
-      totalTally: onchainTransactionTally + farcasterMessagesTally,
-      onchainTransactionTally,
-      farcasterMessagesTally,
+      totalTally: tally,
+      onchainTransactionTally: filteredTransactionsTally,
+      farcasterMessagesTally: filteredFarcasterMessagesTally,
     };
   }
 
@@ -650,8 +625,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
       farcasterMessagesTally,
     } = getDailyTally(transactions, selectedYear, selectedMonth, selectedDay);
 
-    console.log(filteredFarcasterMessages);
-
     dailyTallies.push({
       filteredTransactions,
       filteredFarcasterMessages,
@@ -662,11 +635,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
   }
 
   const [isInDayView, setIsInDayView] = useState(false);
-
-  // console.log(farcasterMessages);
-  // console.log(dailyTallies[selectedDay - 1]?.filteredFarcasterMessages);
-
-  console.log(farcasterMessages);
 
   const farcasterMessagesComponents = dailyTallies[selectedDay - 1]?.filteredFarcasterMessages?.map((value, index) => {
     const textArray = value.data.castAddBody.text.split("");
@@ -778,9 +746,6 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   let transactionOutput;
   if (isError) {
-    console.log("ERROR");
-    console.log(errorMessage);
-
     transactionOutput = <div>{errorMessage}</div>;
   } else {
     transactionOutput = (

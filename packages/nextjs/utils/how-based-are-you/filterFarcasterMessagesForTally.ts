@@ -18,26 +18,26 @@ export function areAnyValuesInCriteria<T>(criteria: T[], values: T[] = []): bool
   return values.some(value => isValueInCriteria(criteria, value));
 }
 
-function getFarcasterDate(farcasterMessageTimestamp: number) {
+export function getFarcasterDate(farcasterMessageTimestamp: number) {
   return new Date((FARCASTER_START_EPOCH + farcasterMessageTimestamp) * 1000);
 }
 
-export function isWithinYear(farcasterMessageTimestamp: number, year: number) {
-  const date = getFarcasterDate(farcasterMessageTimestamp);
+export function isWithinYear(date: Date, year: number) {
+  // const date = getFarcasterDate(farcasterMessageTimestamp);
   return date.getFullYear() === year;
 }
 
-export function isWithinMonth(farcasterMessageTimestamp: number, year: number, month: number) {
-  const date = getFarcasterDate(farcasterMessageTimestamp);
+export function isWithinMonth(date: Date, year: number, month: number) {
+  // const date = getFarcasterDate(farcasterMessageTimestamp);
   return date.getFullYear() === year && date.getMonth() + 1 === month;
 }
 
-export function isWithinDay(farcasterMessageTimestamp: number, year: number, month: number, day: number) {
-  const date = getFarcasterDate(farcasterMessageTimestamp);
+export function isWithinDay(date: Date, year: number, month: number, day: number) {
+  // const date = getFarcasterDate(farcasterMessageTimestamp);
   return date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day;
 }
 
-export function getDailyFarcasterMessages2(array: any[], checks: Array<(element: any) => boolean>) {
+export function getFilteredArray(array: any[], checks: Array<(element: any) => boolean>) {
   return array.filter(element => {
     return checks.every(check => check(element));
   });
