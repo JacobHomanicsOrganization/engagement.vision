@@ -68,16 +68,14 @@ function customNotation(num: any) {
 //   try {
 //     const response = await axios.get(`/api/talent-protocol/passport/${username}`);
 //     return response.data;
-//   } catch (err) {
-//   }
+//   } catch (err) {}
 // };
 
 // const getPassportCredentials = async (username: string) => {
 //   try {
 //     const response = await axios.get(`/api/talent-protocol/credentials/${username}`);
 //     return response.data;
-//   } catch (err) {
-//   }
+//   } catch (err) {}
 // };
 
 // const getUserWarpcastFid = async (username: string) => {
@@ -192,6 +190,9 @@ export default function UserPage({ params }: { params: { community: string; addr
     communitiesConfig[params.community as keyof typeof communitiesConfig]?.farcasterChecks || [];
   const onchainChecksCommunity =
     communitiesConfig[params.community as keyof typeof communitiesConfig]?.onchainChecks || [];
+
+  const followerChecksCommunity =
+    communitiesConfig[params.community as keyof typeof communitiesConfig]?.followerChecks || [];
 
   const chainNameCommunity = communitiesConfig[params.community as keyof typeof communitiesConfig]?.chainName;
 
@@ -423,7 +424,6 @@ export default function UserPage({ params }: { params: { community: string; addr
           const isEnsNameResult = isEnsName(chosenProfile.farcaster);
           const isBasenameResult = isBasename(chosenProfile.farcaster);
 
-          console.log(chosenProfile.addr);
           if (isEnsNameResult === false && isBasenameResult === false && chosenProfile.addr === undefined) {
             const response = await fetch(`/api/neynar/getUserByName?username=${chosenProfile.farcaster}`);
             const data = await response.json();
@@ -436,8 +436,6 @@ export default function UserPage({ params }: { params: { community: string; addr
               chosenProfile.name = data["user"]["display_name"];
             }
           } else {
-            console.log(chosenProfile.addr);
-
             const response = await fetch(`/api/neynar/getUserByAddress?address=${chosenProfile.addr}`);
             const data = await response.json();
 
@@ -475,9 +473,26 @@ export default function UserPage({ params }: { params: { community: string; addr
       }
 
       // const result = await getPassport(chosenProfile.addr || "");
-
       // const result2 = await getPassportCredentials(result.passport["passport_id"]);
       // setCredentials(result2["passport_credentials"]);
+
+      if (followerChecksCommunity.length > 0) {
+        if (isEnsName(chosenProfile.name) || isBasename(chosenProfile.name)) {
+          const response = await axios.get(`https://api.ethfollow.xyz/api/v1/users/${chosenProfile.name}/lists`);
+
+          console.log(response.data);
+          const lists = response.data.lists;
+
+          let followersAllLists: any[] = [];
+          for (let i = 0; i < lists.length; i++) {
+            const result = await axios.get(`https://api.ethfollow.xyz/api/v1/lists/${lists[i]}/followers?limit=5000`);
+            console.log(result.data.followers);
+            followersAllLists = followersAllLists.concat(result.data.followers);
+          }
+
+          setFollowers(followersAllLists);
+        }
+      }
 
       // const validPassports = result2["passport_credentials"].filter((x: any) => {
       //   return x["onchain_at"] !== null;
@@ -492,9 +507,11 @@ export default function UserPage({ params }: { params: { community: string; addr
     }
 
     fetchData();
-  }, [resolvedChain, resolvedChain?.id, params.address]);
+  }, [resolvedChain, resolvedChain?.id, params.address, followerChecksCommunity.length]);
 
   const [farcasterMessages, setFarcasterMessages] = useState([]);
+
+  const [followers, setFollowers] = useState<any[]>([]);
 
   // const [credentials, setCredentials] = useState([]);
 
@@ -515,6 +532,7 @@ export default function UserPage({ params }: { params: { community: string; addr
   const POINTS_PER_TRANSACTION = 100;
   const POINTS_PER_FARCASTER_MESSAGE = 25;
   // const POINTS_PER_CREDENTIAL = 10;
+  const POINTS_PER_FOLLOW = 10;
 
   const mentionsDatabase = {
     12142: "base",
@@ -526,6 +544,18 @@ export default function UserPage({ params }: { params: { community: string; addr
     2375: "nouns",
     749097: "nounstown.eth",
   };
+
+  function buildTalentProtocolChecks() {
+    // const someCriterias: any[] = [];
+    // farcasterChecksCommunity.forEach(item => {
+    //   if (item.channels) {
+    //     someCriterias.push((element: any) => isValueInCriteria(item.channels, element.data.castAddBody?.parentUrl));
+    //   }
+    //   if (item.mentions) {
+    //     someCriterias.push((element: any) => areAnyValuesInCriteria(item.mentions, element.data.castAddBody?.mentions));
+    //   }
+    // });
+  }
 
   function buildFarcasterChecks() {
     const someCriterias: any[] = [];
@@ -546,6 +576,12 @@ export default function UserPage({ params }: { params: { community: string; addr
   function getAllTimeTally(transactions: any) {
     let tally = 0;
 
+    // const followersChecks = [];
+    // followersChecks.push((element: any) => isDateWithinMonth(new Date(element["updated_at"]), year, month));
+    const filteredFollowers = followers; // getFilteredArrayForSome(followers, followersChecks);
+    const filteredFollowersTally = filteredFollowers.length * POINTS_PER_FOLLOW;
+    tally += filteredFollowersTally;
+
     // const onchainChecks: any[] = [];
     const filteredTransactions = transactions; //getFilteredArrayForSome(transactions, onchainChecks);
     tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
@@ -559,6 +595,16 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   function getYearlyTally(transactions: any, year: number) {
     let tally = 0;
+
+    const followersChecks = [];
+    for (let i = 0; i < followerChecksCommunity.length; i++) {
+      if (followerChecksCommunity[i] === "date") {
+        followersChecks.push((element: any) => isDateWithinYear(new Date(element["updated_at"]), year));
+      }
+    }
+    const filteredFollowers = getFilteredArrayForSome(followers, followersChecks);
+    const filteredFollowersTally = filteredFollowers.length * POINTS_PER_FOLLOW;
+    tally += filteredFollowersTally;
 
     const onchainChecks = [];
     for (let i = 0; i < onchainChecksCommunity.length; i++) {
@@ -584,6 +630,17 @@ export default function UserPage({ params }: { params: { community: string; addr
   function getMonthlyTally(transactions: any, year: number, month: number) {
     let tally = 0;
 
+    const followersChecks = [];
+    for (let i = 0; i < followerChecksCommunity.length; i++) {
+      if (followerChecksCommunity[i] === "date") {
+        followersChecks.push((element: any) => isDateWithinMonth(new Date(element["updated_at"]), year, month));
+      }
+    }
+
+    const filteredFollowers = getFilteredArrayForSome(followers, followersChecks);
+    const filteredFollowersTally = filteredFollowers.length * POINTS_PER_FOLLOW;
+    tally += filteredFollowersTally;
+
     const onchainChecks = [];
     for (let i = 0; i < onchainChecksCommunity.length; i++) {
       if (onchainChecksCommunity[i] === "date") {
@@ -597,10 +654,10 @@ export default function UserPage({ params }: { params: { community: string; addr
     const filteredByMonthFarcasterMessages = farcasterMessages.filter((element: any) =>
       isDateWithinMonth(getFarcasterDate(element.data.timestamp), year, month),
     );
-
     const filteredFarcasterMessages = getFilteredArrayForSome(filteredByMonthFarcasterMessages, buildFarcasterChecks());
-
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
+
+    buildTalentProtocolChecks();
 
     return tally;
   }
@@ -627,6 +684,17 @@ export default function UserPage({ params }: { params: { community: string; addr
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
     let tally = 0;
 
+    const followersChecks = [];
+    for (let i = 0; i < followerChecksCommunity.length; i++) {
+      if (followerChecksCommunity[i] === "date") {
+        followersChecks.push((element: any) => isDateWithinDay(new Date(element["updated_at"]), year, month, day));
+      }
+    }
+
+    const filteredFollowers = getFilteredArrayForSome(followers, followersChecks);
+    const filteredFollowersTally = filteredFollowers.length * POINTS_PER_FOLLOW;
+    tally += filteredFollowersTally;
+
     const onchainChecks = [];
     for (let i = 0; i < onchainChecksCommunity.length; i++) {
       if (onchainChecksCommunity[i] === "date") {
@@ -650,9 +718,8 @@ export default function UserPage({ params }: { params: { community: string; addr
     return {
       transactions: filteredTransactions,
       filteredFarcasterMessages: filteredFarcasterMessages,
+      filteredFollowers,
       totalTally: tally,
-      onchainTransactionTally: filteredTransactionsTally,
-      farcasterMessagesTally: filteredFarcasterMessagesTally,
     };
   }
 
@@ -665,18 +732,16 @@ export default function UserPage({ params }: { params: { community: string; addr
     const selectedDay = i + 1;
     const {
       transactions: filteredTransactions,
+      filteredFollowers,
       filteredFarcasterMessages,
       totalTally,
-      onchainTransactionTally,
-      farcasterMessagesTally,
     } = getDailyTally(transactions, selectedYear, selectedMonth, selectedDay);
 
     dailyTallies.push({
       filteredTransactions,
+      filteredFollowers,
       filteredFarcasterMessages,
       totalTally,
-      onchainTransactionTally,
-      farcasterMessagesTally,
     });
   }
 
@@ -727,6 +792,20 @@ export default function UserPage({ params }: { params: { community: string; addr
     );
   });
 
+  const followersComponents = dailyTallies[selectedDay - 1]?.filteredFollowers?.map((value, index) => {
+    return (
+      // <Link key={"Followers" + index} href={getBlockExplorerTxLink(resolvedChain?.id, value.hash) || ""} target="#">
+      <div
+        key={"Followers" + index}
+        className="w-[200px] md:w-[400px] flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out"
+      >
+        <div className="bg-secondary rounded-lg">#{index + 1}</div>
+        <div className="overflow-hidden">{"Gained follower: " + value.address}</div>
+      </div>
+      // </Link>
+    );
+  });
+
   const transactionsComponents = dailyTallies[selectedDay - 1]?.filteredTransactions?.map((value, index) => {
     function removeTextBetweenChars(input: string, startChar: string, endChar: string): string {
       // Create a regex pattern to match everything between the first occurrence of startChar and endChar, including the characters themselves
@@ -747,7 +826,20 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   const monthsComponents = dailyTallies.map((value, index) => {
     const sources = [];
-    if (value.farcasterMessagesTally > 0) {
+    if (value.filteredFollowers.length > 0) {
+      sources.push(
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          alt="Logo"
+          src={`/efp-logo.svg`}
+          className="h-[25px] rounded-lg"
+          style={{ aspectRatio: "1 / 1" }}
+          key={"source" + sources.length}
+        />,
+      );
+    }
+
+    if (value.filteredFarcasterMessages.length > 0) {
       sources.push(
         /* eslint-disable-next-line @next/next/no-img-element */
         <img
@@ -760,7 +852,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       );
     }
 
-    if (value.onchainTransactionTally > 0) {
+    if (value.filteredTransactions.length > 0) {
       sources.push(
         /* eslint-disable-next-line @next/next/no-img-element */
         <img
@@ -908,6 +1000,15 @@ export default function UserPage({ params }: { params: { community: string; addr
                   <>
                     <div className="text-4xl">Farcaster Messages</div>
                     <div className="flex flex-col space-y-1 items-center">{farcasterMessagesComponents}</div>
+                  </>
+                ) : (
+                  <></>
+                )}
+
+                {followersComponents.length > 0 ? (
+                  <>
+                    <div className="text-4xl">Ethereum Follow Protocol</div>
+                    <div className="flex flex-col space-y-1 items-center">{followersComponents}</div>{" "}
                   </>
                 ) : (
                   <></>

@@ -16,6 +16,7 @@ interface CriteriaDatabase {
     fids?: number[];
     farcasterChecks?: any[];
     onchainChecks?: any[];
+    followerChecks?: any[];
   };
 }
 
@@ -157,6 +158,7 @@ export const communitiesConfig: CriteriaDatabase = {
       callToAction: "Find out how Programmable you are!",
     },
     onchainChecks: ["date"],
+    followerChecks: ["date"],
   },
   arbitrum: {
     name: "Arbitrum",
