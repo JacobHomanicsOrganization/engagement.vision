@@ -9,7 +9,6 @@ import { Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 import { useGlobalState } from "~~/services/store/store";
-import { getChainByName } from "~~/utils/engagement.vision/viem";
 
 type HeaderMenuLink = {
   label: string;
@@ -21,7 +20,7 @@ function getProperGlasses(isDarkMode: boolean) {
   return isDarkMode ? "meeple-circle-white.png" : "meeple-circle.png";
 }
 
-const chainObjs = {
+const communities = {
   app: {
     logo: (isDarkMode: boolean) => {
       return getProperGlasses(isDarkMode);
@@ -29,20 +28,29 @@ const chainObjs = {
     link: "/",
   },
   mainnet: {
+    name: "Ethereum",
     logo: "ethereum-eth.svg",
     link: "https://ethereum.org",
   },
   base: {
+    name: "Base",
     logo: "Base_Network_Logo.svg",
     link: "https://base.org",
   },
   arbitrum: {
+    name: "Arbitrum",
     logo: "arbitrum-arb-logo.png",
     link: "https://arbitrum.foundation",
   },
   optimism: {
+    name: "Optimism",
     logo: "optimism-ethereum-op-logo.png",
     link: "https://optimism.io",
+  },
+  nouns: {
+    name: "Nouns",
+    logo: "noggles.svg",
+    link: "https://nouns.wtf/",
   },
 };
 
@@ -96,8 +104,7 @@ export const Header = () => {
   );
 
   const appTheme = useGlobalState(({ appTheme }) => appTheme);
-  const chainObj = chainObjs[appTheme as keyof typeof chainObjs] as any;
-  const { chain } = getChainByName(appTheme || "");
+  const community = communities[appTheme as keyof typeof communities] as any;
 
   const { resolvedTheme } = useTheme();
 
@@ -129,14 +136,14 @@ export const Header = () => {
           )}
         </div>
 
-        {chainObj?.logo ? (
+        {community?.logo ? (
           <div className="flex relative w-10 h-10">
-            <Link href={chainObj?.link || ""} target="#" passHref className="gap-2 ml-4 mr-6 shrink-0">
+            <Link href={community?.link || ""} target="#" passHref className="gap-2 ml-4 mr-6 shrink-0">
               <Image
                 alt="Logo"
                 className="cursor-pointer"
                 fill
-                src={`/${appTheme === "app" ? chainObj?.logo(isDarkMode) : chainObj?.logo || ""}`}
+                src={`/${appTheme === "app" ? community?.logo(isDarkMode) : community?.logo || ""}`}
               />
             </Link>
           </div>
@@ -145,20 +152,20 @@ export const Header = () => {
         )}
 
         <div className="flex flex-col">
-          {chain?.name ? (
+          {community?.name ? (
             <>
-              {chainObj?.link ? (
+              {community?.link ? (
                 <span className="font-bold leading-tight">
-                  <Link href={chainObj?.link || ""} target="#" passHref className="ml-4 mr-6 shrink-0">
-                    {chain?.name}
+                  <Link href={community?.link || ""} target="#" passHref className="ml-4 mr-6 shrink-0">
+                    {community?.name}
                   </Link>
                 </span>
               ) : (
-                <span className="font-bold leading-tight">{chain?.name}</span>
+                <span className="font-bold leading-tight">{community?.name}</span>
               )}
 
               <span className="text-xs">
-                <Link href="/" passHref className={`${chainObj?.logo ? "ml-4" : ""} mr-6 shrink-0`}>
+                <Link href="/" passHref className={`${community?.logo ? "ml-4" : ""} mr-6 shrink-0`}>
                   Engagement.Vision
                 </Link>
               </span>
@@ -166,7 +173,7 @@ export const Header = () => {
           ) : (
             <>
               <span className="font-bold leading-tight">
-                <Link href="/" passHref className={`${chainObj?.logo ? "ml-4" : ""} mr-6 shrink-0`}>
+                <Link href="/" passHref className={`${community?.logo ? "ml-4" : ""} mr-6 shrink-0`}>
                   Engagement.Vision
                 </Link>
               </span>
