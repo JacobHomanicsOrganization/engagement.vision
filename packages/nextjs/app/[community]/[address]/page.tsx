@@ -716,10 +716,10 @@ export default function UserPage({ params }: { params: { community: string; addr
         href={`https://warpcast.com/${profile.farcasterName}/${value.hash}`}
         target="#"
       >
-        <div className="space-y-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
+        <div className="w-[200px] md:w-[400px] space-y-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
           <div className="flex space-x-1">
             <div className="bg-secondary rounded-lg p-1">#{index + 1}</div>
-            <div>{reconstructedText}</div>
+            <div className="overflow-hidden">{reconstructedText}</div>
           </div>
           {channel ? <div className="bg-secondary rounded-lg p-1">{channel}</div> : <></>}
         </div>
@@ -737,7 +737,7 @@ export default function UserPage({ params }: { params: { community: string; addr
 
     return (
       <Link key={"Transactions" + index} href={getBlockExplorerTxLink(resolvedChain?.id, value.hash) || ""} target="#">
-        <div className="flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
+        <div className="w-[200px] md:w-[400px] flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
           <div className="bg-secondary rounded-lg">#{index + 1}</div>
           {value.functionName.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>}
         </div>
@@ -891,29 +891,6 @@ export default function UserPage({ params }: { params: { community: string; addr
 
             {isInDayView ? (
               <div className="mx-1 md:mx-[450px] text-center">
-                {farcasterMessagesComponents.length === 0 && transactionsComponents.length === 0 ? (
-                  <p>No points were earned on this day!</p>
-                ) : (
-                  <></>
-                )}
-                {farcasterMessagesComponents.length > 0 ? (
-                  <>
-                    <div className="text-4xl">Farcaster Messages</div>
-                    <div className="flex flex-col space-y-1">{farcasterMessagesComponents}</div>
-                  </>
-                ) : (
-                  <></>
-                )}
-
-                {transactionsComponents.length > 0 ? (
-                  <>
-                    <div className="text-4xl">Transactions</div>
-                    <div className="flex flex-col space-y-1">{transactionsComponents}</div>{" "}
-                  </>
-                ) : (
-                  <></>
-                )}
-
                 <button
                   className="btn btn-primary m-10"
                   onClick={() => {
@@ -922,6 +899,28 @@ export default function UserPage({ params }: { params: { community: string; addr
                 >
                   Back to Monthly View
                 </button>
+                {farcasterMessagesComponents.length === 0 && transactionsComponents.length === 0 ? (
+                  <p>No points were earned on this day!</p>
+                ) : (
+                  <></>
+                )}
+                {farcasterMessagesComponents.length > 0 ? (
+                  <>
+                    <div className="text-4xl">Farcaster Messages</div>
+                    <div className="flex flex-col space-y-1 items-center">{farcasterMessagesComponents}</div>
+                  </>
+                ) : (
+                  <></>
+                )}
+
+                {transactionsComponents.length > 0 ? (
+                  <>
+                    <div className="text-4xl">Transactions</div>
+                    <div className="flex flex-col space-y-1 items-center">{transactionsComponents}</div>{" "}
+                  </>
+                ) : (
+                  <></>
+                )}
               </div>
             ) : (
               <div className="flex flex-wrap justify-center rounded-lg md:w-[800px]">{monthsComponents}</div>
