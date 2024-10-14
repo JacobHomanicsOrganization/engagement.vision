@@ -137,4 +137,30 @@ export const communitiesConfig: CriteriaDatabase = {
     ],
     onchainChecks: ["date"],
   },
+
+  optimismFractal: {
+    name: "Optimism Fractal",
+    logo: "optimism-fractal.jpg",
+    link: "/optimismFractal/welcome",
+    themes: {
+      light: "lightOptimismFractal",
+      dark: "darkOptimismFractal",
+    },
+    welcomeCards: {
+      title: "How Fractalized Are You?",
+      callToAction: "Find out how Fractalized you are!",
+    },
+    farcasterChecks: [
+      {
+        channels: ["https://warpcast.com/~/channel/optimismFractal"],
+      },
+      {
+        mentions: [
+          225840, //Optimism Fractal
+          194286, // Rosemari
+          211935, // Dan Singjoy
+        ],
+      },
+    ],
+  },
 };
