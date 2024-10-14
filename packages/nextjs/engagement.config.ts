@@ -103,13 +103,14 @@ export const communitiesConfig: CriteriaDatabase = {
     },
     farcasterChecks: [
       {
-        channels: ["https://warpcast.com/~/channel/optimismFractal"],
+        channels: ["https://warpcast.com/~/channel/optimismFractal", "https://warpcast.com/~/channel/optimism"],
       },
       {
         mentions: [
           225840, //Optimism Fractal
           194286, // Rosemari
           211935, // Dan Singjoy
+          18484, // Hats Protocol
         ],
       },
     ],

@@ -80,27 +80,27 @@ function customNotation(num: any) {
 //   }
 // };
 
-const getUserWarpcastFid = async (username: string) => {
-  const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
-  return response.data.transfer.id;
+// const getUserWarpcastFid = async (username: string) => {
+//   const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
+//   return response.data.transfer.id;
 
-  // try {
-  //   const response = await axios.get(`/api/farcaster/getUserByFid/${username}`);
-  //   return response.data;
-  // } catch (err) {
-  // }
+//   // try {
+//   //   const response = await axios.get(`/api/farcaster/getUserByFid/${username}`);
+//   //   return response.data;
+//   // } catch (err) {
+//   // }
 
-  // try {
-  //   // const response = await axios.get(`/api/twitter/${username}`);
-  //   // const response = await axios.get("https://hub.pinata.cloud/v1/castsByFid?fid=6023&pageSize=10&reverse=true");
+//   // try {
+//   //   // const response = await axios.get(`/api/twitter/${username}`);
+//   //   // const response = await axios.get("https://hub.pinata.cloud/v1/castsByFid?fid=6023&pageSize=10&reverse=true");
 
-  //   //https://fnames.farcaster.xyz/transfers/current?name=${username}
-  //   //https://api.farcaster.xyz/v2/user-by-fname?fname=${username}
-  //   const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
-  //   return response.data.transfer.id;
-  // } catch (err) {
-  // }
-};
+//   //   //https://fnames.farcaster.xyz/transfers/current?name=${username}
+//   //   //https://api.farcaster.xyz/v2/user-by-fname?fname=${username}
+//   //   const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
+//   //   return response.data.transfer.id;
+//   // } catch (err) {
+//   // }
+// };
 
 const getUserCastsByFid = async (fid: number) => {
   const response = await axios.get(`https://hub.pinata.cloud/v1/castsByFid?fid=${fid}&reverse=true`);
@@ -399,6 +399,8 @@ export default function UserPage({ params }: { params: { community: string; addr
       if (!chosenProfile.farcaster) {
         if (isEnsName(chosenProfile.name) || isBasename(chosenProfile.name)) {
           chosenProfile.farcaster = chosenProfile.name;
+        } else {
+          chosenProfile.farcaster = params.address;
         }
       }
 
@@ -411,11 +413,15 @@ export default function UserPage({ params }: { params: { community: string; addr
           const isBasenameResult = isBasename(chosenProfile.farcaster);
 
           if (isEnsNameResult === false && isBasenameResult === false) {
-            chosenProfile.farcasterName = chosenProfile.farcaster;
-
-            fid = await getUserWarpcastFid(chosenProfile.farcaster);
+            const response = await fetch(`/api/neynar/getUserByName?username=${chosenProfile.farcaster}`);
+            const data = await response.json();
+            if (!data.error) {
+              console.log(data);
+              fid = data["user"].fid;
+              chosenProfile.farcasterName = chosenProfile.farcaster;
+            }
           } else {
-            const response = await fetch(`/api/neynar?address=${chosenProfile.addr}`);
+            const response = await fetch(`/api/neynar/getUserByAddress?address=${chosenProfile.addr}`);
             const data = await response.json();
 
             if (!data.error) {
@@ -425,12 +431,6 @@ export default function UserPage({ params }: { params: { community: string; addr
             }
           }
         }
-
-        // if (isEnsName(chosenProfile.farcaster)) {
-        //   fid = await getUserWarpcastFid("jacobhomanics");
-        // } else {
-        //   fid = await getUserWarpcastFid(chosenProfile.farcaster);
-        // }
 
         // const JESSE_POLLACK_FID = 99;
         // const JACOB_HOMANICS_FID = 240799;
@@ -487,7 +487,10 @@ export default function UserPage({ params }: { params: { community: string; addr
   const [selectedMonth, setSelectedMonth] = useState(selectedDate.getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(selectedDate.getFullYear());
 
-  const { transactions, isError, errorMessage } = useTransactions({
+  const {
+    transactions, //isError,
+    errorMessage,
+  } = useTransactions({
     chainId: resolvedChain?.id,
     address: profile?.addr,
   });
@@ -532,7 +535,6 @@ export default function UserPage({ params }: { params: { community: string; addr
 
     const filteredFarcasterMessages = getFilteredArrayForSome(farcasterMessages, buildFarcasterChecks());
 
-    console.log(filteredFarcasterMessages);
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
     return tally;
@@ -780,7 +782,9 @@ export default function UserPage({ params }: { params: { community: string; addr
   if (userError) return <>{userError}</>;
 
   let transactionOutput;
-  if (isError) {
+  if (
+    false //isError
+  ) {
     transactionOutput = <div>{errorMessage}</div>;
   } else {
     transactionOutput = (
