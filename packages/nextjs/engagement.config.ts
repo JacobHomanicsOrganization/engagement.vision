@@ -172,4 +172,29 @@ export const communitiesConfig: CriteriaDatabase = {
     },
     onchainChecks: ["date"],
   },
+  mode: {
+    name: "Mode Network",
+    logo: "mode.svg",
+    link: "/mode/welcome",
+    // chainName: "mode",
+    themes: {
+      light: "lightMode",
+      dark: "darkMode",
+    },
+    welcomeCards: {
+      title: "Are you scaling Defi with AIFi?",
+      callToAction: "Find out now!",
+    },
+    farcasterChecks: [
+      {
+        channels: ["https://warpcast.com/~/channel/mode"],
+      },
+      {
+        mentions: [
+          217750, //Mode
+        ],
+      },
+    ],
+    onchainChecks: ["date"],
+  },
 };
