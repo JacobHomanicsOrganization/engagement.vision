@@ -23,21 +23,20 @@ import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import {
-  areAnyMentionsPresent,
-  getAllTimeFarcasterMessagesTally,
+  areAnyMentionsPresent, // getAllTimeFarcasterMessagesTally,
   getDailyFarcasterMessages2, // getDailyFarcasterMessage,
   // getDailyFarcasterMessageInSpecificChannel,
   // getDailyFarcasterMessagesInSpecificChannelTally,
   // getDailyFarcasterMessagesTally,
-  getIsPresent,
-  getMonthlyFarcasterMessagesTally,
-  getYearlyFarcasterMessagesTally,
+  getIsPresent, // getMonthlyFarcasterMessagesTally,
+  // getYearlyFarcasterMessagesTally,
   isWithinDay,
+  isWithinMonth,
+  isWithinYear,
 } from "~~/utils/how-based-are-you/filterFarcasterMessagesForTally";
 import {
   getAllTimeOnchainTransactionsTally,
-  getDailyOnchainTransactions,
-  getDailyOnchainTransactionsTally,
+  getDailyOnchainTransactions, // getDailyOnchainTransactionsTally,
   getMonthlyOnchainTransactionsTally,
   getYearlyOnchainTransactionsTally,
 } from "~~/utils/how-based-are-you/filterOnchainTransactionsForTally";
@@ -554,9 +553,18 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let tally = 0;
 
     tally += getAllTimeOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION);
-    tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, mentionsCriteria);
+    // tally += getAllTimeFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, mentionsCriteria);
 
     // tally += getAllTimeTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL);
+
+    const farcasterChecks = [
+      (element: any) => getIsPresent(channelsCriteria, element.data.castAddBody?.parentUrl),
+      (element: any) => areAnyMentionsPresent(mentionsCriteria, element.data.castAddBody?.mentions),
+    ];
+
+    const filteredFarcasterMessages = getDailyFarcasterMessages2(farcasterMessages, farcasterChecks);
+
+    tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
     return tally;
   }
@@ -565,7 +573,18 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let tally = 0;
 
     tally += getYearlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year);
-    tally += getYearlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, mentionsCriteria, year);
+    // tally += getYearlyFarcasterMessagesTally(farcasterMessages, POINTS_PER_FARCASTER_MESSAGE, mentionsCriteria, year);
+
+    const farcasterChecks = [
+      (element: any) => getIsPresent(channelsCriteria, element.data.castAddBody?.parentUrl),
+      (element: any) => areAnyMentionsPresent(mentionsCriteria, element.data.castAddBody?.mentions),
+      (element: any) => isWithinYear(element.data.timestamp, year),
+    ];
+
+    const filteredFarcasterMessages = getDailyFarcasterMessages2(farcasterMessages, farcasterChecks);
+
+    tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
+
     // tally += getYearlyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year);
     return tally;
   }
@@ -574,13 +593,25 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let tally = 0;
 
     tally += getMonthlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month);
-    tally += getMonthlyFarcasterMessagesTally(
-      farcasterMessages,
-      POINTS_PER_FARCASTER_MESSAGE,
-      mentionsCriteria,
-      year,
-      month,
-    );
+
+    const farcasterChecks = [
+      (element: any) => getIsPresent(channelsCriteria, element.data.castAddBody?.parentUrl),
+      (element: any) => areAnyMentionsPresent(mentionsCriteria, element.data.castAddBody?.mentions),
+      (element: any) => isWithinMonth(element.data.timestamp, year, month),
+    ];
+
+    const filteredFarcasterMessages = getDailyFarcasterMessages2(farcasterMessages, farcasterChecks);
+
+    tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
+
+    // tally += getMonthlyFarcasterMessagesTally(
+    //   farcasterMessages,
+    //   POINTS_PER_FARCASTER_MESSAGE,
+    //   mentionsCriteria,
+    //   year,
+    //   month,
+    // );
+
     // tally += getMonthlyTalentProtocolBadgesTally(credentials, POINTS_PER_CREDENTIAL, year, month);
     return tally;
   }
@@ -588,20 +619,15 @@ export default function UserPage({ params }: { params: { chain: string; address:
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
     const onchainTransactions = getDailyOnchainTransactions(transactions, year, month, day);
 
-    const filteredFarcasterMessages = getDailyFarcasterMessages2(farcasterMessages, year, month, day, [
-      element => getIsPresent(channelsCriteria, element.data.castAddBody?.parentUrl),
-      element => areAnyMentionsPresent(mentionsCriteria, element.data.castAddBody?.mentions),
-      (element, year, month, day) => isWithinDay(element.data.timestamp, year, month, day),
-    ]);
+    const farcasterChecks = [
+      (element: any) => getIsPresent(channelsCriteria, element.data.castAddBody?.parentUrl),
+      (element: any) => areAnyMentionsPresent(mentionsCriteria, element.data.castAddBody?.mentions),
+      (element: any) => isWithinDay(element.data.timestamp, year, month, day),
+    ];
 
-    const onchainTransactionTally = getDailyOnchainTransactionsTally(
-      transactions,
-      POINTS_PER_TRANSACTION,
-      year,
-      month,
-      day,
-    );
+    const filteredFarcasterMessages = getDailyFarcasterMessages2(farcasterMessages, farcasterChecks);
 
+    const onchainTransactionTally = onchainTransactions.length * POINTS_PER_TRANSACTION;
     const farcasterMessagesTally = filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
     return {
@@ -609,7 +635,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
       filteredFarcasterMessages: filteredFarcasterMessages,
       totalTally: onchainTransactionTally + farcasterMessagesTally,
       onchainTransactionTally,
-      farcasterMessagesTally: farcasterMessagesTally,
+      farcasterMessagesTally,
     };
   }
 

@@ -48,148 +48,161 @@ export function isWithinDay(farcasterMessageTimestamp: number, year: number, mon
 //
 //
 
-export function getAllTimeFarcasterMessages(array: any[], criteria: any[] = []) {
-  return array.filter(element => {
-    return areAnyMentionsPresent(criteria, element.data.castAddBody?.mentions);
-  });
-}
+// export function getAllTimeFarcasterMessages(array: any[], criteria: any[] = []) {
+//   return array.filter(element => {
+//     return areAnyMentionsPresent(criteria, element.data.castAddBody?.mentions);
+//   });
+// }
 
-export function getYearlyFarcasterMessages(array: any[], year: number, criteria: any[] = []) {
-  return array.filter(element => {
-    return (
-      areAnyMentionsPresent(criteria, element.data.castAddBody?.mentions) && isWithinYear(element.data.timestamp, year)
-    );
-  });
-}
+// export function getYearlyFarcasterMessages(array: any[], year: number, criteria: any[] = []) {
+//   return array.filter(element => {
+//     return (
+//       areAnyMentionsPresent(criteria, element.data.castAddBody?.mentions) && isWithinYear(element.data.timestamp, year)
+//     );
+//   });
+// }
 
-export function getMonthlyFarcasterMessages(array: any[], year: number, month: number, criteria: any[] = []) {
-  return array.filter(element => {
-    return (
-      areAnyMentionsPresent(criteria, element.data.castAddBody?.mentions) &&
-      isWithinMonth(element.data.timestamp, year, month)
-    );
-  });
-}
+// export function getMonthlyFarcasterMessages(array: any[], year: number, month: number, criteria: any[] = []) {
+//   return array.filter(element => {
+//     return (
+//       areAnyMentionsPresent(criteria, element.data.castAddBody?.mentions) &&
+//       isWithinMonth(element.data.timestamp, year, month)
+//     );
+//   });
+// }
 
-export function getAllTimeFarcasterMessagesTally(array: any[], pointsPer: number, criteria: any[] = []) {
-  return getAllTimeFarcasterMessages(array, criteria).length * pointsPer;
-}
+// export function getAllTimeFarcasterMessagesTally(array: any[], pointsPer: number, criteria: any[] = []) {
+//   return getAllTimeFarcasterMessages(array, criteria).length * pointsPer;
+// }
 
-export function getYearlyFarcasterMessagesTally(array: any[], pointsPer: number, criteria: any[] = [], year: number) {
-  return getYearlyFarcasterMessages(array, year, criteria).length * pointsPer;
-}
+// export function getYearlyFarcasterMessagesTally(array: any[], pointsPer: number, criteria: any[] = [], year: number) {
+//   return getYearlyFarcasterMessages(array, year, criteria).length * pointsPer;
+// }
 
-export function getMonthlyFarcasterMessagesTally(
-  array: any[],
-  pointsPer: number,
-  criteria: any[] = [],
-  year: number,
-  month: number,
-) {
-  return getMonthlyFarcasterMessages(array, year, month, criteria).length * pointsPer;
-}
-
-// export function getDailyFarcasterMessagesTally(
+// export function getMonthlyFarcasterMessagesTally(
 //   array: any[],
 //   pointsPer: number,
 //   criteria: any[] = [],
 //   year: number,
 //   month: number,
-//   day: number,
 // ) {
-//   return getDailyFarcasterMessage(array, year, month, day, criteria).length * pointsPer;
+//   return getMonthlyFarcasterMessages(array, year, month, criteria).length * pointsPer;
 // }
 
-//
-//
-// Channels
-//
-//
-export function getAllTimeFarcasterMessagesInSpecificChannel(array: any[], criteria: any[] = []) {
-  return array.filter(element => {
-    return getIsPresent(criteria, element.data.castAddBody?.parentUrl);
-  });
-}
+// // export function getDailyFarcasterMessagesTally(
+// //   array: any[],
+// //   pointsPer: number,
+// //   criteria: any[] = [],
+// //   year: number,
+// //   month: number,
+// //   day: number,
+// // ) {
+// //   return getDailyFarcasterMessage(array, year, month, day, criteria).length * pointsPer;
+// // }
 
-export function getYearlyFarcasterMessagesInSpecificChannel(array: any[], year: number, criteria: any[] = []) {
-  return array.filter(element => {
-    return getIsPresent(criteria, element.data.castAddBody?.parentUrl) && isWithinYear(element.data.timestamp, year);
-  });
-}
+// //
+// //
+// // Channels
+// //
+// //
+// export function getAllTimeFarcasterMessagesInSpecificChannel(array: any[], criteria: any[] = []) {
+//   return array.filter(element => {
+//     return getIsPresent(criteria, element.data.castAddBody?.parentUrl);
+//   });
+// }
 
-export function getMonthlyFarcasterMessagesInSpecificChannel(
-  array: any[],
-  year: number,
-  month: number,
-  criteria: any[] = [],
-) {
-  return array.filter(element => {
-    return (
-      getIsPresent(criteria, element.data.castAddBody?.parentUrl) && isWithinMonth(element.data.timestamp, year, month)
-    );
-  });
-}
+// export function getYearlyFarcasterMessagesInSpecificChannel(array: any[], year: number, criteria: any[] = []) {
+//   return array.filter(element => {
+//     return getIsPresent(criteria, element.data.castAddBody?.parentUrl) && isWithinYear(element.data.timestamp, year);
+//   });
+// }
 
-export function getAllTimeFarcasterMessagesInSpecificChannelTally(
-  array: any[],
-  pointsPer: number,
-  criteria: any[] = [],
-) {
-  return getAllTimeFarcasterMessagesInSpecificChannel(array, criteria).length * pointsPer;
-}
+// export function getMonthlyFarcasterMessagesInSpecificChannel(
+//   array: any[],
+//   year: number,
+//   month: number,
+//   criteria: any[] = [],
+// ) {
+//   return array.filter(element => {
+//     return (
+//       getIsPresent(criteria, element.data.castAddBody?.parentUrl) && isWithinMonth(element.data.timestamp, year, month)
+//     );
+//   });
+// }
 
-export function getYearlyFarcasterMessagesInSpecificChannelTally(
-  array: any[],
-  pointsPer: number,
-  criteria: any[] = [],
-  year: number,
-) {
-  return getYearlyFarcasterMessagesInSpecificChannel(array, year, criteria).length * pointsPer;
-}
+// export function getAllTimeFarcasterMessagesInSpecificChannelTally(
+//   array: any[],
+//   pointsPer: number,
+//   criteria: any[] = [],
+// ) {
+//   return getAllTimeFarcasterMessagesInSpecificChannel(array, criteria).length * pointsPer;
+// }
 
-export function getMonthlyFarcasterMessagesInSpecificChannelTally(
-  array: any[],
-  pointsPer: number,
-  criteria: any[] = [],
-  year: number,
-  month: number,
-) {
-  return getMonthlyFarcasterMessagesInSpecificChannel(array, year, month, criteria).length * pointsPer;
-}
+// export function getYearlyFarcasterMessagesInSpecificChannelTally(
+//   array: any[],
+//   pointsPer: number,
+//   criteria: any[] = [],
+//   year: number,
+// ) {
+//   return getYearlyFarcasterMessagesInSpecificChannel(array, year, criteria).length * pointsPer;
+// }
 
-// export function getDailyFarcasterMessagesInSpecificChannelTally(
+// export function getMonthlyFarcasterMessagesInSpecificChannelTally(
 //   array: any[],
 //   pointsPer: number,
 //   criteria: any[] = [],
 //   year: number,
 //   month: number,
-//   day: number,
 // ) {
-//   return getDailyFarcasterMessageInSpecificChannel(array, year, month, day, criteria).length * pointsPer;
+//   return getMonthlyFarcasterMessagesInSpecificChannel(array, year, month, criteria).length * pointsPer;
 // }
 
-export function getDailyFarcasterMessages2(
-  array: any[],
-  year: number,
-  month: number,
-  day: number,
-  checks: Array<(element: any, year: number, month: number, day: number) => boolean>,
-) {
-  return array.filter(element => {
-    return checks.every(check => check(element, year, month, day));
-  });
-}
+// // export function getDailyFarcasterMessagesInSpecificChannelTally(
+// //   array: any[],
+// //   pointsPer: number,
+// //   criteria: any[] = [],
+// //   year: number,
+// //   month: number,
+// //   day: number,
+// // ) {
+// //   return getDailyFarcasterMessageInSpecificChannel(array, year, month, day, criteria).length * pointsPer;
+// // }
 
-export function getDailyFarcasterMessage2(
-  array: any[],
-  year: number,
-  month: number,
-  day: number,
-  criteria: any[] = [],
-) {
-  return getDailyFarcasterMessages2(array, year, month, day, [
-    element => getIsPresent(criteria, element.data.castAddBody?.parentUrl),
-    element => areAnyMentionsPresent(criteria, element.data.castAddBody?.mentions),
-    (element, year, month, day) => isWithinDay(element.data.timestamp, year, month, day),
-  ]);
+// export function getAllTimeFarcasterMessages2(
+//   array: any[],
+//   checks: Array<(element: any, year: number, month: number, day: number) => boolean>,
+// ) {
+//   return array.filter(element => {
+//     return checks.every(check => check(element, year, month, day));
+//   });
+// }
+
+// export function getYearlyFarcasterMessages2(
+//   array: any[],
+//   year: number,
+//   month: number,
+//   day: number,
+//   checks: Array<(element: any, year: number, month: number, day: number) => boolean>,
+// ) {
+//   return array.filter(element => {
+//     return checks.every(check => check(element, year, month, day));
+//   });
+// }
+
+// export function getMonthlyFarcasterMessages2(
+//   array: any[],
+//   year: number,
+//   month: number,
+//   day: number,
+//   checks: Array<(element: any, year: number, month: number, day: number) => boolean>,
+// ) {
+//   return array.filter(element => {
+//     return checks.every(check => check(element, year, month, day));
+//   });
+// }
+
+export function getDailyFarcasterMessages2(array: any[], checks: Array<(element: any) => boolean>) {
+  return array.filter(element => {
+    return checks.every(check => check(element));
+  });
 }
