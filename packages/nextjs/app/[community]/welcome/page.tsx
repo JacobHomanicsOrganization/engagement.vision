@@ -36,14 +36,14 @@ export default function WelcomePage({ params }: { params: { community: string } 
     >
       <p className="text-4xl md:text-8xl text-center text-primary">{community.welcomeCards?.title}</p>
       <div className="w-[300px] md:w-[800px] flex justify-center flex-col text-center">
-        <p className="text-xl md:text-4xl">Enter an Address/ENS Name/Basename</p>
+        <p className="text-xl md:text-4xl">Enter an Address/ENS Name/Basename/Farcaster Username</p>
 
         <InputBase
           value={nameValue}
           onChange={updatedValue => {
             setNameValue(updatedValue);
           }}
-          placeholder="0x / name.eth / name.base.eth"
+          placeholder="0x / name.eth / name.base.eth / farcasterUsername"
         />
       </div>
       <div className="flex flex-col justify-center">
