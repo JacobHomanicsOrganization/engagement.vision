@@ -11,6 +11,7 @@ interface CriteriaDatabase {
       title?: string;
       callToAction?: string;
     };
+    chainName?: string;
     channels?: string[];
     fids?: number[];
     farcasterChecks?: any[];
@@ -60,6 +61,7 @@ export const communitiesConfig: CriteriaDatabase = {
   },
   base: {
     name: "Base",
+    chainName: "base",
     logo: "Base_Network_Logo.svg",
     link: "/base/welcome",
     themes: {
@@ -86,6 +88,7 @@ export const communitiesConfig: CriteriaDatabase = {
         ],
       },
     ],
+
     onchainChecks: ["date"],
   },
 
@@ -117,6 +120,7 @@ export const communitiesConfig: CriteriaDatabase = {
   },
   optimism: {
     name: "Optimism",
+    chainName: "optimism",
     logo: "optimism-ethereum-op-logo.png",
     link: "/optimism/welcome",
     themes: {
@@ -141,6 +145,7 @@ export const communitiesConfig: CriteriaDatabase = {
   },
   ethereum: {
     name: "Ethereum",
+    chainName: "mainnet",
     logo: "ethereum-eth.svg",
     link: "/ethereum/welcome",
     themes: {

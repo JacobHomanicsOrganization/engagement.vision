@@ -193,6 +193,8 @@ export default function UserPage({ params }: { params: { community: string; addr
   const onchainChecksCommunity =
     communitiesConfig[params.community as keyof typeof communitiesConfig]?.onchainChecks || [];
 
+  const chainNameCommunity = communitiesConfig[params.community as keyof typeof communitiesConfig]?.chainName;
+
   //after cleanup, fix bug by making params.address lowercase if its not an address
 
   const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
@@ -222,7 +224,7 @@ export default function UserPage({ params }: { params: { community: string; addr
   // let community: string;
 
   let resolvedChain: Chain | undefined;
-  const { chain: selectedChain } = getChainByName(params.community);
+  const { chain: selectedChain } = getChainByName(chainNameCommunity || "");
 
   if (selectedChain !== undefined) {
     //community is a blockchain!
