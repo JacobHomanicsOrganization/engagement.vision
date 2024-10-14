@@ -22,8 +22,6 @@ export const SwitchTheme = ({ className }: { className?: string }) => {
     setTheme(isDarkMode ? community.themes?.dark : community.themes?.light);
   }, [isDarkMode, setTheme, community?.themes?.dark, community?.themes?.light]);
   const handleToggle = () => {
-    console.log("we changing");
-
     setTheme(isDarkMode ? community.themes?.light || "light" : community.themes?.dark || "dark");
   };
 

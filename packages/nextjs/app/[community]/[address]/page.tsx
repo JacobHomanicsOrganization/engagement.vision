@@ -58,19 +58,6 @@ function customNotation(num: any) {
   return `${result.toFixed(1)}${units[index - 1] || ""}`;
 }
 
-// const BASE_FID = 12142;
-// const COINBASE_WALLET_FID = 309857;
-// const FARCASTER_START_EPOCH = 1609459200;
-
-// const chainsObjs = {
-//   Base: {
-//     mentionFids: [
-//       12142, //Base,
-//       309857, //Coinbase Wallet
-//     ],
-//   },
-// };
-
 // function getRandomInt(min: number, max: number): number {
 //   min = Math.ceil(min); // Ensure the minimum is rounded up
 //   max = Math.floor(max); // Ensure the maximum is rounded down

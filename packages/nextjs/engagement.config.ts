@@ -7,6 +7,10 @@ interface CriteriaDatabase {
       light?: string;
       dark?: string;
     };
+    welcomeCards?: {
+      title?: string;
+      callToAction?: string;
+    };
     channels?: string[];
     fids?: number[];
     farcasterChecks?: any[];
@@ -38,6 +42,10 @@ export const communitiesConfig: CriteriaDatabase = {
       light: "lightNouns",
       dark: "darkNouns",
     },
+    welcomeCards: {
+      title: "How Nounish Are You? ⌐◨-◨",
+      callToAction: "Find Out How ⌐◨-◨ Nounish ⌐◨-◨ You Are!",
+    },
     farcasterChecks: [
       {
         channels: ["chain://eip155:1/erc721:0x9c8ff314c9bc7f6e59a9d9225fb22946427edc03"],
@@ -57,6 +65,10 @@ export const communitiesConfig: CriteriaDatabase = {
     themes: {
       light: "lightBase",
       dark: "darkBase",
+    },
+    welcomeCards: {
+      title: "How Based Are You?",
+      callToAction: "Find Out How Based You Are!",
     },
     farcasterChecks: [
       {
@@ -84,6 +96,10 @@ export const communitiesConfig: CriteriaDatabase = {
       light: "lightMainnet",
       dark: "darkMainnet",
     },
+    welcomeCards: {
+      title: "How Programmable Are You?",
+      callToAction: "Find out how Programmable you are!",
+    },
     onchainChecks: ["date"],
   },
   arbitrum: {
@@ -94,6 +110,10 @@ export const communitiesConfig: CriteriaDatabase = {
       light: "lightArbitrum",
       dark: "darkArbitrum",
     },
+    welcomeCards: {
+      title: "How Stylized Are You?",
+      callToAction: "Find out how Stylized you are!",
+    },
     onchainChecks: ["date"],
   },
   optimism: {
@@ -103,6 +123,10 @@ export const communitiesConfig: CriteriaDatabase = {
     themes: {
       light: "lightOptimism",
       dark: "darkOptimism",
+    },
+    welcomeCards: {
+      title: "How Optimistic Are You?",
+      callToAction: "Find out how Optimistic you are!",
     },
     farcasterChecks: [
       {

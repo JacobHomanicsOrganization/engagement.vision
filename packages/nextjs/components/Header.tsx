@@ -17,44 +17,6 @@ type HeaderMenuLink = {
   icon?: React.ReactNode;
 };
 
-// function getProperGlasses(isDarkMode: boolean) {
-//   return isDarkMode ? "meeple-circle-white.png" : "meeple-circle.png";
-// }
-
-// const communities = {
-//   app: {
-//     logo: (isDarkMode: boolean) => {
-//       return getProperGlasses(isDarkMode);
-//     },
-//     link: "/",
-//   },
-//   ethereum: {
-//     name: "Ethereum",
-//     logo: "ethereum-eth.svg",
-//     link: "https://ethereum.org",
-//   },
-//   base: {
-//     name: "Base",
-//     logo: "Base_Network_Logo.svg",
-//     link: "https://base.org",
-//   },
-//   arbitrum: {
-//     name: "Arbitrum",
-//     logo: "arbitrum-arb-logo.png",
-//     link: "https://arbitrum.foundation",
-//   },
-//   optimism: {
-//     name: "Optimism",
-//     logo: "optimism-ethereum-op-logo.png",
-//     link: "https://optimism.io",
-//   },
-//   nouns: {
-//     name: "Nouns",
-//     logo: "noggles.svg",
-//     link: "https://nouns.wtf/",
-//   },
-// };
-
 export const menuLinks: HeaderMenuLink[] = [
   {
     label: "Home",
