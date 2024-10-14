@@ -10,8 +10,8 @@ type Props = {
   name: string | null;
   description: string | null;
   image: string | null;
-  address: string;
-  chain: Chain;
+  address?: string;
+  chain?: Chain;
   size?: "sm" | "base" | "lg";
   // iconslinks?: any;
 };
@@ -47,8 +47,12 @@ export const PfpCard = ({
       ) : (
         <></>
       )}
-      <AddressRaw address={address} ens={name} ensAvatar={image} chain={chain} size="xl" showIcon={false} />
-      {/* <div className="text-2xl">{name}</div> */}
+      <div className="text-2xl">{name}</div>
+      {address ? (
+        <AddressRaw address={address} ens={name} ensAvatar={image} chain={chain} size="xl" showIcon={false} />
+      ) : (
+        <></>
+      )}
       {/* <div className="pointer-events-auto border-4 border-primary rounded-lg p-2">
         <IconsLinks iconsLinks={iconslinks} size="sm" justify="center" />
       </div> */}

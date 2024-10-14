@@ -49,7 +49,7 @@ export const useTransactor = (_walletClient?: WalletClient): TransactionFunc => 
     let notificationId = null;
     let transactionHash: Hash | undefined = undefined;
     let transactionReceipt: TransactionReceipt | undefined;
-    let blockExplorerTxURL = "";
+    let blockExplorerTxURL: string | undefined = "";
     try {
       const network = await walletClient.getChainId();
       // Get full transaction from public client

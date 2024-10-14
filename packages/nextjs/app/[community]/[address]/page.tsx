@@ -221,13 +221,14 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   // let community: string;
 
-  let resolvedChain: Chain = mainnet;
+  let resolvedChain: Chain | undefined;
   const { chain: selectedChain } = getChainByName(params.community);
 
-  // console.log(selectedChain);
-  if (selectedChain !== undefined) resolvedChain = selectedChain;
+  if (selectedChain !== undefined) {
+    //community is a blockchain!
+    resolvedChain = selectedChain;
+  }
 
-  // console.log(resolvedChain);
   // if (resolvedChain) {
   //   chain = resolvedChain;
   //   community = chain.name;
@@ -242,23 +243,22 @@ export default function UserPage({ params }: { params: { community: string; addr
     userError, //setUserError
   ] = useState<string>();
 
-  useEffect(() => {
-    // if (chain === undefined) {
-    //   setUserError("Invalid chain. Please check for typos!");
-    // }
-    // else
-    //  if (!isAddress(profile?.addr)) {
-    //   setUserError("This account cannot be found anywhere. Please check for typos!");
-    // } else {
-    //   setUserError(undefined);
-    // }
-  }, [resolvedChain, resolvedChain?.id, profile, profile?.addr]);
+  // useEffect(() => {
+  //   // if (chain === undefined) {
+  //   //   setUserError("Invalid chain. Please check for typos!");
+  //   // }
+  //   // else
+  //   //  if (!isAddress(profile?.addr)) {
+  //   //   setUserError("This account cannot be found anywhere. Please check for typos!");
+  //   // } else {
+  //   //   setUserError(undefined);
+  //   // }
+  // }, [resolvedChain, resolvedChain?.id, profile, profile?.addr]);
 
   const [isLoadingUserProfile, setIsLoadingUserProfile] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
-      if (resolvedChain === undefined) return;
       // let profileAddress;
       // let profileName;
       // let profileAvatar;
@@ -369,13 +369,17 @@ export default function UserPage({ params }: { params: { community: string; addr
 
       const resolutionLoop = [async () => await ResolveWithEns(resolvedChain), async () => await ResolveWithEns()];
 
-      if (resolvedChain.id === base.id) {
+      if (resolvedChain?.id === base.id) {
         resolutionLoop.unshift(ResolveWithBase);
       } else {
         resolutionLoop.push(ResolveWithBase);
       }
 
-      let chosenProfile: Profile = { addr: params.address };
+      let chosenProfile: Profile = {};
+
+      if (isAddress(params.address)) {
+        chosenProfile = { addr: params.address };
+      }
 
       for (let i = 0; i < resolutionLoop.length; i++) {
         const { profile } = await resolutionLoop[i]();
@@ -387,6 +391,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       }
 
       setProfile(chosenProfile);
+
       if (chosenProfile.twitter) {
         // const user = await getUserByUsername(chosenProfile.twitter);
         // const tweets = await getUserTweets(chosenProfile.twitter);
@@ -412,15 +417,21 @@ export default function UserPage({ params }: { params: { community: string; addr
           const isEnsNameResult = isEnsName(chosenProfile.farcaster);
           const isBasenameResult = isBasename(chosenProfile.farcaster);
 
-          if (isEnsNameResult === false && isBasenameResult === false) {
+          console.log(chosenProfile.addr);
+          if (isEnsNameResult === false && isBasenameResult === false && chosenProfile.addr === undefined) {
             const response = await fetch(`/api/neynar/getUserByName?username=${chosenProfile.farcaster}`);
             const data = await response.json();
             if (!data.error) {
-              console.log(data);
               fid = data["user"].fid;
               chosenProfile.farcasterName = chosenProfile.farcaster;
+              chosenProfile.description = data["user"].profile.bio.text;
+              chosenProfile.avatar = data["user"]["pfp_url"];
+              chosenProfile.addr = data["user"]["custody_address"];
+              chosenProfile.name = data["user"]["display_name"];
             }
           } else {
+            console.log(chosenProfile.addr);
+
             const response = await fetch(`/api/neynar/getUserByAddress?address=${chosenProfile.addr}`);
             const data = await response.json();
 
@@ -489,7 +500,7 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   const {
     transactions, //isError,
-    errorMessage,
+    // errorMessage,
   } = useTransactions({
     chainId: resolvedChain?.id,
     address: profile?.addr,
@@ -598,7 +609,6 @@ export default function UserPage({ params }: { params: { community: string; addr
   //       // Assuming the API returns an array of channels, find the one matching the channel name
   //       const channel = channels.find(ch => ch.name === channelName);
 
-  //       console.log(channel);
   //       return channel; // Return the channel object if found
   //     } catch (error) {
   //       console.error("Error fetching channel by name:", error);
@@ -608,10 +618,9 @@ export default function UserPage({ params }: { params: { community: string; addr
   //   getChannelByName(community);
   // }, [community]);
 
-  // console.log(channelsCriteria);
-
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
     let tally = 0;
+
     const onchainChecks = [];
     for (let i = 0; i < onchainChecksCommunity.length; i++) {
       if (onchainChecksCommunity[i] === "date") {
@@ -721,7 +730,7 @@ export default function UserPage({ params }: { params: { community: string; addr
     }
 
     return (
-      <Link key={"Transactions" + index} href={getBlockExplorerTxLink(resolvedChain.id, value.hash)} target="#">
+      <Link key={"Transactions" + index} href={getBlockExplorerTxLink(resolvedChain?.id, value.hash) || ""} target="#">
         <div className="flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
           <div className="bg-secondary rounded-lg">#{index + 1}</div>
           {value.functionName.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>}
@@ -744,6 +753,7 @@ export default function UserPage({ params }: { params: { community: string; addr
         />,
       );
     }
+
     if (value.onchainTransactionTally > 0) {
       sources.push(
         /* eslint-disable-next-line @next/next/no-img-element */
@@ -785,7 +795,7 @@ export default function UserPage({ params }: { params: { community: string; addr
   if (
     false //isError
   ) {
-    transactionOutput = <div>{errorMessage}</div>;
+    // transactionOutput = <div>{errorMessage}</div>;
   } else {
     transactionOutput = (
       <div className="bg-secondary rounded-lg">
@@ -927,7 +937,6 @@ export default function UserPage({ params }: { params: { community: string; addr
               image={profile?.avatar}
               description={profile?.description}
               chain={resolvedChain}
-              address={profile?.addr}
               size="sm"
             />
 

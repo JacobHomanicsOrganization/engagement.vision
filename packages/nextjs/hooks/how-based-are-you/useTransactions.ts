@@ -71,6 +71,8 @@ export const useTransactions = ({ chainId, address }: any) => {
 
   useEffect(() => {
     const getTransactions = async () => {
+      console.log(chainId);
+      if (chainId === undefined) return;
       if (address === undefined) return;
 
       const { transactions, isError, eMessage } = await fetchTransactions(chainId, address);

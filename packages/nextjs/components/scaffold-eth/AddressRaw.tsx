@@ -11,7 +11,7 @@ import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
 
 type AddressProps = {
   address?: AddressType;
-  chain: Chain;
+  chain?: Chain;
   ens?: string | null;
   ensAvatar?: string | null;
   disableAddressLink?: boolean;
@@ -91,9 +91,9 @@ export const AddressRaw = ({
       {showAddress ? (
         disableAddressLink ? (
           <span className={`ml-1.5 text-${size} font-normal`}>{displayAddress}</span>
-        ) : chain.id === hardhat.id ? (
+        ) : chain?.id === hardhat.id ? (
           <span className={`ml-1.5 text-${size} font-normal`}>
-            <Link href={blockExplorerAddressLink}>{displayAddress}</Link>
+            <Link href={blockExplorerAddressLink || ""}>{displayAddress}</Link>
           </span>
         ) : (
           <a

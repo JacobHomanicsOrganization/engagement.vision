@@ -86,7 +86,9 @@ export const NETWORKS_EXTRA_DATA: Record<string, ChainAttributes> = {
 /**
  * Gives the block explorer transaction URL, returns empty string if the network is a local chain
  */
-export function getBlockExplorerTxLink(chainId: number, txnHash: string) {
+export function getBlockExplorerTxLink(chainId: number | undefined, txnHash: string) {
+  if (chainId === undefined) return undefined;
+
   const chainNames = Object.keys(chains);
 
   const targetChainArr = chainNames.filter(chainName => {
@@ -112,7 +114,9 @@ export function getBlockExplorerTxLink(chainId: number, txnHash: string) {
  * Gives the block explorer URL for a given address.
  * Defaults to Etherscan if no (wagmi) block explorer is configured for the network.
  */
-export function getBlockExplorerAddressLink(network: chains.Chain, address: string) {
+export function getBlockExplorerAddressLink(network: chains.Chain | undefined, address: string) {
+  if (network === undefined) return undefined;
+
   const blockExplorerBaseURL = network.blockExplorers?.default?.url;
   if (network.id === chains.hardhat.id) {
     return `/blockexplorer/address/${address}`;
