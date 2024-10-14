@@ -6,7 +6,7 @@ import { isAddress } from "viem";
 import { InputBase } from "~~/components/scaffold-eth";
 import { useGlobalState } from "~~/services/store/store";
 
-const chainObjs = {
+const communities = {
   mainnet: {
     titleCard: "How Programmable Are You?",
     ctaCard: "Find out how Programmable you are!",
@@ -23,20 +23,24 @@ const chainObjs = {
     titleCard: "How Optimistic Are You?",
     ctaCard: "Find out how Optimistic you are!",
   },
+  nouns: {
+    titleCard: "How Nounish Are You? ⌐◨-◨",
+    ctaCard: "Find Out How ⌐◨-◨ Nounish ⌐◨-◨ You Are!",
+  },
 };
 
-export default function WelcomePage({ params }: { params: { chain: string } }) {
+export default function WelcomePage({ params }: { params: { community: string } }) {
   const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
 
   useEffect(() => {
-    setAppTheme(params.chain);
-  }, [params.chain, setAppTheme]);
+    setAppTheme(params.community);
+  }, [params.community, setAppTheme]);
 
   const router = useRouter();
 
   const [nameValue, setNameValue] = useState<string>("");
 
-  const chainObj = chainObjs[params.chain as keyof typeof chainObjs];
+  const community = communities[params.community as keyof typeof communities];
 
   return (
     <form
@@ -48,11 +52,11 @@ export default function WelcomePage({ params }: { params: { chain: string } }) {
         if (!isAddress(nameValue)) {
           finalNameValue = finalNameValue.toLowerCase();
         }
-        router.push(`/${params.chain}/${finalNameValue}`);
+        router.push(`/${params.community}/${finalNameValue}`);
       }}
       className="flex flex-col justify-center items-center space-y-32"
     >
-      <p className="text-4xl md:text-8xl text-center text-primary">{chainObj.titleCard}</p>
+      <p className="text-4xl md:text-8xl text-center text-primary">{community.titleCard}</p>
       <div className="w-[300px] md:w-[800px] flex justify-center flex-col text-center">
         <p className="text-xl md:text-4xl">Enter an Address/ENS Name/Basename</p>
 
@@ -65,7 +69,7 @@ export default function WelcomePage({ params }: { params: { chain: string } }) {
         />
       </div>
       <div className="flex flex-col justify-center">
-        <p className="text-xl md:text-4xl text-center">{chainObj.ctaCard}</p>
+        <p className="text-xl md:text-4xl text-center">{community.ctaCard}</p>
         <button type="submit" className="btn btn-primary btn-lg text-4xl">
           Go!
         </button>

@@ -26,6 +26,10 @@ const appThemes = {
     light: "lightOptimism",
     dark: "darkOptimism",
   },
+  nouns: {
+    light: "lightNouns",
+    dark: "darkNouns",
+  },
 };
 
 export const SwitchTheme = ({ className }: { className?: string }) => {

@@ -196,7 +196,7 @@ type Profile = {
   farcasterName?: string;
 };
 
-export default function UserPage({ params }: { params: { chain: string; address: string } }) {
+export default function UserPage({ params }: { params: { community: string; address: string } }) {
   //after cleanup, fix bug by making params.address lowercase if its not an address
 
   const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
@@ -211,29 +211,29 @@ export default function UserPage({ params }: { params: { chain: string; address:
     }
 
     if (!isAddress(params.address) && hasUppercase(params.address)) {
-      router.push(`/${params.chain}/${(params.address as string).toLowerCase()}`);
+      router.push(`/${params.community}/${(params.address as string).toLowerCase()}`);
     }
-  }, [params.chain, params.address, router]);
+  }, [params.community, params.address, router]);
 
   // const currentDate = new Date();
 
   const [selectedDate] = useState(new Date());
 
   useEffect(() => {
-    setAppTheme(params.chain);
-  }, [params.chain, setAppTheme]);
+    setAppTheme(params.community);
+  }, [params.community, setAppTheme]);
 
   let community: string;
 
   let chain: Chain;
 
-  const { chain: resolvedChain } = getChainByName(params.chain);
+  const { chain: resolvedChain } = getChainByName(params.community);
   if (resolvedChain) {
     chain = resolvedChain;
     community = chain.name;
   } else {
     chain = mainnet;
-    community = params.chain;
+    community = params.community;
   }
 
   const [profile, setProfile] = useState<any>();
@@ -559,7 +559,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
   const farcasterChecksCommunity = criteriaDatabase[community as keyof typeof criteriaDatabase]?.farcasterChecks || [];
   const onchainChecksCommunity = criteriaDatabase[community as keyof typeof criteriaDatabase]?.onchainChecks || [];
 
-  console.log(onchainChecksCommunity);
+  console.log(farcasterChecksCommunity);
 
   function getAllTimeTally(transactions: any) {
     let tally = 0;
@@ -728,6 +728,10 @@ export default function UserPage({ params }: { params: { chain: string; address:
     if (value.data.castAddBody.parentUrl) {
       if (value.data.castAddBody.parentUrl === "https://onchainsummer.xyz") {
         channel = "/base";
+      } else if (
+        value.data.castAddBody.parentUrl === "chain://eip155:1/erc721:0x9c8ff314c9bc7f6e59a9d9225fb22946427edc03"
+      ) {
+        channel = "/nouns";
       } else {
         channel = value.data.castAddBody.parentUrl.replace("https://warpcast.com/~/channel", "");
       }
