@@ -23,12 +23,12 @@ import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import {
-  areAnyMentionsPresent, // getAllTimeFarcasterMessagesTally,
+  areAnyValuesInCriteria, // getAllTimeFarcasterMessagesTally,
   getDailyFarcasterMessages2, // getDailyFarcasterMessage,
   // getDailyFarcasterMessageInSpecificChannel,
   // getDailyFarcasterMessagesInSpecificChannelTally,
   // getDailyFarcasterMessagesTally,
-  getIsPresent, // getMonthlyFarcasterMessagesTally,
+  isValueInCriteria, // getMonthlyFarcasterMessagesTally,
   // getYearlyFarcasterMessagesTally,
   isWithinDay,
   isWithinMonth,
@@ -552,8 +552,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
     },
   };
 
-  const mentionsCriteria = criteriaDatabase[chain?.name as keyof typeof criteriaDatabase]?.fids;
-  const channelsCriteria = criteriaDatabase[chain?.name as keyof typeof criteriaDatabase]?.channels;
+  const mentionsCriteria = criteriaDatabase[chain?.name as keyof typeof criteriaDatabase]?.fids || [];
+  const channelsCriteria = criteriaDatabase[chain?.name as keyof typeof criteriaDatabase]?.channels || [];
 
   function getAllTimeTally(transactions: any) {
     let tally = 0;
@@ -561,8 +561,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
     tally += getAllTimeOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION);
 
     const farcasterChecks = [
-      (element: any) => getIsPresent(channelsCriteria, element.data.castAddBody?.parentUrl),
-      (element: any) => areAnyMentionsPresent(mentionsCriteria, element.data.castAddBody?.mentions),
+      (element: any) => isValueInCriteria(channelsCriteria || [], element.data.castAddBody?.parentUrl),
+      (element: any) => areAnyValuesInCriteria(mentionsCriteria || [], element.data.castAddBody?.mentions),
     ];
 
     const filteredFarcasterMessages = getDailyFarcasterMessages2(farcasterMessages, farcasterChecks);
@@ -578,8 +578,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
     tally += getYearlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year);
 
     const farcasterChecks = [
-      (element: any) => getIsPresent(channelsCriteria, element.data.castAddBody?.parentUrl),
-      (element: any) => areAnyMentionsPresent(mentionsCriteria, element.data.castAddBody?.mentions),
+      (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
+      (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
       (element: any) => isWithinYear(element.data.timestamp, year),
     ];
 
@@ -596,8 +596,8 @@ export default function UserPage({ params }: { params: { chain: string; address:
     tally += getMonthlyOnchainTransactionsTally(transactions, POINTS_PER_TRANSACTION, year, month);
 
     const farcasterChecks = [
-      (element: any) => getIsPresent(channelsCriteria, element.data.castAddBody?.parentUrl),
-      (element: any) => areAnyMentionsPresent(mentionsCriteria, element.data.castAddBody?.mentions),
+      (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
+      (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
       (element: any) => isWithinMonth(element.data.timestamp, year, month),
     ];
 
@@ -609,11 +609,15 @@ export default function UserPage({ params }: { params: { chain: string; address:
   }
 
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
+    // const onchainChecks = [
+    //   (element: any) => isWithinDay(element.data.timestamp, year, month, day);
+    // ]
+
     const onchainTransactions = getDailyOnchainTransactions(transactions, year, month, day);
 
     const farcasterChecks = [
-      (element: any) => getIsPresent(channelsCriteria, element.data.castAddBody?.parentUrl),
-      (element: any) => areAnyMentionsPresent(mentionsCriteria, element.data.castAddBody?.mentions),
+      (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
+      (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
       (element: any) => isWithinDay(element.data.timestamp, year, month, day),
     ];
 
