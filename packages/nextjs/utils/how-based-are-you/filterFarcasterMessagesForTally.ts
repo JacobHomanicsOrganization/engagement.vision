@@ -1,6 +1,22 @@
-// import { getTallyForFilteredArray } from "./getTallyForFilteredArray";
+export const FARCASTER_START_EPOCH = 1609459200;
+export function getFarcasterDate(timestamp: number) {
+  return new Date((FARCASTER_START_EPOCH + timestamp) * 1000);
+}
 
-const FARCASTER_START_EPOCH = 1609459200;
+export function isDateWithinYear(date: Date, year: number) {
+  const isWithinYear = date.getFullYear() === year;
+  return isWithinYear;
+}
+
+export function isDateWithinMonth(date: Date, year: number, month: number) {
+  const isWithinMonth = date.getMonth() + 1 === month;
+  return isDateWithinYear(date, year) && isWithinMonth;
+}
+
+export function isDateWithinDay(date: Date, year: number, month: number, day: number) {
+  const isWithinDay = date.getDate() === day;
+  return isDateWithinYear(date, year) && isDateWithinMonth(date, year, month) && isWithinDay;
+}
 
 export function isValueInCriteria<T>(criteria: T[], value: T): boolean {
   let isPresent = false;
@@ -16,25 +32,6 @@ export function isValueInCriteria<T>(criteria: T[], value: T): boolean {
 
 export function areAnyValuesInCriteria<T>(criteria: T[], values: T[] = []): boolean {
   return values.some(value => isValueInCriteria(criteria, value));
-}
-
-export function getFarcasterDate(farcasterMessageTimestamp: number) {
-  return new Date((FARCASTER_START_EPOCH + farcasterMessageTimestamp) * 1000);
-}
-
-export function isWithinYear(date: Date, year: number) {
-  // const date = getFarcasterDate(farcasterMessageTimestamp);
-  return date.getFullYear() === year;
-}
-
-export function isWithinMonth(date: Date, year: number, month: number) {
-  // const date = getFarcasterDate(farcasterMessageTimestamp);
-  return date.getFullYear() === year && date.getMonth() + 1 === month;
-}
-
-export function isWithinDay(date: Date, year: number, month: number, day: number) {
-  // const date = getFarcasterDate(farcasterMessageTimestamp);
-  return date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day;
 }
 
 export function getFilteredArray(array: any[], checks: Array<(element: any) => boolean>) {

@@ -10,7 +10,7 @@ import {
   Basename,
   BasenameTextRecordKeys,
   getBasename,
-  getBasenameAddr, //etBasename,
+  getBasenameAddr,
   getBasenameAvatar,
   getBasenameTextRecord,
   isBasename,
@@ -24,28 +24,13 @@ import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import {
   areAnyValuesInCriteria,
-  getFarcasterDate, // getAllTimeFarcasterMessagesTally,
-  getFilteredArray, // getDailyFarcasterMessage,
-  // getDailyFarcasterMessageInSpecificChannel,
-  // getDailyFarcasterMessagesInSpecificChannelTally,
-  // getDailyFarcasterMessagesTally,
-  isValueInCriteria, // getMonthlyFarcasterMessagesTally,
-  // getYearlyFarcasterMessagesTally,
-  isWithinDay,
-  isWithinMonth,
-  isWithinYear,
+  getFarcasterDate,
+  getFilteredArray,
+  isDateWithinDay,
+  isDateWithinMonth,
+  isDateWithinYear,
+  isValueInCriteria,
 } from "~~/utils/how-based-are-you/filterFarcasterMessagesForTally";
-// import {
-//   // getAllTimeOnchainTransactionsTally,
-//   // getDailyOnchainTransactions, // getDailyOnchainTransactionsTally,
-//   // getMonthlyOnchainTransactionsTally,
-//   // getYearlyOnchainTransactionsTally,
-// } from "~~/utils/how-based-are-you/filterOnchainTransactionsForTally";
-// import {
-//   getAllTimeTalentProtocolBadgesTally, // getDailyTalentProtocolBadgesTally,
-//   getMonthlyTalentProtocolBadgesTally,
-//   getYearlyTalentProtocolBadgesTally,
-// } from "~~/utils/how-based-are-you/filterTalentProtocolBadgesForTally";
 import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
 import { getBlockExplorerTxLink } from "~~/utils/scaffold-eth";
 
@@ -549,14 +534,14 @@ export default function UserPage({ params }: { params: { chain: string; address:
   function getYearlyTally(transactions: any, year: number) {
     let tally = 0;
 
-    const onchainChecks = [(element: any) => isWithinYear(new Date(element.timeStamp * 1000), year)];
+    const onchainChecks = [(element: any) => isDateWithinYear(new Date(element.timeStamp * 1000), year)];
     const filteredTransactions = getFilteredArray(transactions, onchainChecks);
     tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
 
     const farcasterChecks = [
       (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
       (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      (element: any) => isWithinYear(getFarcasterDate(element.data.timestamp), year),
+      (element: any) => isDateWithinYear(getFarcasterDate(element.data.timestamp), year),
     ];
 
     const filteredFarcasterMessages = getFilteredArray(farcasterMessages, farcasterChecks);
@@ -569,14 +554,14 @@ export default function UserPage({ params }: { params: { chain: string; address:
   function getMonthlyTally(transactions: any, year: number, month: number) {
     let tally = 0;
 
-    const onchainChecks = [(element: any) => isWithinMonth(new Date(element.timeStamp * 1000), year, month)];
+    const onchainChecks = [(element: any) => isDateWithinMonth(new Date(element.timeStamp * 1000), year, month)];
     const filteredTransactions = getFilteredArray(transactions, onchainChecks);
     tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
 
     const farcasterChecks = [
       (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
       (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      (element: any) => isWithinMonth(getFarcasterDate(element.data.timestamp), year, month),
+      (element: any) => isDateWithinMonth(getFarcasterDate(element.data.timestamp), year, month),
     ];
 
     const filteredFarcasterMessages = getFilteredArray(farcasterMessages, farcasterChecks);
@@ -587,7 +572,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
 
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
     let tally = 0;
-    const onchainChecks = [(element: any) => isWithinDay(new Date(element.timeStamp * 1000), year, month, day)];
+    const onchainChecks = [(element: any) => isDateWithinDay(new Date(element.timeStamp * 1000), year, month, day)];
     const filteredTransactions = getFilteredArray(transactions, onchainChecks);
     const filteredTransactionsTally = filteredTransactions.length * POINTS_PER_TRANSACTION;
     tally += filteredTransactionsTally;
@@ -595,7 +580,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
     const farcasterChecks = [
       (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
       (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      (element: any) => isWithinDay(getFarcasterDate(element.data.timestamp), year, month, day),
+      (element: any) => isDateWithinDay(getFarcasterDate(element.data.timestamp), year, month, day),
     ];
     const filteredFarcasterMessages = getFilteredArray(farcasterMessages, farcasterChecks);
     const filteredFarcasterMessagesTally = filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
