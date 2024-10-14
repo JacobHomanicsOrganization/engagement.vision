@@ -208,21 +208,31 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   const criteriaDatabase: CriteriaDatabase = {
     base: {
-      channels: [
-        "https://onchainsummer.xyz",
-        "https://warpcast.com/~/channel/base-builds",
-        "https://warpcast.com/~/channel/coinbase",
-      ],
-      fids: [
-        12142, //Base,
-        309857, //Coinbase Wallet
-        20910, //Zora
-      ],
+      // channels: [
+      //   "https://onchainsummer.xyz",
+      //   "https://warpcast.com/~/channel/base-builds",
+      //   "https://warpcast.com/~/channel/coinbase",
+      // ],
+      // fids: [
+      //   12142, //Base,
+      //   309857, //Coinbase Wallet
+      //   20910, //Zora
+      // ],
       farcasterChecks: [
-        "channels",
-        "mentions",
-        // (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
-        // (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
+        {
+          channels: [
+            "https://onchainsummer.xyz",
+            "https://warpcast.com/~/channel/base-builds",
+            "https://warpcast.com/~/channel/coinbase",
+          ],
+        },
+        {
+          mentions: [
+            12142, //Base,
+            309857, //Coinbase Wallet
+            20910, //Zora
+          ],
+        },
       ],
       onchainChecks: ["date"],
     },
@@ -236,12 +246,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       fids: [
         300898, //Optimism
       ],
-      farcasterChecks: [
-        "channels",
-        "mentions",
-        // (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
-        // (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      ],
+      farcasterChecks: ["channels", "mentions"],
       onchainChecks: ["date"],
     },
     nouns: {
@@ -250,17 +255,12 @@ export default function UserPage({ params }: { params: { community: string; addr
         2375, //Nouns,
         749097, //nounstown.eth
       ],
-      farcasterChecks: [
-        "channels",
-        "mentions",
-        // (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
-        // (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      ],
+      farcasterChecks: ["channels", "mentions"],
     },
   };
 
-  const mentionsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.fids || [];
-  const channelsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.channels || [];
+  // const mentionsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.fids || [];
+  // const channelsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.channels || [];
   const farcasterChecksCommunity =
     criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.farcasterChecks || [];
   const onchainChecksCommunity =
@@ -581,19 +581,17 @@ export default function UserPage({ params }: { params: { community: string; addr
   };
 
   function buildFarcasterChecks() {
-    const someCriterias = [];
-    for (let i = 0; i < farcasterChecksCommunity.length; i++) {
-      const check = farcasterChecksCommunity[i];
-      if (check === "channels") {
-        someCriterias.push((element: any) =>
-          areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-        );
+    const someCriterias: any[] = [];
+
+    farcasterChecksCommunity.forEach(item => {
+      if (item.channels) {
+        someCriterias.push((element: any) => isValueInCriteria(item.channels, element.data.castAddBody?.parentUrl));
       }
 
-      if (check === "mentions") {
-        someCriterias.push((element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl));
+      if (item.mentions) {
+        someCriterias.push((element: any) => areAnyValuesInCriteria(item.mentions, element.data.castAddBody?.mentions));
       }
-    }
+    });
 
     return someCriterias;
   }
