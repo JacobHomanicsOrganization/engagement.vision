@@ -255,6 +255,8 @@ export default function UserPage({ params }: { params: { community: string; addr
   //   // }
   // }, [resolvedChain, resolvedChain?.id, profile, profile?.addr]);
 
+  const [isEnsResolved, setIsEnsResolved] = useState(false);
+
   const [isLoadingUserProfile, setIsLoadingUserProfile] = useState(false);
 
   useEffect(() => {
@@ -303,7 +305,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       async function ResolveWithBase() {
         let profile;
         const isError = false;
-        let resolved;
+        let resolved = false;
 
         if (isAddress(params.address)) {
           const basename = await getBasename(params.address as `0x${string}`);
@@ -334,7 +336,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       async function ResolveWithEns(chain: Chain = mainnet) {
         let profile;
         let isError = false;
-        let resolved;
+        let resolved = false;
 
         if (isAddress(params.address)) {
           let ensName;
@@ -382,7 +384,9 @@ export default function UserPage({ params }: { params: { community: string; addr
       }
 
       for (let i = 0; i < resolutionLoop.length; i++) {
-        const { profile } = await resolutionLoop[i]();
+        const { profile, resolved } = await resolutionLoop[i]();
+
+        setIsEnsResolved(resolved);
 
         if (profile) {
           chosenProfile = profile;
@@ -933,10 +937,12 @@ export default function UserPage({ params }: { params: { community: string; addr
         <div className="m-4">
           <div className="flex">
             <PfpCard
-              name={profile?.name ?? profile?.addr}
+              name={!isEnsResolved ? profile?.name ?? profile?.addr : undefined}
               image={profile?.avatar}
               description={profile?.description}
               chain={resolvedChain}
+              address={profile?.addr}
+              ens={isEnsResolved ? profile?.name : undefined}
               size="sm"
             />
 

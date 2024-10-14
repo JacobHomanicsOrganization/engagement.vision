@@ -12,6 +12,7 @@ type Props = {
   image: string | null;
   address?: string;
   chain?: Chain;
+  ens?: string;
   size?: "sm" | "base" | "lg";
   // iconslinks?: any;
 };
@@ -27,6 +28,7 @@ export const PfpCard = ({
   description,
   address,
   chain,
+  ens,
   image, //iconslinks,
   size = "base",
 }: Props) => {
@@ -49,7 +51,7 @@ export const PfpCard = ({
       )}
       <div className="text-2xl">{name}</div>
       {address ? (
-        <AddressRaw address={address} ens={name} ensAvatar={image} chain={chain} size="xl" showIcon={false} />
+        <AddressRaw address={address} ens={ens} ensAvatar={image} chain={chain} size="xl" showIcon={false} />
       ) : (
         <></>
       )}

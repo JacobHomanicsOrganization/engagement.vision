@@ -118,7 +118,7 @@ export function getBlockExplorerAddressLink(network: chains.Chain | undefined, a
   if (network === undefined) return undefined;
 
   const blockExplorerBaseURL = network.blockExplorers?.default?.url;
-  if (network.id === chains.hardhat.id) {
+  if (network?.id === chains.hardhat.id) {
     return `/blockexplorer/address/${address}`;
   }
 
