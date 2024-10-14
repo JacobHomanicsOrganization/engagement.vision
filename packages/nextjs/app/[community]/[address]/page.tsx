@@ -197,6 +197,75 @@ type Profile = {
 };
 
 export default function UserPage({ params }: { params: { community: string; address: string } }) {
+  interface CriteriaDatabase {
+    [key: string]: {
+      channels?: string[];
+      fids?: number[];
+      farcasterChecks?: any[];
+      onchainChecks?: any[];
+    };
+  }
+
+  const criteriaDatabase: CriteriaDatabase = {
+    base: {
+      channels: [
+        "https://onchainsummer.xyz",
+        "https://warpcast.com/~/channel/base-builds",
+        "https://warpcast.com/~/channel/coinbase",
+      ],
+      fids: [
+        12142, //Base,
+        309857, //Coinbase Wallet
+        20910, //Zora
+      ],
+      farcasterChecks: [
+        "channels",
+        "mentions",
+        // (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
+        // (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
+      ],
+      onchainChecks: ["date"],
+    },
+    ethereum: {
+      onchainChecks: ["date"],
+    },
+    arbitrum: {
+      onchainChecks: ["date"],
+    },
+    optimism: {
+      fids: [
+        300898, //Optimism
+      ],
+      farcasterChecks: [
+        "channels",
+        "mentions",
+        // (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
+        // (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
+      ],
+      onchainChecks: ["date"],
+    },
+    nouns: {
+      channels: ["chain://eip155:1/erc721:0x9c8ff314c9bc7f6e59a9d9225fb22946427edc03"],
+      fids: [
+        2375, //Nouns,
+        749097, //nounstown.eth
+      ],
+      farcasterChecks: [
+        "channels",
+        "mentions",
+        // (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
+        // (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
+      ],
+    },
+  };
+
+  const mentionsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.fids || [];
+  const channelsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.channels || [];
+  const farcasterChecksCommunity =
+    criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.farcasterChecks || [];
+  const onchainChecksCommunity =
+    criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.onchainChecks || [];
+
   //after cleanup, fix bug by making params.address lowercase if its not an address
 
   const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
@@ -511,68 +580,23 @@ export default function UserPage({ params }: { params: { community: string; addr
     749097: "nounstown.eth",
   };
 
-  interface CriteriaDatabase {
-    [key: string]: {
-      channels?: string[];
-      fids?: number[];
-      farcasterChecks?: any[];
-      onchainChecks?: any[];
-    };
+  function buildFarcasterChecks() {
+    const someCriterias = [];
+    for (let i = 0; i < farcasterChecksCommunity.length; i++) {
+      const check = farcasterChecksCommunity[i];
+      if (check === "channels") {
+        someCriterias.push((element: any) =>
+          areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
+        );
+      }
+
+      if (check === "mentions") {
+        someCriterias.push((element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl));
+      }
+    }
+
+    return someCriterias;
   }
-
-  const criteriaDatabase: CriteriaDatabase = {
-    base: {
-      channels: [
-        "https://onchainsummer.xyz",
-        "https://warpcast.com/~/channel/base-builds",
-        "https://warpcast.com/~/channel/coinbase",
-      ],
-      fids: [
-        12142, //Base,
-        309857, //Coinbase Wallet
-        20910, //Zora
-      ],
-      farcasterChecks: [
-        (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
-        (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      ],
-      onchainChecks: ["date"],
-    },
-    ethereum: {
-      onchainChecks: ["date"],
-    },
-    arbitrum: {
-      onchainChecks: ["date"],
-    },
-    optimism: {
-      fids: [
-        300898, //Optimism
-      ],
-      farcasterChecks: [
-        (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
-        (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      ],
-      onchainChecks: ["date"],
-    },
-    nouns: {
-      channels: ["chain://eip155:1/erc721:0x9c8ff314c9bc7f6e59a9d9225fb22946427edc03"],
-      fids: [
-        2375, //Nouns,
-        749097, //nounstown.eth
-      ],
-      farcasterChecks: [
-        (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
-        (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      ],
-    },
-  };
-
-  const mentionsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.fids || [];
-  const channelsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.channels || [];
-  const farcasterChecksCommunity =
-    criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.farcasterChecks || [];
-  const onchainChecksCommunity =
-    criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.onchainChecks || [];
 
   console.log(farcasterChecksCommunity);
 
@@ -583,7 +607,7 @@ export default function UserPage({ params }: { params: { community: string; addr
     const filteredTransactions = getFilteredArrayForSome(transactions, onchainChecks);
     tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
 
-    const filteredFarcasterMessages = getFilteredArrayForSome(farcasterMessages, farcasterChecksCommunity);
+    const filteredFarcasterMessages = getFilteredArrayForSome(farcasterMessages, buildFarcasterChecks());
 
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
@@ -607,10 +631,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       isDateWithinYear(getFarcasterDate(element.data.timestamp), year),
     );
 
-    const filteredFarcasterMessages = getFilteredArrayForSome(
-      filteredByYearFarcasterMessages,
-      farcasterChecksCommunity,
-    );
+    const filteredFarcasterMessages = getFilteredArrayForSome(filteredByYearFarcasterMessages, buildFarcasterChecks());
 
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
@@ -634,10 +655,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       isDateWithinMonth(getFarcasterDate(element.data.timestamp), year, month),
     );
 
-    const filteredFarcasterMessages = getFilteredArrayForSome(
-      filteredByMonthFarcasterMessages,
-      farcasterChecksCommunity,
-    );
+    const filteredFarcasterMessages = getFilteredArrayForSome(filteredByMonthFarcasterMessages, buildFarcasterChecks());
 
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
@@ -684,7 +702,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       isDateWithinDay(getFarcasterDate(element.data.timestamp), year, month, day),
     );
 
-    const filteredFarcasterMessages = getFilteredArrayForSome(filteredByDayFarcasterMessages, farcasterChecksCommunity);
+    const filteredFarcasterMessages = getFilteredArrayForSome(filteredByDayFarcasterMessages, buildFarcasterChecks());
 
     const filteredFarcasterMessagesTally = filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
     tally += filteredFarcasterMessagesTally;
