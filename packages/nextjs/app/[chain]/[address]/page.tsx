@@ -25,7 +25,7 @@ import { useGlobalState } from "~~/services/store/store";
 import { areAnyValuesInCriteria, isValueInCriteria } from "~~/utils/engagement.vision/criteria";
 import { isDateWithinDay, isDateWithinMonth, isDateWithinYear } from "~~/utils/engagement.vision/dates/dates";
 import { getFarcasterDate } from "~~/utils/engagement.vision/dates/farcaster";
-import { getFilteredArray } from "~~/utils/engagement.vision/filtering";
+import { getFilteredArrayForSome } from "~~/utils/engagement.vision/filtering";
 import { getChainByName } from "~~/utils/engagement.vision/viem";
 // import {
 //   areAnyValuesInCriteria,
@@ -223,19 +223,35 @@ export default function UserPage({ params }: { params: { chain: string; address:
     setAppTheme(params.chain);
   }, [params.chain, setAppTheme]);
 
-  const { chain } = getChainByName(params.chain);
+  let community: string;
+
+  let chain: Chain;
+
+  const { chain: resolvedChain } = getChainByName(params.chain);
+  if (resolvedChain) {
+    chain = resolvedChain;
+    community = chain.name;
+  } else {
+    chain = mainnet;
+    community = params.chain;
+  }
+
   const [profile, setProfile] = useState<any>();
 
-  const [userError, setUserError] = useState<string>();
+  const [
+    userError, //setUserError
+  ] = useState<string>();
 
   useEffect(() => {
-    if (chain === undefined) {
-      setUserError("Invalid chain. Please check for typos!");
-    } else if (!isAddress(profile?.addr)) {
-      setUserError("This account cannot be found anywhere. Please check for typos!");
-    } else {
-      setUserError(undefined);
-    }
+    // if (chain === undefined) {
+    //   setUserError("Invalid chain. Please check for typos!");
+    // }
+    // else
+    //  if (!isAddress(profile?.addr)) {
+    //   setUserError("This account cannot be found anywhere. Please check for typos!");
+    // } else {
+    //   setUserError(undefined);
+    // }
   }, [chain, chain?.id, profile, profile?.addr]);
 
   const [isLoadingUserProfile, setIsLoadingUserProfile] = useState(false);
@@ -484,12 +500,15 @@ export default function UserPage({ params }: { params: { chain: string; address:
     99: "jessepollack",
     20910: "zora",
     300898: "optimism",
+    2375: "nouns",
+    749097: "nounstown.eth",
   };
 
   interface CriteriaDatabase {
     [key: string]: {
       channels?: string[];
       fids?: number[];
+      farcasterChecks?: any[];
     };
   }
 
@@ -511,24 +530,31 @@ export default function UserPage({ params }: { params: { chain: string; address:
         300898, //Optimism
       ],
     },
+    nouns: {
+      channels: ["chain://eip155:1/erc721:0x9c8ff314c9bc7f6e59a9d9225fb22946427edc03"],
+      fids: [
+        2375, //Nouns,
+        749097, //nounstown.eth
+      ],
+      farcasterChecks: [
+        (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
+        (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
+      ],
+    },
   };
 
-  const mentionsCriteria = criteriaDatabase[chain?.name as keyof typeof criteriaDatabase]?.fids || [];
-  const channelsCriteria = criteriaDatabase[chain?.name as keyof typeof criteriaDatabase]?.channels || [];
+  const mentionsCriteria = criteriaDatabase[community as keyof typeof criteriaDatabase]?.fids || [];
+  const channelsCriteria = criteriaDatabase[community as keyof typeof criteriaDatabase]?.channels || [];
+  const farcasterChecksCommunity = criteriaDatabase[community as keyof typeof criteriaDatabase]?.farcasterChecks || [];
 
   function getAllTimeTally(transactions: any) {
     let tally = 0;
 
     const onchainChecks: any[] = [];
-    const filteredTransactions = getFilteredArray(transactions, onchainChecks);
+    const filteredTransactions = getFilteredArrayForSome(transactions, onchainChecks);
     tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
 
-    const farcasterChecks = [
-      (element: any) => isValueInCriteria(channelsCriteria || [], element.data.castAddBody?.parentUrl),
-      (element: any) => areAnyValuesInCriteria(mentionsCriteria || [], element.data.castAddBody?.mentions),
-    ];
-
-    const filteredFarcasterMessages = getFilteredArray(farcasterMessages, farcasterChecks);
+    const filteredFarcasterMessages = getFilteredArrayForSome(farcasterMessages, farcasterChecksCommunity);
 
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
@@ -539,16 +565,19 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let tally = 0;
 
     const onchainChecks = [(element: any) => isDateWithinYear(new Date(element.timeStamp * 1000), year)];
-    const filteredTransactions = getFilteredArray(transactions, onchainChecks);
+    const filteredTransactions = getFilteredArrayForSome(transactions, onchainChecks);
     tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
 
-    const farcasterChecks = [
-      (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
-      (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      (element: any) => isDateWithinYear(getFarcasterDate(element.data.timestamp), year),
-    ];
+    const filteredByDayFarcasterMessages = farcasterMessages.filter((element: any) =>
+      isDateWithinYear(getFarcasterDate(element.data.timestamp), year),
+    );
 
-    const filteredFarcasterMessages = getFilteredArray(farcasterMessages, farcasterChecks);
+    // const farcasterChecks = [
+    //   (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
+    //   (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
+    // ];
+    // const filteredFarcasterMessages = getFilteredArrayForSome(filteredByDayFarcasterMessages, farcasterChecks);
+    const filteredFarcasterMessages = getFilteredArrayForSome(filteredByDayFarcasterMessages, farcasterChecksCommunity);
 
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
@@ -559,34 +588,69 @@ export default function UserPage({ params }: { params: { chain: string; address:
     let tally = 0;
 
     const onchainChecks = [(element: any) => isDateWithinMonth(new Date(element.timeStamp * 1000), year, month)];
-    const filteredTransactions = getFilteredArray(transactions, onchainChecks);
+    const filteredTransactions = getFilteredArrayForSome(transactions, onchainChecks);
     tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
 
-    const farcasterChecks = [
-      (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
-      (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      (element: any) => isDateWithinMonth(getFarcasterDate(element.data.timestamp), year, month),
-    ];
+    const filteredByDayFarcasterMessages = farcasterMessages.filter((element: any) =>
+      isDateWithinMonth(getFarcasterDate(element.data.timestamp), year, month),
+    );
 
-    const filteredFarcasterMessages = getFilteredArray(farcasterMessages, farcasterChecks);
+    // const farcasterChecks = [
+    //   (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
+    //   (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
+    // ];
+    // const filteredFarcasterMessages = getFilteredArrayForSome(filteredByDayFarcasterMessages, farcasterChecks);
+    const filteredFarcasterMessages = getFilteredArrayForSome(filteredByDayFarcasterMessages, farcasterChecksCommunity);
+
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
     return tally;
   }
 
+  // useEffect(() => {
+  //   async function getChannelByName(channelName: string) {
+  //     try {
+  //       // Replace this with the actual API endpoint to fetch channels by name
+  //       const response = await fetch(`https://api.farcaster.com/channels?name=${encodeURIComponent(channelName)}`);
+  //       const channels: any[] = await response.json();
+
+  //       // Assuming the API returns an array of channels, find the one matching the channel name
+  //       const channel = channels.find(ch => ch.name === channelName);
+
+  //       console.log(channel);
+  //       return channel; // Return the channel object if found
+  //     } catch (error) {
+  //       console.error("Error fetching channel by name:", error);
+  //       return undefined;
+  //     }
+  //   }
+  //   getChannelByName(community);
+  // }, [community]);
+
+  console.log(farcasterMessages);
+  // console.log(channelsCriteria);
+
   function getDailyTally(transactions: any, year: number, month: number, day: number) {
     let tally = 0;
     const onchainChecks = [(element: any) => isDateWithinDay(new Date(element.timeStamp * 1000), year, month, day)];
-    const filteredTransactions = getFilteredArray(transactions, onchainChecks);
+    const filteredTransactions = getFilteredArrayForSome(transactions, onchainChecks);
     const filteredTransactionsTally = filteredTransactions.length * POINTS_PER_TRANSACTION;
     tally += filteredTransactionsTally;
 
-    const farcasterChecks = [
-      (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
-      (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
-      (element: any) => isDateWithinDay(getFarcasterDate(element.data.timestamp), year, month, day),
-    ];
-    const filteredFarcasterMessages = getFilteredArray(farcasterMessages, farcasterChecks);
+    const filteredByDayFarcasterMessages = farcasterMessages.filter((element: any) =>
+      isDateWithinDay(getFarcasterDate(element.data.timestamp), year, month, day),
+    );
+
+    // const farcasterChecks = [
+    //   (element: any) => isValueInCriteria(channelsCriteria, element.data.castAddBody?.parentUrl),
+    //   (element: any) => areAnyValuesInCriteria(mentionsCriteria, element.data.castAddBody?.mentions),
+    // ];
+    // const filteredFarcasterMessages = getFilteredArrayForSome(filteredByDayFarcasterMessages, farcasterChecks);
+
+    const filteredFarcasterMessages = getFilteredArrayForSome(filteredByDayFarcasterMessages, farcasterChecksCommunity);
+
+    console.log(filteredFarcasterMessages);
+
     const filteredFarcasterMessagesTally = filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
     tally += filteredFarcasterMessagesTally;
 
@@ -655,10 +719,12 @@ export default function UserPage({ params }: { params: { chain: string; address:
         href={`https://warpcast.com/${profile.farcasterName}/${value.hash}`}
         target="#"
       >
-        <div className="flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
+        <div className="space-y-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
+          <div className="flex space-x-1">
+            <div className="bg-secondary rounded-lg p-1">#{index + 1}</div>
+            <div>{reconstructedText}</div>
+          </div>
           {channel ? <div className="bg-secondary rounded-lg p-1">{channel}</div> : <></>}
-          <div className="bg-secondary rounded-lg p-1">#{index + 1}</div>
-          <div>{reconstructedText}</div>
         </div>
       </Link>
     );
@@ -696,7 +762,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
         />,
       );
     }
-    if (value.onchainTransactionTally) {
+    if (value.onchainTransactionTally > 0) {
       sources.push(
         /* eslint-disable-next-line @next/next/no-img-element */
         <img
