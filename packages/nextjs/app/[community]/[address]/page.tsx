@@ -949,7 +949,7 @@ export default function UserPage({ params }: { params: { community: string; addr
             <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">
               <Score title="Monthly Score" score={customNotation(totalMonthlyTally)} />
               <Score title="Yearly Score" score={customNotation(yearlyTally)} />
-              <Score title="All Time Score" score={customNotation(allTimeScore)} />
+              <Score title="Overall Score" score={customNotation(allTimeScore)} />
             </div>
           </div>
         </div>
