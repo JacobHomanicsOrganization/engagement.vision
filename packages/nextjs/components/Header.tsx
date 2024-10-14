@@ -9,7 +9,7 @@ import { Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 import { useGlobalState } from "~~/services/store/store";
-import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
+import { getChainByName } from "~~/utils/engagement.vision/viem";
 
 type HeaderMenuLink = {
   label: string;

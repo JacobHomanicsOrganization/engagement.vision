@@ -22,16 +22,20 @@ import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
-import {
-  areAnyValuesInCriteria,
-  getFarcasterDate,
-  getFilteredArray,
-  isDateWithinDay,
-  isDateWithinMonth,
-  isDateWithinYear,
-  isValueInCriteria,
-} from "~~/utils/how-based-are-you/filterFarcasterMessagesForTally";
-import { getChainByName } from "~~/utils/how-based-are-you/viemHelpers";
+import { areAnyValuesInCriteria, isValueInCriteria } from "~~/utils/engagement.vision/criteria";
+import { isDateWithinDay, isDateWithinMonth, isDateWithinYear } from "~~/utils/engagement.vision/dates/dates";
+import { getFarcasterDate } from "~~/utils/engagement.vision/dates/farcaster";
+import { getFilteredArray } from "~~/utils/engagement.vision/filtering";
+import { getChainByName } from "~~/utils/engagement.vision/viem";
+// import {
+//   areAnyValuesInCriteria,
+//   getFarcasterDate,
+//   getFilteredArray,
+//   isDateWithinDay,
+//   isDateWithinMonth,
+//   isDateWithinYear,
+//   isValueInCriteria,
+// } from "~~/utils/how-based-are-you/filterFarcasterMessagesForTally";
 import { getBlockExplorerTxLink } from "~~/utils/scaffold-eth";
 
 function customNotation(num: any) {
