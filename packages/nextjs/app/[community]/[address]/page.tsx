@@ -1046,6 +1046,7 @@ export default function UserPage({ params }: { params: { community: string; addr
               address={profile?.addr}
               ens={isEnsResolved ? profile?.name : undefined}
               size="sm"
+              efpFollowers={followers.length > 0 ? followers.length : undefined}
             />
 
             <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">

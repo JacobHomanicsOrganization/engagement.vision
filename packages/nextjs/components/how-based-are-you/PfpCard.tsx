@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { AddressRaw } from "../scaffold-eth/AddressRaw";
 import { Chain } from "viem/chains";
 
@@ -13,6 +14,7 @@ type Props = {
   address?: string;
   chain?: Chain;
   ens?: string;
+  efpFollowers?: number;
   size?: "sm" | "base" | "lg";
   // iconslinks?: any;
 };
@@ -31,6 +33,7 @@ export const PfpCard = ({
   ens,
   image, //iconslinks,
   size = "base",
+  efpFollowers,
 }: Props) => {
   return (
     <div className="flex flex-col items-center text-center">
@@ -58,6 +61,13 @@ export const PfpCard = ({
       {/* <div className="pointer-events-auto border-4 border-primary rounded-lg p-2">
         <IconsLinks iconsLinks={iconslinks} size="sm" justify="center" />
       </div> */}
+      {efpFollowers ? (
+        <Link href={`https://ethfollow.xyz/${address}`} target="#">
+          <div className="text-[#FF79C9]">EFP Followers: {efpFollowers} </div>
+        </Link>
+      ) : (
+        <></>
+      )}
       {description ? <div className="text-lg m-2">{description}</div> : <></>}
     </div>
   );
