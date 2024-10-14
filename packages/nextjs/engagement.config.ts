@@ -90,7 +90,6 @@ export const communitiesConfig: CriteriaDatabase = {
       },
     ],
     followerChecks: ["date"],
-
     onchainChecks: ["date"],
   },
 
@@ -143,6 +142,8 @@ export const communitiesConfig: CriteriaDatabase = {
         ],
       },
     ],
+    followerChecks: ["date"],
+
     onchainChecks: ["date"],
   },
   ethereum: {
@@ -198,6 +199,8 @@ export const communitiesConfig: CriteriaDatabase = {
         ],
       },
     ],
+    followerChecks: ["date"],
+
     onchainChecks: ["date"],
   },
 };
