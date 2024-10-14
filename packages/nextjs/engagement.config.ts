@@ -89,6 +89,7 @@ export const communitiesConfig: CriteriaDatabase = {
         ],
       },
     ],
+    followerChecks: ["date"],
 
     onchainChecks: ["date"],
   },

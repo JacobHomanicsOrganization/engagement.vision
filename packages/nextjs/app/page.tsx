@@ -70,10 +70,7 @@ const Home: NextPage = () => {
         </div>
 
         <div className="flex-grow w-full px-8">
-          <div className="rounded-lg">
-            {" "}
-            <p className="text-center text-xl">Select a community to get started! </p>
-          </div>
+          <p className="text-center text-xl">Select a community to get started! </p>
           <div className="flex justify-center items-center gap-12 flex-wrap">{communitiesComponents}</div>
         </div>
       </div>

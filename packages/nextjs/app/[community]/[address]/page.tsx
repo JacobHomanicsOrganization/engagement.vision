@@ -478,10 +478,18 @@ export default function UserPage({ params }: { params: { community: string; addr
 
       if (followerChecksCommunity.length > 0) {
         if (isEnsName(chosenProfile.name) || isBasename(chosenProfile.name)) {
+          ("https://api.ethfollow.xyz/api/v1/users/dr3a.eth/following");
+
           const response = await axios.get(`https://api.ethfollow.xyz/api/v1/users/${chosenProfile.name}/lists`);
 
           console.log(response.data);
           const lists = response.data.lists;
+
+          const response2 = await axios.get(
+            `https://api.ethfollow.xyz/api/v1/users/${chosenProfile.name}/following?limit=5000`,
+          );
+
+          setFollowing(response2.data.following);
 
           let followersAllLists: any[] = [];
           for (let i = 0; i < lists.length; i++) {
@@ -512,6 +520,7 @@ export default function UserPage({ params }: { params: { community: string; addr
   const [farcasterMessages, setFarcasterMessages] = useState([]);
 
   const [followers, setFollowers] = useState<any[]>([]);
+  const [following, setFollowing] = useState<any[]>([]);
 
   // const [credentials, setCredentials] = useState([]);
 
@@ -1047,6 +1056,7 @@ export default function UserPage({ params }: { params: { community: string; addr
               ens={isEnsResolved ? profile?.name : undefined}
               size="sm"
               efpFollowers={followers.length > 0 ? followers.length : undefined}
+              efpFollowing={following.length > 0 ? following.length : undefined}
             />
 
             <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">
