@@ -858,7 +858,7 @@ export default function UserPage({ params }: { params: { chain: string; address:
                 </button>
               </div>
             ) : (
-              <div className="flex flex-wrap justify-center rounded-lg mx-1 md:mx-[450px]">{monthsComponents}</div>
+              <div className="flex flex-wrap justify-center rounded-lg md:w-[800px]">{monthsComponents}</div>
             )}
           </div>
         </div>
