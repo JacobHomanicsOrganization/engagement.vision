@@ -464,7 +464,7 @@ module.exports = {
       },
       {
         lightMode: {
-          primary: "#DFFE00",
+          primary: "#B2C200",
           "primary-content": "#212638",
           secondary: "#ffffff",
           "secondary-content": "#212638",
@@ -496,7 +496,7 @@ module.exports = {
       },
       {
         darkMode: {
-          primary: "#DFFE00",
+          primary: "#B2C200",
           "primary-content": "#F9FBFF",
           secondary: "#000000",
           "secondary-content": "#F9FBFF",
