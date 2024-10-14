@@ -20,7 +20,7 @@ import { getEnsText } from "~~/abis/ens";
 import { DayCard } from "~~/components/how-based-are-you/DayCard";
 import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
-import { criteriaDatabase } from "~~/engagement.config";
+import { communitiesConfig } from "~~/engagement.config";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import { areAnyValuesInCriteria, isValueInCriteria } from "~~/utils/engagement.vision/criteria";
@@ -202,9 +202,9 @@ export default function UserPage({ params }: { params: { community: string; addr
   // const channelsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.channels || [];
 
   const farcasterChecksCommunity =
-    criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.farcasterChecks || [];
+    communitiesConfig[params.community as keyof typeof communitiesConfig]?.farcasterChecks || [];
   const onchainChecksCommunity =
-    criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.onchainChecks || [];
+    communitiesConfig[params.community as keyof typeof communitiesConfig]?.onchainChecks || [];
 
   //after cleanup, fix bug by making params.address lowercase if its not an address
 
