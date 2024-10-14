@@ -223,18 +223,22 @@ export default function UserPage({ params }: { params: { community: string; addr
     setAppTheme(params.community);
   }, [params.community, setAppTheme]);
 
-  let community: string;
+  // let community: string;
 
-  let chain: Chain;
+  let resolvedChain: Chain = mainnet;
+  const { chain: selectedChain } = getChainByName(params.community);
 
-  const { chain: resolvedChain } = getChainByName(params.community);
-  if (resolvedChain) {
-    chain = resolvedChain;
-    community = chain.name;
-  } else {
-    chain = mainnet;
-    community = params.community;
-  }
+  console.log(selectedChain);
+  if (selectedChain !== undefined) resolvedChain = selectedChain;
+
+  console.log(resolvedChain);
+  // if (resolvedChain) {
+  //   chain = resolvedChain;
+  //   community = chain.name;
+  // } else {
+  //   chain = mainnet;
+  //   community = params.community;
+  // }
 
   const [profile, setProfile] = useState<any>();
 
@@ -252,13 +256,13 @@ export default function UserPage({ params }: { params: { community: string; addr
     // } else {
     //   setUserError(undefined);
     // }
-  }, [chain, chain?.id, profile, profile?.addr]);
+  }, [resolvedChain, resolvedChain?.id, profile, profile?.addr]);
 
   const [isLoadingUserProfile, setIsLoadingUserProfile] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
-      if (chain === undefined) return;
+      if (resolvedChain === undefined) return;
       // let profileAddress;
       // let profileName;
       // let profileAvatar;
@@ -367,9 +371,9 @@ export default function UserPage({ params }: { params: { community: string; addr
         return { profile, isError, resolved };
       }
 
-      const resolutionLoop = [async () => await ResolveWithEns(chain), async () => await ResolveWithEns()];
+      const resolutionLoop = [async () => await ResolveWithEns(resolvedChain), async () => await ResolveWithEns()];
 
-      if (chain.id === base.id) {
+      if (resolvedChain.id === base.id) {
         resolutionLoop.unshift(ResolveWithBase);
       } else {
         resolutionLoop.push(ResolveWithBase);
@@ -475,7 +479,7 @@ export default function UserPage({ params }: { params: { community: string; addr
     }
 
     fetchData();
-  }, [chain, chain?.id, params.address]);
+  }, [resolvedChain, resolvedChain?.id, params.address]);
 
   const [farcasterMessages, setFarcasterMessages] = useState([]);
 
@@ -487,7 +491,10 @@ export default function UserPage({ params }: { params: { community: string; addr
   const [selectedMonth, setSelectedMonth] = useState(selectedDate.getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(selectedDate.getFullYear());
 
-  const { transactions, isError, errorMessage } = useTransactions({ chainId: chain?.id, address: profile?.addr });
+  const { transactions, isError, errorMessage } = useTransactions({
+    chainId: resolvedChain?.id,
+    address: profile?.addr,
+  });
 
   const POINTS_PER_TRANSACTION = 100;
   const POINTS_PER_FARCASTER_MESSAGE = 25;
@@ -514,7 +521,7 @@ export default function UserPage({ params }: { params: { community: string; addr
   }
 
   const criteriaDatabase: CriteriaDatabase = {
-    Base: {
+    base: {
       channels: [
         "https://onchainsummer.xyz",
         "https://warpcast.com/~/channel/base-builds",
@@ -531,7 +538,13 @@ export default function UserPage({ params }: { params: { community: string; addr
       ],
       onchainChecks: ["date"],
     },
-    "OP Mainnet": {
+    ethereum: {
+      onchainChecks: ["date"],
+    },
+    arbitrum: {
+      onchainChecks: ["date"],
+    },
+    optimism: {
       fids: [
         300898, //Optimism
       ],
@@ -554,10 +567,12 @@ export default function UserPage({ params }: { params: { community: string; addr
     },
   };
 
-  const mentionsCriteria = criteriaDatabase[community as keyof typeof criteriaDatabase]?.fids || [];
-  const channelsCriteria = criteriaDatabase[community as keyof typeof criteriaDatabase]?.channels || [];
-  const farcasterChecksCommunity = criteriaDatabase[community as keyof typeof criteriaDatabase]?.farcasterChecks || [];
-  const onchainChecksCommunity = criteriaDatabase[community as keyof typeof criteriaDatabase]?.onchainChecks || [];
+  const mentionsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.fids || [];
+  const channelsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.channels || [];
+  const farcasterChecksCommunity =
+    criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.farcasterChecks || [];
+  const onchainChecksCommunity =
+    criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.onchainChecks || [];
 
   console.log(farcasterChecksCommunity);
 
@@ -763,7 +778,7 @@ export default function UserPage({ params }: { params: { community: string; addr
     }
 
     return (
-      <Link key={"Transactions" + index} href={getBlockExplorerTxLink(chain.id, value.hash)} target="#">
+      <Link key={"Transactions" + index} href={getBlockExplorerTxLink(resolvedChain.id, value.hash)} target="#">
         <div className="flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
           <div className="bg-secondary rounded-lg">#{index + 1}</div>
           {value.functionName.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>}
@@ -966,7 +981,7 @@ export default function UserPage({ params }: { params: { community: string; addr
               name={profile?.name ?? profile?.addr}
               image={profile?.avatar}
               description={profile?.description}
-              chain={chain}
+              chain={resolvedChain}
               address={profile?.addr}
               size="sm"
             />

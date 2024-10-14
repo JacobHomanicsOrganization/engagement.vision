@@ -27,7 +27,7 @@ const communities = {
     },
     link: "/",
   },
-  mainnet: {
+  ethereum: {
     name: "Ethereum",
     logo: "ethereum-eth.svg",
     link: "https://ethereum.org",

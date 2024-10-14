@@ -23,7 +23,7 @@ const chainObjs = [
     link: "/base/welcome",
   },
   {
-    name: "OP Mainnet",
+    name: "Optimism",
     logo: "optimism-ethereum-op-logo.png",
     link: "/optimism/welcome",
   },
@@ -31,7 +31,7 @@ const chainObjs = [
   {
     name: "Ethereum",
     logo: "ethereum-eth.svg",
-    link: "/mainnet/welcome",
+    link: "/ethereum/welcome",
   },
 
   {

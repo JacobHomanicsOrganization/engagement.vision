@@ -10,7 +10,7 @@ const appThemes = {
     light: "light",
     dark: "dark",
   },
-  mainnet: {
+  ethereum: {
     light: "lightMainnet",
     dark: "darkMainnet",
   },
