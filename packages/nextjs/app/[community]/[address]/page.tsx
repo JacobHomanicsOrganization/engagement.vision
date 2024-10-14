@@ -20,6 +20,7 @@ import { getEnsText } from "~~/abis/ens";
 import { DayCard } from "~~/components/how-based-are-you/DayCard";
 import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
+import { criteriaDatabase } from "~~/engagement.config";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import { areAnyValuesInCriteria, isValueInCriteria } from "~~/utils/engagement.vision/criteria";
@@ -197,70 +198,9 @@ type Profile = {
 };
 
 export default function UserPage({ params }: { params: { community: string; address: string } }) {
-  interface CriteriaDatabase {
-    [key: string]: {
-      channels?: string[];
-      fids?: number[];
-      farcasterChecks?: any[];
-      onchainChecks?: any[];
-    };
-  }
-
-  const criteriaDatabase: CriteriaDatabase = {
-    base: {
-      // channels: [
-      //   "https://onchainsummer.xyz",
-      //   "https://warpcast.com/~/channel/base-builds",
-      //   "https://warpcast.com/~/channel/coinbase",
-      // ],
-      // fids: [
-      //   12142, //Base,
-      //   309857, //Coinbase Wallet
-      //   20910, //Zora
-      // ],
-      farcasterChecks: [
-        {
-          channels: [
-            "https://onchainsummer.xyz",
-            "https://warpcast.com/~/channel/base-builds",
-            "https://warpcast.com/~/channel/coinbase",
-          ],
-        },
-        {
-          mentions: [
-            12142, //Base,
-            309857, //Coinbase Wallet
-            20910, //Zora
-          ],
-        },
-      ],
-      onchainChecks: ["date"],
-    },
-    ethereum: {
-      onchainChecks: ["date"],
-    },
-    arbitrum: {
-      onchainChecks: ["date"],
-    },
-    optimism: {
-      fids: [
-        300898, //Optimism
-      ],
-      farcasterChecks: ["channels", "mentions"],
-      onchainChecks: ["date"],
-    },
-    nouns: {
-      channels: ["chain://eip155:1/erc721:0x9c8ff314c9bc7f6e59a9d9225fb22946427edc03"],
-      fids: [
-        2375, //Nouns,
-        749097, //nounstown.eth
-      ],
-      farcasterChecks: ["channels", "mentions"],
-    },
-  };
-
   // const mentionsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.fids || [];
   // const channelsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.channels || [];
+
   const farcasterChecksCommunity =
     criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.farcasterChecks || [];
   const onchainChecksCommunity =
