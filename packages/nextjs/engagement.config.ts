@@ -88,6 +88,56 @@ export const communitiesConfig: CriteriaDatabase = {
     ],
     onchainChecks: ["date"],
   },
+
+  optimismFractal: {
+    name: "Optimism Fractal",
+    logo: "optimism-fractal.jpg",
+    link: "/optimismFractal/welcome",
+    themes: {
+      light: "lightOptimismFractal",
+      dark: "darkOptimismFractal",
+    },
+    welcomeCards: {
+      title: "How Fractalized Are You?",
+      callToAction: "Find out how Fractalized you are!",
+    },
+    farcasterChecks: [
+      {
+        channels: ["https://warpcast.com/~/channel/optimismFractal"],
+      },
+      {
+        mentions: [
+          225840, //Optimism Fractal
+          194286, // Rosemari
+          211935, // Dan Singjoy
+        ],
+      },
+    ],
+  },
+  optimism: {
+    name: "Optimism",
+    logo: "optimism-ethereum-op-logo.png",
+    link: "/optimism/welcome",
+    themes: {
+      light: "lightOptimism",
+      dark: "darkOptimism",
+    },
+    welcomeCards: {
+      title: "How Optimistic Are You?",
+      callToAction: "Find out how Optimistic you are!",
+    },
+    farcasterChecks: [
+      {
+        channels: ["https://warpcast.com/~/channel/op-stack", "https://warpcast.com/~/channel/optimism"],
+      },
+      {
+        mentions: [
+          300898, //Optimism
+        ],
+      },
+    ],
+    onchainChecks: ["date"],
+  },
   ethereum: {
     name: "Ethereum",
     logo: "ethereum-eth.svg",
@@ -115,52 +165,5 @@ export const communitiesConfig: CriteriaDatabase = {
       callToAction: "Find out how Stylized you are!",
     },
     onchainChecks: ["date"],
-  },
-  optimism: {
-    name: "Optimism",
-    logo: "optimism-ethereum-op-logo.png",
-    link: "/optimism/welcome",
-    themes: {
-      light: "lightOptimism",
-      dark: "darkOptimism",
-    },
-    welcomeCards: {
-      title: "How Optimistic Are You?",
-      callToAction: "Find out how Optimistic you are!",
-    },
-    farcasterChecks: [
-      {
-        mentions: [
-          300898, //Optimism
-        ],
-      },
-    ],
-    onchainChecks: ["date"],
-  },
-
-  optimismFractal: {
-    name: "Optimism Fractal",
-    logo: "optimism-fractal.jpg",
-    link: "/optimismFractal/welcome",
-    themes: {
-      light: "lightOptimismFractal",
-      dark: "darkOptimismFractal",
-    },
-    welcomeCards: {
-      title: "How Fractalized Are You?",
-      callToAction: "Find out how Fractalized you are!",
-    },
-    farcasterChecks: [
-      {
-        channels: ["https://warpcast.com/~/channel/optimismFractal"],
-      },
-      {
-        mentions: [
-          225840, //Optimism Fractal
-          194286, // Rosemari
-          211935, // Dan Singjoy
-        ],
-      },
-    ],
   },
 };

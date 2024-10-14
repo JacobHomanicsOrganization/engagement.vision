@@ -15,20 +15,20 @@ const Home: NextPage = () => {
   }, [setAppTheme]);
 
   let index = 0;
-  const chainObjsComponent: JSX.Element[] = [];
+  const communitiesComponents: JSX.Element[] = [];
   for (const key in communitiesConfig) {
     if (communitiesConfig.hasOwnProperty(key)) {
       const community = communitiesConfig[key];
 
       if (community.name === "Engagement.Vision") continue;
 
-      chainObjsComponent.push(
+      communitiesComponents.push(
         <Link href={community.link || "/"} key={index}>
-          <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs w-[200px] rounded-3xl transform scale-100 hover:scale-90 transition duration-300 ease-in-out">
+          <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs w-[140px] md:w-[200px] rounded-3xl transform scale-100 hover:scale-90 transition duration-300 ease-in-out">
             <div className="flex relative w-10 h-10">
               <Image alt="Logo" className="cursor-pointer" fill src={`/${community.logo || ""}`} />
             </div>
-            <p>{community.name}</p>
+            <p className="truncate">{community.name}</p>
           </div>
         </Link>,
       );
@@ -69,12 +69,12 @@ const Home: NextPage = () => {
           </p>
         </div>
 
-        <div className="flex-grow w-full mt-16 px-8 py-12">
+        <div className="flex-grow w-full px-8">
           <div className="rounded-lg">
             {" "}
-            <p className="text-center text-lg">Select a community to get started! </p>
+            <p className="text-center text-xl">Select a community to get started! </p>
           </div>
-          <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">{chainObjsComponent}</div>
+          <div className="flex justify-center items-center gap-12 flex-wrap">{communitiesComponents}</div>
         </div>
       </div>
     </>
