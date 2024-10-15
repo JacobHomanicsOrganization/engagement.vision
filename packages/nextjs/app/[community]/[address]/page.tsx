@@ -478,27 +478,32 @@ export default function UserPage({ params }: { params: { community: string; addr
 
       if (followerChecksCommunity.length > 0) {
         if (isEnsName(chosenProfile.name) || isBasename(chosenProfile.name)) {
-          ("https://api.ethfollow.xyz/api/v1/users/dr3a.eth/following");
-
-          const response = await axios.get(`https://api.ethfollow.xyz/api/v1/users/${chosenProfile.name}/lists`);
-
-          console.log(response.data);
-          const lists = response.data.lists;
-
           const response2 = await axios.get(
             `https://api.ethfollow.xyz/api/v1/users/${chosenProfile.name}/following?limit=5000`,
           );
 
           setFollowing(response2.data.following);
 
-          let followersAllLists: any[] = [];
-          for (let i = 0; i < lists.length; i++) {
-            const result = await axios.get(`https://api.ethfollow.xyz/api/v1/lists/${lists[i]}/followers?limit=5000`);
-            console.log(result.data.followers);
-            followersAllLists = followersAllLists.concat(result.data.followers);
-          }
+          const response = await axios.get(`https://api.ethfollow.xyz/api/v1/users/${chosenProfile.name}/lists`);
 
-          setFollowers(followersAllLists);
+          console.log(response.data);
+
+          const result = await axios.get(
+            `https://api.ethfollow.xyz/api/v1/lists/${response.data["primary_list"]}/followers?limit=3000`,
+          );
+          setFollowers(result.data.followers);
+
+          // const lists = response.data.lists;
+
+          // console.log(lists);
+          // let followersAllLists: any[] = [];
+          // for (let i = 0; i < lists.length; i++) {
+          //   const result = await axios.get(`https://api.ethfollow.xyz/api/v1/lists/${lists[i]}/followers?limit=3000`);
+          //   console.log(result.data.followers);
+          //   followersAllLists = followersAllLists.concat(result.data.followers);
+          // }
+
+          // setFollowers(followersAllLists);
         }
       }
 
