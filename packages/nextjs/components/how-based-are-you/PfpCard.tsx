@@ -64,7 +64,11 @@ export const PfpCard = ({
         <IconsLinks iconsLinks={iconslinks} size="sm" justify="center" />
       </div> */}
       {efpFollowers && efpFollowing ? (
-        <Link href={`https://ethfollow.xyz/${address}`} target="#">
+        <Link
+          href={`https://ethfollow.xyz/${address}`}
+          target="#"
+          className="transform scale-100 hover:scale-95 transition duration-300 ease-in-out"
+        >
           <div className="bg-gradient-to-t from-[#FFBCE4] to-[#FFFA80] rounded-lg text-[#1E2025] p-2 font-bold">
             <p className="m-0">Ethereum Follow Protocol</p>
             <div className="flex items-center justify-center space-x-4">
