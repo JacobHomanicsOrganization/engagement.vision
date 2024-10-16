@@ -477,21 +477,29 @@ export default function UserPage({ params }: { params: { community: string; addr
       // setCredentials(result2["passport_credentials"]);
 
       if (followerChecksCommunity.length > 0) {
+        console.log(chosenProfile.name);
+
+        console.log(isEnsName(chosenProfile.name) || isBasename(chosenProfile.name));
+
         if (isEnsName(chosenProfile.name) || isBasename(chosenProfile.name)) {
-          const response2 = await axios.get(
-            `https://api.ethfollow.xyz/api/v1/users/${chosenProfile.name}/following?limit=5000`,
-          );
+          try {
+            const response2 = await axios.get(
+              `https://api.ethfollow.xyz/api/v1/users/${chosenProfile.name}/following?limit=5000`,
+            );
 
-          setFollowing(response2.data.following);
+            setFollowing(response2.data.following);
 
-          const response = await axios.get(`https://api.ethfollow.xyz/api/v1/users/${chosenProfile.name}/lists`);
+            const response = await axios.get(`https://api.ethfollow.xyz/api/v1/users/${chosenProfile.name}/lists`);
 
-          console.log(response.data);
+            console.log(response.data);
 
-          const result = await axios.get(
-            `https://api.ethfollow.xyz/api/v1/lists/${response.data["primary_list"]}/followers?limit=3000`,
-          );
-          setFollowers(result.data.followers);
+            const result = await axios.get(
+              `https://api.ethfollow.xyz/api/v1/lists/${response.data["primary_list"]}/followers?limit=3000`,
+            );
+            setFollowers(result.data.followers);
+          } catch (e) {
+            console.log("no eth follow");
+          }
 
           // const lists = response.data.lists;
 
