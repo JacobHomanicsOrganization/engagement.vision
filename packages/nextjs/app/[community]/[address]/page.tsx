@@ -26,7 +26,7 @@ import { useGlobalState } from "~~/services/store/store";
 import { areAnyValuesInCriteria, isTextInCriteria, isValueInCriteria } from "~~/utils/engagement.vision/criteria";
 import { isDateWithinDay, isDateWithinMonth, isDateWithinYear } from "~~/utils/engagement.vision/dates/dates";
 import { getFarcasterDate } from "~~/utils/engagement.vision/dates/farcaster";
-import { getFilteredArrayForSome } from "~~/utils/engagement.vision/filtering";
+import { getFilteredArrayForEvery, getFilteredArrayForSome } from "~~/utils/engagement.vision/filtering";
 import { getChainByName } from "~~/utils/engagement.vision/viem";
 // import {
 //   areAnyValuesInCriteria,
@@ -565,6 +565,7 @@ export default function UserPage({ params }: { params: { community: string; addr
     300898: "optimism",
     2375: "nouns",
     749097: "nounstown.eth",
+    383235: "raidguild",
   };
 
   function buildTalentProtocolChecks() {
@@ -612,7 +613,7 @@ export default function UserPage({ params }: { params: { community: string; addr
     const filteredTransactions = transactions; //getFilteredArrayForSome(transactions, onchainChecks);
     tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
 
-    const filteredFarcasterMessages = getFilteredArrayForSome(farcasterMessages, buildFarcasterChecks());
+    const filteredFarcasterMessages = getFilteredArrayForEvery(farcasterMessages, buildFarcasterChecks());
 
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
@@ -646,7 +647,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       isDateWithinYear(getFarcasterDate(element.data.timestamp), year),
     );
 
-    const filteredFarcasterMessages = getFilteredArrayForSome(filteredByYearFarcasterMessages, buildFarcasterChecks());
+    const filteredFarcasterMessages = getFilteredArrayForEvery(filteredByYearFarcasterMessages, buildFarcasterChecks());
 
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
@@ -680,7 +681,10 @@ export default function UserPage({ params }: { params: { community: string; addr
     const filteredByMonthFarcasterMessages = farcasterMessages.filter((element: any) =>
       isDateWithinMonth(getFarcasterDate(element.data.timestamp), year, month),
     );
-    const filteredFarcasterMessages = getFilteredArrayForSome(filteredByMonthFarcasterMessages, buildFarcasterChecks());
+    const filteredFarcasterMessages = getFilteredArrayForEvery(
+      filteredByMonthFarcasterMessages,
+      buildFarcasterChecks(),
+    );
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
     buildTalentProtocolChecks();
@@ -736,7 +740,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       isDateWithinDay(getFarcasterDate(element.data.timestamp), year, month, day),
     );
 
-    const filteredFarcasterMessages = getFilteredArrayForSome(filteredByDayFarcasterMessages, buildFarcasterChecks());
+    const filteredFarcasterMessages = getFilteredArrayForEvery(filteredByDayFarcasterMessages, buildFarcasterChecks());
 
     const filteredFarcasterMessagesTally = filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
     tally += filteredFarcasterMessagesTally;

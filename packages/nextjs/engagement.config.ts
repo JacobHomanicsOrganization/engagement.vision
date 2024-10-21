@@ -51,12 +51,7 @@ export const communitiesConfig: CriteriaDatabase = {
     farcasterChecks: [
       {
         text: ["Cohort VII"],
-      },
-      {
-        channels: [],
-      },
-      {
-        mentions: [],
+        mentions: [383235],
       },
     ],
   },
@@ -75,8 +70,6 @@ export const communitiesConfig: CriteriaDatabase = {
     farcasterChecks: [
       {
         channels: ["chain://eip155:1/erc721:0x9c8ff314c9bc7f6e59a9d9225fb22946427edc03"],
-      },
-      {
         mentions: [
           2375, //Nouns,
           749097, //nounstown.eth
@@ -105,8 +98,6 @@ export const communitiesConfig: CriteriaDatabase = {
           "https://warpcast.com/~/channel/base-builds",
           "https://warpcast.com/~/channel/coinbase",
         ],
-      },
-      {
         mentions: [
           12142, //Base,
           309857, //Coinbase Wallet
@@ -133,8 +124,6 @@ export const communitiesConfig: CriteriaDatabase = {
     farcasterChecks: [
       {
         channels: ["https://warpcast.com/~/channel/optimismFractal", "https://warpcast.com/~/channel/optimism"],
-      },
-      {
         mentions: [
           225840, //Optimism Fractal
           194286, // Rosemari
@@ -160,8 +149,6 @@ export const communitiesConfig: CriteriaDatabase = {
     farcasterChecks: [
       {
         channels: ["https://warpcast.com/~/channel/op-stack", "https://warpcast.com/~/channel/optimism"],
-      },
-      {
         mentions: [
           300898, //Optimism
         ],
