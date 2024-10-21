@@ -36,6 +36,30 @@ export const communitiesConfig: CriteriaDatabase = {
       dark: "dark",
     },
   },
+  raidguildcohortvii: {
+    name: "Raid Guild - Cohort VII",
+    logo: "raidguild.svg",
+    link: "/raidguildcohortvii/welcome",
+    themes: {
+      light: "lightRaidGuildCohortVII",
+      dark: "darkRaidGuildCohortVII",
+    },
+    welcomeCards: {
+      title: "Are you engaged with the Raid Guild Cohort VII?",
+      callToAction: "Find out how engaged you are!",
+    },
+    farcasterChecks: [
+      {
+        text: ["Cohort VII"],
+      },
+      {
+        channels: [],
+      },
+      {
+        mentions: [],
+      },
+    ],
+  },
   nouns: {
     name: "Nouns",
     logo: "noggles.svg",
@@ -60,6 +84,7 @@ export const communitiesConfig: CriteriaDatabase = {
       },
     ],
   },
+
   base: {
     name: "Base",
     chainName: "base",

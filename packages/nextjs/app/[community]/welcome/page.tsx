@@ -20,6 +20,8 @@ export default function WelcomePage({ params }: { params: { community: string } 
 
   const community = communitiesConfig[params.community as keyof typeof communitiesConfig];
 
+  console.log(community);
+
   return (
     <form
       onSubmit={e => {

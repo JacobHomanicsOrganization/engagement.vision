@@ -23,7 +23,7 @@ import { Score } from "~~/components/how-based-are-you/Score";
 import { communitiesConfig } from "~~/engagement.config";
 import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
-import { areAnyValuesInCriteria, isValueInCriteria } from "~~/utils/engagement.vision/criteria";
+import { areAnyValuesInCriteria, isTextInCriteria, isValueInCriteria } from "~~/utils/engagement.vision/criteria";
 import { isDateWithinDay, isDateWithinMonth, isDateWithinYear } from "~~/utils/engagement.vision/dates/dates";
 import { getFarcasterDate } from "~~/utils/engagement.vision/dates/farcaster";
 import { getFilteredArrayForSome } from "~~/utils/engagement.vision/filtering";
@@ -589,6 +589,10 @@ export default function UserPage({ params }: { params: { community: string; addr
 
       if (item.mentions) {
         someCriterias.push((element: any) => areAnyValuesInCriteria(item.mentions, element.data.castAddBody?.mentions));
+      }
+
+      if (item.text) {
+        someCriterias.push((element: any) => isTextInCriteria(item.text, element.data.castAddBody?.text));
       }
     });
 
