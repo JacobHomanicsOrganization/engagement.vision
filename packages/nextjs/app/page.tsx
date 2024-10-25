@@ -22,11 +22,17 @@ const Home: NextPage = () => {
 
       if (community.name === "Engagement.Vision") continue;
 
+      console.log(community.logo);
+
       communitiesComponents.push(
         <Link href={community.link || "/"} key={index}>
           <div className="flex flex-col bg-base-100 px-4 py-4 text-center items-center max-w-xs w-[140px] md:w-[200px] rounded-3xl transform scale-100 hover:scale-90 transition duration-300 ease-in-out">
             <div className="flex relative w-10 h-10 md:w-20 md:h-20">
-              <Image alt="Logo" className="cursor-pointer rounded-lg" fill src={`/${community.logo || ""}`} />
+              {community.logoJs ? (
+                <community.logoJs className={"fill-current w-20 h-20"} />
+              ) : (
+                <Image alt="Logo" className="cursor-pointer rounded-lg" fill src={`/${community.logo || ""}`} />
+              )}
             </div>
             <p className="truncate">{community.name}</p>
           </div>

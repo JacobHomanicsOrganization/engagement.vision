@@ -99,15 +99,19 @@ export const Header = () => {
           )}
         </div>
 
-        {community?.logo ? (
+        {community?.logo || community?.logoJs ? (
           <div className="flex relative w-10 h-10">
             <Link href={community?.link || ""} target="#" passHref className="gap-2 ml-4 mr-6 shrink-0">
-              <Image
-                alt="Logo"
-                className="cursor-pointer"
-                fill
-                src={`/${appTheme === "engagement.vision" ? community?.logo(isDarkMode) : community?.logo || ""}`}
-              />
+              {community.logoJs ? (
+                <community.logoJs className={"fill-current w-5 h-5"} />
+              ) : (
+                <Image
+                  alt="Logo"
+                  className="cursor-pointer rounded-lg"
+                  fill
+                  src={`/${appTheme === "engagement.vision" ? community?.logo(isDarkMode) : community?.logo || ""}`}
+                />
+              )}
             </Link>
           </div>
         ) : (

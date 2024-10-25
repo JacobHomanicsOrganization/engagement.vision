@@ -1,7 +1,10 @@
+import { GitcoinLogo } from "./components/assets/Gitcoin";
+
 interface CriteriaDatabase {
   [key: string]: {
     name?: string;
     logo?: any;
+    logoJs?: any;
     link?: string;
     themes?: {
       light?: string;
@@ -35,6 +38,24 @@ export const communitiesConfig: CriteriaDatabase = {
       light: "light",
       dark: "dark",
     },
+  },
+  gitcoin: {
+    name: "Gitcoin",
+    logoJs: GitcoinLogo,
+    link: "/gitcoin/welcome",
+    themes: {
+      light: "lightGitcoin",
+      dark: "darkGitcoin",
+    },
+    welcomeCards: {
+      title: "Are you engaged with Gitcoin?",
+      callToAction: "Find out how engaged you are!",
+    },
+    farcasterChecks: [
+      {
+        text: ["Gitcoin"],
+      },
+    ],
   },
   raidguildcohortvii: {
     name: "Raid Guild - Cohort VII",
