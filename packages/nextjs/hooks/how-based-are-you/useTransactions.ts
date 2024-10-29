@@ -10,9 +10,25 @@ const blockExplorerApiKeys = {
 };
 
 const blockscoutApiUrls = {
-  base: "https://base.blockscout.com/api",
-  celo: "https://explorer.celo.org/mainnet/api",
+  base: "https://base.blockscout.com",
+  celo: "https://explorer.celo.org/mainnet",
+  optimism: "https://optimism.blockscout.com",
 };
+
+export function getBlockscoutExplorerTxLink(chainId: number | undefined, txnHash: string) {
+  const chainNames = Object.keys(chains);
+
+  const targetChain = chainNames.find(chainName => {
+    const wagmiChain = chains[chainName as keyof typeof chains];
+    return wagmiChain.id === chainId;
+  });
+
+  if (!targetChain) {
+    return "";
+  }
+
+  return `${blockscoutApiUrls[targetChain as keyof typeof blockscoutApiUrls]}/tx/${txnHash}`;
+}
 
 const blockscoutApiKey = "";
 
@@ -30,7 +46,7 @@ export function getBlockscoutApiLink(chainId: number, address: any) {
 
   return `${
     blockscoutApiUrls[targetChain as keyof typeof blockscoutApiUrls]
-  }?module=account&action=txlist&address=${address}&sort=asc&apikey=${blockscoutApiKey}`;
+  }/api?module=account&action=txlist&address=${address}&sort=asc&apikey=${blockscoutApiKey}`;
 }
 
 const routescanApiKey = "YourApiKeyToken";
@@ -110,7 +126,7 @@ export const useTransactionsFromChains = ({ chains, address }: { chains: chains.
       for (let i = 0; i < chains.length; i++) {
         const chain = chains[i];
         const { transactions, isError: isErrorInChain, eMessage } = await fetchTransactions(chain.id, address);
-        allTransactions.push(...transactions);
+        allTransactions.push({ chain: chains[i], transactions });
         isError = isError && isErrorInChain;
         errorMessage += eMessage;
       }

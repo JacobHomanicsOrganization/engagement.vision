@@ -43,6 +43,8 @@ export const communitiesConfig: CriteriaDatabase = {
   gitcoin: {
     name: "Gitcoin",
     logoJs: GitcoinLogo,
+    chains: [{ id: 8453 }, { id: 10 }],
+    onchainChecks: ["date"],
     link: "/gitcoin/welcome",
     themes: {
       light: "lightGitcoin",
@@ -158,6 +160,7 @@ export const communitiesConfig: CriteriaDatabase = {
   optimism: {
     name: "Optimism",
     chainName: "optimism",
+    chains: [{ id: 10 }],
     logo: "optimism-ethereum-op-logo.png",
     link: "/optimism/welcome",
     themes: {

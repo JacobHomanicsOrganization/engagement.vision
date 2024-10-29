@@ -21,13 +21,14 @@ import { DayCard } from "~~/components/how-based-are-you/DayCard";
 import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
 import { communitiesConfig } from "~~/engagement.config";
-import { useTransactionsFromChains } from "~~/hooks/how-based-are-you/useTransactions";
+import { getBlockscoutExplorerTxLink, useTransactionsFromChains } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import { areAnyValuesInCriteria, isTextInCriteria, isValueInCriteria } from "~~/utils/engagement.vision/criteria";
 import { isDateWithinDay, isDateWithinMonth, isDateWithinYear } from "~~/utils/engagement.vision/dates/dates";
 import { getFarcasterDate } from "~~/utils/engagement.vision/dates/farcaster";
 import { getFilteredArrayForEvery, getFilteredArrayForSome } from "~~/utils/engagement.vision/filtering";
 import { getChainById, getChainByName } from "~~/utils/engagement.vision/viem";
+
 // import {
 //   areAnyValuesInCriteria,
 //   getFarcasterDate,
@@ -37,7 +38,7 @@ import { getChainById, getChainByName } from "~~/utils/engagement.vision/viem";
 //   isDateWithinYear,
 //   isValueInCriteria,
 // } from "~~/utils/how-based-are-you/filterFarcasterMessagesForTally";
-import { getBlockExplorerTxLink } from "~~/utils/scaffold-eth";
+// import { getBlockExplorerTxLink } from "~~/utils/scaffold-eth";
 
 function customNotation(num: any) {
   if (num < 1000) {
@@ -766,8 +767,15 @@ export default function UserPage({ params }: { params: { community: string; addr
       }
     }
 
-    const filteredTransactions = getFilteredArrayForSome(transactions, onchainChecks);
-    const filteredTransactionsTally = filteredTransactions.length * POINTS_PER_TRANSACTION;
+    const allFilteredTransactions = [];
+    let filteredTransactionsTally = 0;
+    for (let i = 0; i < transactions.length; i++) {
+      const filteredTransactions = getFilteredArrayForSome(transactions[i].transactions, onchainChecks);
+      allFilteredTransactions.push({ chain: transactions[i].chain, transactions: filteredTransactions });
+      filteredTransactionsTally += filteredTransactions.length * POINTS_PER_TRANSACTION;
+    }
+
+    // const filteredTransactionsTally = filteredTransactions.length * POINTS_PER_TRANSACTION;
     tally += filteredTransactionsTally;
 
     const filteredByDayFarcasterMessages = farcasterMessages.filter((element: any) =>
@@ -780,7 +788,7 @@ export default function UserPage({ params }: { params: { community: string; addr
     tally += filteredFarcasterMessagesTally;
 
     return {
-      transactions: filteredTransactions,
+      transactions: allFilteredTransactions,
       filteredFarcasterMessages: filteredFarcasterMessages,
       filteredFollowers,
       totalTally: tally,
@@ -870,7 +878,7 @@ export default function UserPage({ params }: { params: { community: string; addr
     );
   });
 
-  const transactionsComponents = dailyTallies[selectedDay - 1]?.filteredTransactions?.map((value, index) => {
+  const transactionsComponents = dailyTallies[selectedDay - 1]?.filteredTransactions?.map(value => {
     function removeTextBetweenChars(input: string, startChar: string, endChar: string): string {
       // Create a regex pattern to match everything between the first occurrence of startChar and endChar, including the characters themselves
       const regex = new RegExp(`\\${startChar}[^\\${startChar}\\${endChar}]*?\\${endChar}`, "g");
@@ -878,14 +886,24 @@ export default function UserPage({ params }: { params: { community: string; addr
       return result;
     }
 
-    return (
-      <Link key={"Transactions" + index} href={getBlockExplorerTxLink(resolvedChain?.id, value.hash) || ""} target="#">
-        <div className="w-[200px] md:w-[400px] flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
-          <div className="bg-secondary rounded-lg">#{index + 1}</div>
-          {value?.functionName?.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>}
-        </div>
-      </Link>
-    );
+    return value.transactions.map((transaction, index) => {
+      return (
+        <Link
+          key={"Transactions" + index}
+          href={getBlockscoutExplorerTxLink(value.chain.id, transaction.hash) || ""}
+          target="#"
+        >
+          <div className="w-[200px] md:w-[400px] flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
+            <div className="bg-secondary rounded-lg">#{index + 1}</div>
+            {transaction?.functionName?.length > 0 ? (
+              <div>{removeTextBetweenChars(transaction.functionName, "(", ")")}</div>
+            ) : (
+              <></>
+            )}
+          </div>
+        </Link>
+      );
+    });
   });
 
   const monthsComponents = dailyTallies.map((value, index) => {
