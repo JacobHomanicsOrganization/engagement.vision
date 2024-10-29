@@ -645,8 +645,11 @@ export default function UserPage({ params }: { params: { community: string; addr
     tally += filteredFollowersTally;
 
     // const onchainChecks: any[] = [];
-    const filteredTransactions = transactions; //getFilteredArrayForSome(transactions, onchainChecks);
-    tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
+    let filteredTransactionsTally = 0;
+    for (let i = 0; i < transactions.length; i++) {
+      filteredTransactionsTally += transactions[i].transactions.length * POINTS_PER_TRANSACTION;
+    }
+    tally += filteredTransactionsTally;
 
     const filteredFarcasterMessages = getFilteredArrayForEvery(farcasterMessages, buildFarcasterChecks());
 
@@ -675,8 +678,14 @@ export default function UserPage({ params }: { params: { community: string; addr
       }
     }
 
-    const filteredTransactions = getFilteredArrayForSome(transactions, onchainChecks);
-    tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
+    const allFilteredTransactions = [];
+    let filteredTransactionsTally = 0;
+    for (let i = 0; i < transactions.length; i++) {
+      const filteredTransactions = getFilteredArrayForSome(transactions[i].transactions, onchainChecks);
+      allFilteredTransactions.push({ chain: transactions[i].chain, transactions: filteredTransactions });
+      filteredTransactionsTally += filteredTransactions.length * POINTS_PER_TRANSACTION;
+    }
+    tally += filteredTransactionsTally;
 
     const filteredByYearFarcasterMessages = farcasterMessages.filter((element: any) =>
       isDateWithinYear(getFarcasterDate(element.data.timestamp), year),
@@ -710,8 +719,14 @@ export default function UserPage({ params }: { params: { community: string; addr
       }
     }
 
-    const filteredTransactions = getFilteredArrayForSome(transactions, onchainChecks);
-    tally += filteredTransactions.length * POINTS_PER_TRANSACTION;
+    const allFilteredTransactions = [];
+    let filteredTransactionsTally = 0;
+    for (let i = 0; i < transactions.length; i++) {
+      const filteredTransactions = getFilteredArrayForSome(transactions[i].transactions, onchainChecks);
+      allFilteredTransactions.push({ chain: transactions[i].chain, transactions: filteredTransactions });
+      filteredTransactionsTally += filteredTransactions.length * POINTS_PER_TRANSACTION;
+    }
+    tally += filteredTransactionsTally;
 
     const filteredByMonthFarcasterMessages = farcasterMessages.filter((element: any) =>
       isDateWithinMonth(getFarcasterDate(element.data.timestamp), year, month),
@@ -774,8 +789,6 @@ export default function UserPage({ params }: { params: { community: string; addr
       allFilteredTransactions.push({ chain: transactions[i].chain, transactions: filteredTransactions });
       filteredTransactionsTally += filteredTransactions.length * POINTS_PER_TRANSACTION;
     }
-
-    // const filteredTransactionsTally = filteredTransactions.length * POINTS_PER_TRANSACTION;
     tally += filteredTransactionsTally;
 
     const filteredByDayFarcasterMessages = farcasterMessages.filter((element: any) =>
@@ -934,17 +947,21 @@ export default function UserPage({ params }: { params: { community: string; addr
       );
     }
 
-    if (value.filteredTransactions.length > 0) {
-      sources.push(
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          alt="Logo"
-          src={`/etherscan.png`}
-          className="h-[25px] rounded-lg"
-          style={{ aspectRatio: "1 / 1" }}
-          key={"source" + sources.length}
-        />,
-      );
+    for (let i = 0; i < value.filteredTransactions.length; i++) {
+      if (value.filteredTransactions[i].transactions.length > 0) {
+        sources.push(
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            alt="Logo"
+            src={`/etherscan.png`}
+            className="h-[25px] rounded-lg"
+            style={{ aspectRatio: "1 / 1" }}
+            key={"source" + sources.length}
+          />,
+        );
+
+        break;
+      }
     }
 
     return (

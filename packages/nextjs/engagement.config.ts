@@ -43,7 +43,7 @@ export const communitiesConfig: CriteriaDatabase = {
   gitcoin: {
     name: "Gitcoin",
     logoJs: GitcoinLogo,
-    chains: [{ id: 8453 }, { id: 10 }],
+    chains: [{ id: 42220 }],
     onchainChecks: ["date"],
     link: "/gitcoin/welcome",
     themes: {
