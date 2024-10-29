@@ -7,11 +7,15 @@ export function getChainByName(name: string) {
   return { chain, isError: chain === undefined };
 }
 
+export function getChainById(id: number) {
+  return getAllChains().find(chain => chain.id === id);
+}
+
 export function getAllChains() {
   const allChains: Chain[] = [];
 
-  Object.entries(chains).forEach(chain => {
-    allChains.push(chain as any);
+  Object.entries(chains).forEach(([, chain]) => {
+    allChains.push(chain as Chain);
   });
 
   return allChains;

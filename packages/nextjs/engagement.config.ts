@@ -15,6 +15,7 @@ interface CriteriaDatabase {
       callToAction?: string;
     };
     chainName?: string;
+    chains?: any[];
     channels?: string[];
     fids?: number[];
     farcasterChecks?: any[];
@@ -98,10 +99,10 @@ export const communitiesConfig: CriteriaDatabase = {
       },
     ],
   },
-
   base: {
     name: "Base",
     chainName: "base",
+    chains: [{ id: 8453 }],
     logo: "Base_Network_Logo.svg",
     link: "/base/welcome",
     themes: {

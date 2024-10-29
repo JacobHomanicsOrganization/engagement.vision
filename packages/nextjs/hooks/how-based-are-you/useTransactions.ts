@@ -9,6 +9,35 @@ const blockExplorerApiKeys = {
   "OP Mainnet": "H2GKEGVRAGMNFNQ14GU5KHAU58PYK1114M",
 };
 
+const blockscoutApiUrls = {
+  base: "https://base.blockscout.com/api",
+  celo: "https://explorer.celo.org/mainnet/api",
+};
+
+const blockscoutApiKey = "";
+
+export function getBlockscoutApiLink(chainId: number, address: any) {
+  const chainNames = Object.keys(chains);
+
+  const targetChain = chainNames.find(chainName => {
+    const wagmiChain = chains[chainName as keyof typeof chains];
+    return wagmiChain.id === chainId;
+  });
+
+  if (!targetChain) {
+    return "";
+  }
+
+  return `${
+    blockscoutApiUrls[targetChain as keyof typeof blockscoutApiUrls]
+  }?module=account&action=txlist&address=${address}&sort=asc&apikey=${blockscoutApiKey}`;
+}
+
+const routescanApiKey = "YourApiKeyToken";
+export function getRoutescanApiLink(chainId: number, address: any) {
+  return `https://api.routescan.io/v2/network/mainnet/evm/${chainId}/etherscan/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${routescanApiKey}`;
+}
+
 export function getBlockExplorerApiLink(chainId: number, address: any) {
   const chainNames = Object.keys(chains);
 
@@ -35,7 +64,7 @@ export function getBlockExplorerApiLink(chainId: number, address: any) {
 }
 
 const fetchTransactions = async (chainId: number, address: any) => {
-  const url = getBlockExplorerApiLink(chainId, address);
+  const url = getBlockscoutApiLink(chainId, address);
 
   const response = await axios.get(url);
 
@@ -62,6 +91,39 @@ const fetchTransactions = async (chainId: number, address: any) => {
   }
 
   return { transactions: response.data.result, isError: false };
+};
+
+export const useTransactionsFromChains = ({ chains, address }: { chains: chains.Chain[]; address: any }) => {
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>();
+
+  useEffect(() => {
+    const fetchTransactionsFromChains = async () => {
+      if (chains === undefined) return;
+      if (address === undefined) return;
+
+      const allTransactions: any[] = [];
+      let isError = false;
+      let errorMessage = "";
+
+      for (let i = 0; i < chains.length; i++) {
+        const chain = chains[i];
+        const { transactions, isError: isErrorInChain, eMessage } = await fetchTransactions(chain.id, address);
+        allTransactions.push(...transactions);
+        isError = isError && isErrorInChain;
+        errorMessage += eMessage;
+      }
+
+      setIsError(isError);
+      setErrorMessage(errorMessage);
+      setTransactions(allTransactions);
+    };
+
+    fetchTransactionsFromChains();
+  }, [chains, address]);
+
+  return { transactions, isError, errorMessage };
 };
 
 export const useTransactions = ({ chainId, address }: any) => {

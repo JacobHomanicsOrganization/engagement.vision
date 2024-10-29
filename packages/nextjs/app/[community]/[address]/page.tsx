@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -21,13 +21,13 @@ import { DayCard } from "~~/components/how-based-are-you/DayCard";
 import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
 import { communitiesConfig } from "~~/engagement.config";
-import { useTransactions } from "~~/hooks/how-based-are-you/useTransactions";
+import { useTransactionsFromChains } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
 import { areAnyValuesInCriteria, isTextInCriteria, isValueInCriteria } from "~~/utils/engagement.vision/criteria";
 import { isDateWithinDay, isDateWithinMonth, isDateWithinYear } from "~~/utils/engagement.vision/dates/dates";
 import { getFarcasterDate } from "~~/utils/engagement.vision/dates/farcaster";
 import { getFilteredArrayForEvery, getFilteredArrayForSome } from "~~/utils/engagement.vision/filtering";
-import { getChainByName } from "~~/utils/engagement.vision/viem";
+import { getChainById, getChainByName } from "~~/utils/engagement.vision/viem";
 // import {
 //   areAnyValuesInCriteria,
 //   getFarcasterDate,
@@ -196,6 +196,10 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   const chainNameCommunity = communitiesConfig[params.community as keyof typeof communitiesConfig]?.chainName;
 
+  const chains = communitiesConfig[params.community as keyof typeof communitiesConfig]?.chains || [];
+
+  console.log(chains);
+
   //after cleanup, fix bug by making params.address lowercase if its not an address
 
   const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
@@ -223,6 +227,19 @@ export default function UserPage({ params }: { params: { community: string; addr
   }, [params.community, setAppTheme]);
 
   // let community: string;
+
+  const resolvedChains = useMemo(() => {
+    const chains: Chain[] = [];
+    communitiesConfig[params.community as keyof typeof communitiesConfig]?.chains?.forEach(chain => {
+      const resolvedChain = getChainById(chain.id);
+      if (resolvedChain) {
+        chains.push(resolvedChain);
+      }
+    });
+    return chains;
+  }, [params.community]);
+
+  console.log(resolvedChains);
 
   let resolvedChain: Chain | undefined;
   const { chain: selectedChain } = getChainByName(chainNameCommunity || "");
@@ -264,6 +281,8 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   useEffect(() => {
     async function fetchData() {
+      if (resolvedChains.length === 0) return;
+      if (params.address === undefined) return;
       // let profileAddress;
       // let profileName;
       // let profileAvatar;
@@ -372,12 +391,18 @@ export default function UserPage({ params }: { params: { community: string; addr
         return { profile, isError, resolved };
       }
 
-      const resolutionLoop = [async () => await ResolveWithEns(resolvedChain), async () => await ResolveWithEns()];
+      const resolutionLoop = [async () => await ResolveWithEns()];
 
-      if (resolvedChain?.id === base.id) {
-        resolutionLoop.unshift(ResolveWithBase);
-      } else {
-        resolutionLoop.push(ResolveWithBase);
+      for (let i = 0; i < resolvedChains.length; i++) {
+        resolutionLoop.unshift(async () => await ResolveWithEns(resolvedChains[i]));
+      }
+
+      for (let i = 0; i < resolvedChains.length; i++) {
+        if (resolvedChains[i]?.id === base.id) {
+          resolutionLoop.unshift(ResolveWithBase);
+        } else {
+          resolutionLoop.push(ResolveWithBase);
+        }
       }
 
       let chosenProfile: Profile = {};
@@ -528,7 +553,14 @@ export default function UserPage({ params }: { params: { community: string; addr
     }
 
     fetchData();
-  }, [resolvedChain, resolvedChain?.id, params.address, followerChecksCommunity.length]);
+  }, [
+    resolvedChains,
+    resolvedChains.length,
+    // resolvedChain,
+    // resolvedChain?.id,
+    params.address,
+    followerChecksCommunity.length,
+  ]);
 
   const [farcasterMessages, setFarcasterMessages] = useState([]);
 
@@ -546,10 +578,12 @@ export default function UserPage({ params }: { params: { community: string; addr
   const {
     transactions, //isError,
     // errorMessage,
-  } = useTransactions({
-    chainId: resolvedChain?.id,
+  } = useTransactionsFromChains({
+    chains: resolvedChains,
     address: profile?.addr,
   });
+
+  console.log(transactions);
 
   const POINTS_PER_TRANSACTION = 100;
   const POINTS_PER_FARCASTER_MESSAGE = 25;
@@ -848,7 +882,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       <Link key={"Transactions" + index} href={getBlockExplorerTxLink(resolvedChain?.id, value.hash) || ""} target="#">
         <div className="w-[200px] md:w-[400px] flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
           <div className="bg-secondary rounded-lg">#{index + 1}</div>
-          {value.functionName.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>}
+          {value?.functionName?.length > 0 ? <div>{removeTextBetweenChars(value.functionName, "(", ")")}</div> : <></>}
         </div>
       </Link>
     );
