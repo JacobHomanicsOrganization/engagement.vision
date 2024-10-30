@@ -44,7 +44,7 @@ export const communitiesConfig: CriteriaDatabase = {
     name: "Gitcoin",
     logoJs: GitcoinLogo,
     onchainActivity: [
-      // { chainId: 42220 },
+      { chainId: 42220 },
       {
         chainId: 42161,
         checks: [

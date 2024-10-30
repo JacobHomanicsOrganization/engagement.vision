@@ -645,8 +645,14 @@ export default function UserPage({ params }: { params: { community: string; addr
     for (let i = 0; i < onchainActivity.length; i++) {
       const activityCheck = onchainActivity[i];
       const observedChainId = activityCheck.chainId;
+      const selectedChainTransactions = transactions.find((element: any) => element.chain.id === observedChainId);
 
       const checkValidTransactions: any[] = [];
+
+      if (activityCheck?.checks === undefined) {
+        checkValidTransactions.push(...(selectedChainTransactions?.transactions || []));
+      }
+
       for (let j = 0; j < activityCheck?.checks?.length; j++) {
         const checks: Array<(element: any) => boolean> = [];
 
@@ -660,8 +666,6 @@ export default function UserPage({ params }: { params: { community: string; addr
           checks.push((element: any) => element.blockNumber.toString() === check.blockNumber);
         }
 
-        const selectedChainTransactions = transactions.find((element: any) => element.chain.id === observedChainId);
-
         const filteredSelectedChainTransactions = getFilteredArrayForEvery(
           selectedChainTransactions?.transactions || [],
           checks,
@@ -669,6 +673,7 @@ export default function UserPage({ params }: { params: { community: string; addr
 
         checkValidTransactions.push(...filteredSelectedChainTransactions);
       }
+
       validTransactions.push({
         chain: observedChainId,
         transactions: checkValidTransactions,
