@@ -187,15 +187,12 @@ export default function UserPage({ params }: { params: { community: string; addr
   // const mentionsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.fids || [];
   // const channelsCriteria = criteriaDatabase[params.community as keyof typeof criteriaDatabase]?.channels || [];
 
-  const farcasterChecksCommunity =
-    communitiesConfig[params.community as keyof typeof communitiesConfig]?.farcasterChecks || [];
-  const onchainChecksCommunity =
-    communitiesConfig[params.community as keyof typeof communitiesConfig]?.onchainChecks || [];
+  const communityConfig = communitiesConfig[params.community as keyof typeof communitiesConfig];
 
-  const followerChecksCommunity =
-    communitiesConfig[params.community as keyof typeof communitiesConfig]?.followerChecks || [];
-
-  const chainNameCommunity = communitiesConfig[params.community as keyof typeof communitiesConfig]?.chainName;
+  const farcasterChecksCommunity = communityConfig.farcasterChecks || [];
+  const onchainChecksCommunity = communityConfig.onchainChecks || [];
+  const followerChecksCommunity = communityConfig.followerChecks || [];
+  const chainNameCommunity = communityConfig.chainName;
 
   // const chains = communitiesConfig[params.community as keyof typeof communitiesConfig]?.onchainActivity || [];
 
@@ -637,40 +634,42 @@ export default function UserPage({ params }: { params: { community: string; addr
     return someCriterias;
   }
 
-  const communityConfig = communitiesConfig[params.community as keyof typeof communitiesConfig];
-
   function getFilteredTransactions() {
-    const onchainActivity = communityConfig?.checks?.onchainActivities || [];
+    const onchainActivitiesChecks = communityConfig?.checks?.onchainActivities || [];
 
     const validTransactions = [];
 
-    for (let i = 0; i < onchainActivity.length; i++) {
-      const activityCheck = onchainActivity[i];
-      const observedChainId = activityCheck.chainId;
+    for (let i = 0; i < onchainActivitiesChecks.length; i++) {
+      const onchainActivityCheck = onchainActivitiesChecks[i];
+      const observedChainId = onchainActivityCheck.chainId;
       const selectedChainTransactions = transactions.find((element: any) => element.chain.id === observedChainId);
 
       const checkValidTransactions: any[] = [];
 
-      if (activityCheck?.checks === undefined) {
+      if (onchainActivityCheck?.checks === undefined) {
         checkValidTransactions.push(...(selectedChainTransactions?.transactions || []));
       }
 
-      for (let j = 0; j < activityCheck?.checks?.length; j++) {
-        const checks: Array<(element: any) => boolean> = [];
+      for (let j = 0; j < onchainActivityCheck?.checks?.length; j++) {
+        function buildChecks(check: any) {
+          const selectedCheckFunctions: Array<(element: any) => boolean> = [];
 
-        const check = activityCheck.checks[j];
+          if (check.to) {
+            selectedCheckFunctions.push((element: any) => getAddress(element.to) === check.to);
+          }
 
-        if (check.to) {
-          checks.push((element: any) => getAddress(element.to) === check.to);
+          if (check.blockNumber) {
+            selectedCheckFunctions.push((element: any) => element.blockNumber.toString() === check.blockNumber);
+          }
+
+          return selectedCheckFunctions;
         }
 
-        if (check.blockNumber) {
-          checks.push((element: any) => element.blockNumber.toString() === check.blockNumber);
-        }
+        const checksFunctions = buildChecks(onchainActivityCheck.checks[j]);
 
         const filteredSelectedChainTransactions = getFilteredArrayForEvery(
           selectedChainTransactions?.transactions || [],
-          checks,
+          checksFunctions,
         );
 
         checkValidTransactions.push(...filteredSelectedChainTransactions);
