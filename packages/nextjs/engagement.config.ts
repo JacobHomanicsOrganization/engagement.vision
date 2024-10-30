@@ -15,7 +15,8 @@ interface CriteriaDatabase {
       callToAction?: string;
     };
     chainName?: string;
-    onchainActivity?: any[];
+    onchainActivityChecks?: any[];
+    checks?: any;
     channels?: string[];
     fids?: number[];
     farcasterChecks?: any[];
@@ -43,7 +44,20 @@ export const communitiesConfig: CriteriaDatabase = {
   gitcoin: {
     name: "Gitcoin",
     logoJs: GitcoinLogo,
-    onchainActivity: [
+    checks: {
+      onchainActivities: [
+        { chainId: 42220 },
+        {
+          chainId: 42161,
+          checks: [
+            { to: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3" },
+            { to: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3", blockNumber: "260159116" },
+          ],
+          //checks: [{ to: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3", dateRange: "03/12/24-10/31/24" }]
+        },
+      ],
+    },
+    onchainActivityChecks: [
       { chainId: 42220 },
       {
         chainId: 42161,
@@ -114,7 +128,7 @@ export const communitiesConfig: CriteriaDatabase = {
   base: {
     name: "Base",
     chainName: "base",
-    onchainActivity: [{ id: 8453 }],
+    onchainActivityChecks: [{ id: 8453 }],
     logo: "Base_Network_Logo.svg",
     link: "/base/welcome",
     themes: {
@@ -170,7 +184,7 @@ export const communitiesConfig: CriteriaDatabase = {
   optimism: {
     name: "Optimism",
     chainName: "optimism",
-    onchainActivity: [{ id: 10 }],
+    onchainActivityChecks: [{ id: 10 }],
     logo: "optimism-ethereum-op-logo.png",
     link: "/optimism/welcome",
     themes: {

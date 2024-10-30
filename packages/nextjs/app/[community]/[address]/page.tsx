@@ -231,12 +231,14 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   const resolvedChains = useMemo(() => {
     const chains: Chain[] = [];
-    communitiesConfig[params.community as keyof typeof communitiesConfig]?.onchainActivity?.forEach(onchainActivity => {
-      const resolvedChain = getChainById(onchainActivity.chainId);
-      if (resolvedChain) {
-        chains.push(resolvedChain);
-      }
-    });
+    communitiesConfig[params.community as keyof typeof communitiesConfig]?.checks?.onchainActivities?.forEach(
+      (onchainActivity: any) => {
+        const resolvedChain = getChainById(onchainActivity.chainId);
+        if (resolvedChain) {
+          chains.push(resolvedChain);
+        }
+      },
+    );
     return chains;
   }, [params.community]);
 
@@ -638,7 +640,7 @@ export default function UserPage({ params }: { params: { community: string; addr
   const communityConfig = communitiesConfig[params.community as keyof typeof communitiesConfig];
 
   function getFilteredTransactions() {
-    const onchainActivity = communityConfig?.onchainActivity || [];
+    const onchainActivity = communityConfig?.checks?.onchainActivities || [];
 
     const validTransactions = [];
 
