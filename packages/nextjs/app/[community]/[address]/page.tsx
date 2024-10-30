@@ -575,7 +575,7 @@ export default function UserPage({ params }: { params: { community: string; addr
   const [selectedYear, setSelectedYear] = useState(selectedDate.getFullYear());
 
   const {
-    transactions: unfilteredTransactions, //isError,
+    transactions: unfilteredTransactionsGroupedByChain, //isError,
     // errorMessage,
   } = useTransactionsFromChains({
     chains: resolvedChains,
@@ -633,50 +633,79 @@ export default function UserPage({ params }: { params: { community: string; addr
     return someCriterias;
   }
 
-  function getFilteredTransactions() {
-    const onchainActivityChecks = communityConfig?.checks?.onchainActivities || [];
-    const allValidTransactions = [];
+  function buildOnchainActivityCriteriaChecks(criteria: any) {
+    const criteriaFunctions: Array<(tx: any) => boolean> = [];
 
-    for (let i = 0; i < onchainActivityChecks.length; i++) {
-      const activityCheck = onchainActivityChecks[i];
-      const targetChainId = activityCheck.chainId;
-      const transactionsForChain = unfilteredTransactions.find((tx: any) => tx.chain.id === targetChainId);
+    if (criteria.to) {
+      criteriaFunctions.push((tx: any) => getAddress(tx.to) === criteria.to);
+    }
 
-      const validTransactionsForChain: any[] = [];
+    if (criteria.blockNumber) {
+      criteriaFunctions.push((tx: any) => tx.blockNumber.toString() === criteria.blockNumber);
+    }
 
-      if (!activityCheck?.criteriaList) {
-        validTransactionsForChain.push(...(transactionsForChain?.transactions || []));
-      }
+    return criteriaFunctions;
+  }
 
-      for (let j = 0; j < activityCheck.criteriaList?.length; j++) {
-        function createCriteriaFunctions(criteria: any) {
-          const criteriaFunctions: Array<(tx: any) => boolean> = [];
+  function getAllValidTransactions(transactions: any[], criteriaList: any[]) {
+    const validTransactions: any[] = [];
 
-          if (criteria.to) {
-            criteriaFunctions.push((tx: any) => getAddress(tx.to) === criteria.to);
-          }
+    if (!criteriaList) {
+      validTransactions.push(...transactions);
+    } else {
+      criteriaList.forEach((criteria: any) => {
+        const criteriaChecks = buildOnchainActivityCriteriaChecks(criteria);
+        const filteredTransactions = getFilteredArrayForEvery(transactions || [], criteriaChecks);
 
-          if (criteria.blockNumber) {
-            criteriaFunctions.push((tx: any) => tx.blockNumber.toString() === criteria.blockNumber);
-          }
-
-          return criteriaFunctions;
-        }
-
-        const criteriaChecks = createCriteriaFunctions(activityCheck.criteriaList[j]);
-        const filteredTransactions = getFilteredArrayForEvery(transactionsForChain?.transactions || [], criteriaChecks);
-
-        validTransactionsForChain.push(...filteredTransactions);
-      }
-
-      allValidTransactions.push({
-        chain: targetChainId,
-        transactions: validTransactionsForChain,
+        validTransactions.push(...filteredTransactions);
       });
     }
 
-    console.log(allValidTransactions);
-    return allValidTransactions;
+    return validTransactions;
+  }
+
+  function getFilteredTransactions() {
+    const onchainActivityChecks = communityConfig?.checks?.onchainActivities || [];
+    const allFilteredTransactionsGroupedByChain: any[] = [];
+
+    onchainActivityChecks.forEach((activityCheck: any) => {
+      console.log(unfilteredTransactionsGroupedByChain);
+
+      const transactionsForChain = unfilteredTransactionsGroupedByChain.find(
+        (tx: any) => tx.chain.id === activityCheck.chainId,
+      );
+
+      console.log(transactionsForChain);
+      const validTransactionsForChain = getAllValidTransactions(
+        transactionsForChain?.transactions || [],
+        activityCheck.criteriaList,
+      );
+
+      // const validTransactionsForChain: any[] = [];
+
+      // if (!activityCheck?.criteriaList) {
+      //   validTransactionsForChain.push(...(transactionsForChain?.transactions || []));
+      // } else {
+      //   console.log(activityCheck.criteriaList);
+      //   activityCheck?.criteriaList?.forEach((criteria: any) => {
+      //     const criteriaChecks = buildOnchainActivityCriteriaChecks(criteria);
+      //     const filteredTransactions = getFilteredArrayForEvery(
+      //       transactionsForChain?.transactions || [],
+      //       criteriaChecks,
+      //     );
+
+      //     validTransactionsForChain.push(...filteredTransactions);
+      //   });
+      // }
+
+      allFilteredTransactionsGroupedByChain.push({
+        chain: activityCheck.chainId,
+        transactions: validTransactionsForChain,
+      });
+    });
+
+    console.log(allFilteredTransactionsGroupedByChain);
+    return allFilteredTransactionsGroupedByChain;
   }
 
   const allValidTransactions = getFilteredTransactions();
@@ -947,9 +976,6 @@ export default function UserPage({ params }: { params: { community: string; addr
     }
 
     return value.transactions.map((transaction: any, index: number) => {
-      console.log(value.chain.id);
-      console.log(getBlockscoutExplorerTxLink(value.chain, transaction.hash));
-
       return (
         <Link
           key={"Transactions" + index}
