@@ -827,6 +827,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       const allYearlyValidTransactionsForSpecificChain = transactionsGroupedByChain[i].transactions.filter(
         (element: any) => isDateWithinDay(new Date(element.timeStamp * 1000), year, month, day),
       );
+
       allYearlyValidTransactions.push({
         chain: transactionsGroupedByChain[i].chain,
         transactions: allYearlyValidTransactionsForSpecificChain,
@@ -946,10 +947,13 @@ export default function UserPage({ params }: { params: { community: string; addr
     }
 
     return value.transactions.map((transaction: any, index: number) => {
+      console.log(value.chain.id);
+      console.log(getBlockscoutExplorerTxLink(value.chain, transaction.hash));
+
       return (
         <Link
           key={"Transactions" + index}
-          href={getBlockscoutExplorerTxLink(value.chain.id, transaction.hash) || ""}
+          href={getBlockscoutExplorerTxLink(value.chain, transaction.hash) || ""}
           target="#"
         >
           <div className="w-[200px] md:w-[400px] flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out">
