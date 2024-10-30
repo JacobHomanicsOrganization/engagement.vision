@@ -44,10 +44,13 @@ export const communitiesConfig: CriteriaDatabase = {
     name: "Gitcoin",
     logoJs: GitcoinLogo,
     onchainActivity: [
-      // { id: 42220 },
+      // { chainId: 42220 },
       {
         chainId: 42161,
-        checks: [{ to: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3", blockNumber: "260159116" }],
+        checks: [
+          { to: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3" },
+          { to: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3", blockNumber: "260159116" },
+        ],
         //checks: [{ to: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3", dateRange: "03/12/24-10/31/24" }]
       },
     ],

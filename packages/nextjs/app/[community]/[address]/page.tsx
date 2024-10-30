@@ -584,7 +584,7 @@ export default function UserPage({ params }: { params: { community: string; addr
     address: profile?.addr,
   });
 
-  console.log(transactions);
+  // console.log(transactions);
 
   const POINTS_PER_TRANSACTION = 100;
   const POINTS_PER_FARCASTER_MESSAGE = 25;
@@ -635,16 +635,21 @@ export default function UserPage({ params }: { params: { community: string; addr
     return someCriterias;
   }
 
+  const communityConfig = communitiesConfig[params.community as keyof typeof communitiesConfig];
+
   function getFilteredTransactions() {
-    const onchainActivity =
-      communitiesConfig[params.community as keyof typeof communitiesConfig]?.onchainActivity || [];
+    const onchainActivity = communityConfig?.onchainActivity || [];
+
+    const validTransactions = [];
 
     for (let i = 0; i < onchainActivity.length; i++) {
       const activityCheck = onchainActivity[i];
+      const observedChainId = activityCheck.chainId;
 
-      const checks: Array<(element: any) => boolean> = [];
-
+      const checkValidTransactions: any[] = [];
       for (let j = 0; j < activityCheck?.checks?.length; j++) {
+        const checks: Array<(element: any) => boolean> = [];
+
         const check = activityCheck.checks[j];
 
         if (check.to) {
@@ -654,24 +659,23 @@ export default function UserPage({ params }: { params: { community: string; addr
         if (check.blockNumber) {
           checks.push((element: any) => element.blockNumber.toString() === check.blockNumber);
         }
+
+        const selectedChainTransactions = transactions.find((element: any) => element.chain.id === observedChainId);
+
+        const filteredSelectedChainTransactions = getFilteredArrayForEvery(
+          selectedChainTransactions?.transactions || [],
+          checks,
+        );
+
+        checkValidTransactions.push(...filteredSelectedChainTransactions);
       }
-
-      const selectedChainTransactions = transactions.find((element: any) => element.chain.id === activityCheck.chainId);
-
-      const filteredTransactions = [];
-
-      const filteredSelectedChainTransactions = getFilteredArrayForEvery(
-        selectedChainTransactions?.transactions || [],
-        checks,
-      );
-
-      filteredTransactions.push({
-        chain: selectedChainTransactions?.chain.id,
-        transactions: filteredSelectedChainTransactions,
+      validTransactions.push({
+        chain: observedChainId,
+        transactions: checkValidTransactions,
       });
-
-      console.log(filteredTransactions);
     }
+
+    console.log(validTransactions);
   }
 
   getFilteredTransactions();
