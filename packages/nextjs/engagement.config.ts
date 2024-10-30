@@ -49,7 +49,7 @@ export const communitiesConfig: CriteriaDatabase = {
         { chainId: 42220 },
         {
           chainId: 42161,
-          checks: [
+          criteriaList: [
             { to: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3" },
             { to: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3", blockNumber: "260159116" },
           ],
@@ -61,7 +61,7 @@ export const communitiesConfig: CriteriaDatabase = {
       { chainId: 42220 },
       {
         chainId: 42161,
-        checks: [
+        criteriaList: [
           { to: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3" },
           { to: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3", blockNumber: "260159116" },
         ],

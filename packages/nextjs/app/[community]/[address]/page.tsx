@@ -646,26 +646,26 @@ export default function UserPage({ params }: { params: { community: string; addr
 
       const checkValidTransactions: any[] = [];
 
-      if (onchainActivityCheck?.checks === undefined) {
+      if (onchainActivityCheck?.criteriaList === undefined) {
         checkValidTransactions.push(...(selectedChainTransactions?.transactions || []));
       }
 
-      for (let j = 0; j < onchainActivityCheck?.checks?.length; j++) {
-        function buildChecks(check: any) {
+      for (let j = 0; j < onchainActivityCheck?.criteriaList?.length; j++) {
+        function buildChecks(criteria: any) {
           const selectedCheckFunctions: Array<(element: any) => boolean> = [];
 
-          if (check.to) {
-            selectedCheckFunctions.push((element: any) => getAddress(element.to) === check.to);
+          if (criteria.to) {
+            selectedCheckFunctions.push((element: any) => getAddress(element.to) === criteria.to);
           }
 
-          if (check.blockNumber) {
-            selectedCheckFunctions.push((element: any) => element.blockNumber.toString() === check.blockNumber);
+          if (criteria.blockNumber) {
+            selectedCheckFunctions.push((element: any) => element.blockNumber.toString() === criteria.blockNumber);
           }
 
           return selectedCheckFunctions;
         }
 
-        const checksFunctions = buildChecks(onchainActivityCheck.checks[j]);
+        const checksFunctions = buildChecks(onchainActivityCheck.criteriaList[j]);
 
         const filteredSelectedChainTransactions = getFilteredArrayForEvery(
           selectedChainTransactions?.transactions || [],
