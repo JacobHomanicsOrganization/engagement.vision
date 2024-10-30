@@ -648,11 +648,11 @@ export default function UserPage({ params }: { params: { community: string; addr
         const check = activityCheck.checks[j];
 
         if (check.to) {
-          checks.push((element: any) => {
-            console.log("Checking " + getAddress(element.to) + " against " + check.to);
-            console.log(element.to === check.to);
-            return getAddress(element.to) === check.to;
-          });
+          checks.push((element: any) => getAddress(element.to) === check.to);
+        }
+
+        if (check.blockNumber) {
+          checks.push((element: any) => element.blockNumber.toString() === check.blockNumber);
         }
       }
 
@@ -669,20 +669,6 @@ export default function UserPage({ params }: { params: { community: string; addr
         chain: selectedChainTransactions?.chain.id,
         transactions: filteredSelectedChainTransactions,
       });
-
-      for (let i = 0; i < selectedChainTransactions?.transactions?.length; i++) {
-        console.log(selectedChainTransactions.transactions);
-
-        // const filteredSelectedChainTransactions = getFilteredArrayForEvery(
-        //   selectedChainTransactions.transactions,
-        //   checks,
-        // );
-
-        // filteredTransactions.push({
-        //   chain: selectedChainTransactions.chain.id,
-        //   transactions: filteredSelectedChainTransactions,
-        // });
-      }
 
       console.log(filteredTransactions);
     }
