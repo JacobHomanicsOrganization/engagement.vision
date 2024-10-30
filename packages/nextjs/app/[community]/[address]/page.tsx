@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { Chain, isAddress } from "viem";
+import { Chain, getAddress, isAddress } from "viem";
 import { base, mainnet } from "viem/chains";
 import {
   Basename,
@@ -197,9 +197,9 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   const chainNameCommunity = communitiesConfig[params.community as keyof typeof communitiesConfig]?.chainName;
 
-  const chains = communitiesConfig[params.community as keyof typeof communitiesConfig]?.chains || [];
+  // const chains = communitiesConfig[params.community as keyof typeof communitiesConfig]?.onchainActivity || [];
 
-  console.log(chains);
+  // console.log(chains);
 
   //after cleanup, fix bug by making params.address lowercase if its not an address
 
@@ -231,8 +231,8 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   const resolvedChains = useMemo(() => {
     const chains: Chain[] = [];
-    communitiesConfig[params.community as keyof typeof communitiesConfig]?.chains?.forEach(chain => {
-      const resolvedChain = getChainById(chain.id);
+    communitiesConfig[params.community as keyof typeof communitiesConfig]?.onchainActivity?.forEach(onchainActivity => {
+      const resolvedChain = getChainById(onchainActivity.chainId);
       if (resolvedChain) {
         chains.push(resolvedChain);
       }
@@ -240,7 +240,7 @@ export default function UserPage({ params }: { params: { community: string; addr
     return chains;
   }, [params.community]);
 
-  console.log(resolvedChains);
+  // console.log(resolvedChains);
 
   let resolvedChain: Chain | undefined;
   const { chain: selectedChain } = getChainByName(chainNameCommunity || "");
@@ -503,9 +503,9 @@ export default function UserPage({ params }: { params: { community: string; addr
       // setCredentials(result2["passport_credentials"]);
 
       if (followerChecksCommunity.length > 0) {
-        console.log(chosenProfile.name);
+        // console.log(chosenProfile.name);
 
-        console.log(isEnsName(chosenProfile.name) || isBasename(chosenProfile.name));
+        // console.log(isEnsName(chosenProfile.name) || isBasename(chosenProfile.name));
 
         if (isEnsName(chosenProfile.name) || isBasename(chosenProfile.name)) {
           try {
@@ -524,7 +524,7 @@ export default function UserPage({ params }: { params: { community: string; addr
             );
             setFollowers(result.data.followers);
           } catch (e) {
-            console.log("no eth follow");
+            // console.log("no eth follow");
           }
 
           // const lists = response.data.lists;
@@ -634,6 +634,61 @@ export default function UserPage({ params }: { params: { community: string; addr
 
     return someCriterias;
   }
+
+  function getFilteredTransactions() {
+    const onchainActivity =
+      communitiesConfig[params.community as keyof typeof communitiesConfig]?.onchainActivity || [];
+
+    for (let i = 0; i < onchainActivity.length; i++) {
+      const activityCheck = onchainActivity[i];
+
+      const checks: Array<(element: any) => boolean> = [];
+
+      for (let j = 0; j < activityCheck?.checks?.length; j++) {
+        const check = activityCheck.checks[j];
+
+        if (check.to) {
+          checks.push((element: any) => {
+            console.log("Checking " + getAddress(element.to) + " against " + check.to);
+            console.log(element.to === check.to);
+            return getAddress(element.to) === check.to;
+          });
+        }
+      }
+
+      const selectedChainTransactions = transactions.find((element: any) => element.chain.id === activityCheck.chainId);
+
+      const filteredTransactions = [];
+
+      const filteredSelectedChainTransactions = getFilteredArrayForEvery(
+        selectedChainTransactions?.transactions || [],
+        checks,
+      );
+
+      filteredTransactions.push({
+        chain: selectedChainTransactions?.chain.id,
+        transactions: filteredSelectedChainTransactions,
+      });
+
+      for (let i = 0; i < selectedChainTransactions?.transactions?.length; i++) {
+        console.log(selectedChainTransactions.transactions);
+
+        // const filteredSelectedChainTransactions = getFilteredArrayForEvery(
+        //   selectedChainTransactions.transactions,
+        //   checks,
+        // );
+
+        // filteredTransactions.push({
+        //   chain: selectedChainTransactions.chain.id,
+        //   transactions: filteredSelectedChainTransactions,
+        // });
+      }
+
+      console.log(filteredTransactions);
+    }
+  }
+
+  getFilteredTransactions();
 
   function getAllTimeTally(transactions: any) {
     let tally = 0;

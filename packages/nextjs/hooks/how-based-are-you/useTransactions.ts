@@ -13,6 +13,7 @@ const blockscoutApiUrls = {
   base: "https://base.blockscout.com",
   celo: "https://explorer.celo.org/mainnet",
   optimism: "https://optimism.blockscout.com",
+  arbitrum: "https://arbitrum.blockscout.com",
 };
 
 export function getBlockscoutExplorerTxLink(chainId: number | undefined, txnHash: string) {
@@ -120,6 +121,7 @@ export const useTransactionsFromChains = ({ chains, address }: { chains: chains.
       if (address === undefined) return;
 
       const allTransactions: any[] = [];
+
       let isError = false;
       let errorMessage = "";
 
@@ -127,6 +129,7 @@ export const useTransactionsFromChains = ({ chains, address }: { chains: chains.
         const chain = chains[i];
         const { transactions, isError: isErrorInChain, eMessage } = await fetchTransactions(chain.id, address);
         allTransactions.push({ chain: chains[i], transactions });
+
         isError = isError && isErrorInChain;
         errorMessage += eMessage;
       }
@@ -149,7 +152,6 @@ export const useTransactions = ({ chainId, address }: any) => {
 
   useEffect(() => {
     const getTransactions = async () => {
-      console.log(chainId);
       if (chainId === undefined) return;
       if (address === undefined) return;
 
