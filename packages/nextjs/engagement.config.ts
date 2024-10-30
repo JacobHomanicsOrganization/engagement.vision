@@ -47,6 +47,7 @@ export const communitiesConfig: CriteriaDatabase = {
     checks: {
       onchainActivities: [
         { chainId: 42220 },
+        { chainId: 8453 },
         {
           chainId: 42161,
           criteriaList: [

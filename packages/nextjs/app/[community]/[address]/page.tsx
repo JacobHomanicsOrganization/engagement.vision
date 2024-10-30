@@ -1003,20 +1003,31 @@ export default function UserPage({ params }: { params: { community: string; addr
       );
     }
 
+    const chainConfig = {
+      42220: {
+        logo: "/celo-celo-logo.png",
+      },
+      42161: {
+        logo: "/arbitrum-arb-logo.png",
+      },
+      8453: {
+        logo: "/Base_Network_Logo.svg",
+      },
+    } as any;
+
+    console.log(value.filteredTransactions);
     for (let i = 0; i < value.filteredTransactions.length; i++) {
       if (value.filteredTransactions[i].transactions.length > 0) {
         sources.push(
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
             alt="Logo"
-            src={`/etherscan.png`}
+            src={chainConfig[value.filteredTransactions[i].chain]?.logo || "/etherscan.png"}
             className="h-[25px] rounded-lg"
             style={{ aspectRatio: "1 / 1" }}
             key={"source" + sources.length}
           />,
         );
-
-        break;
       }
     }
 
