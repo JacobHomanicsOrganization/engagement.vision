@@ -190,7 +190,6 @@ export default function UserPage({ params }: { params: { community: string; addr
   const communityConfig = communitiesConfig[params.community as keyof typeof communitiesConfig];
 
   const farcasterChecksCommunity = communityConfig.farcasterChecks || [];
-  const onchainChecksCommunity = communityConfig.onchainChecks || [];
   const followerChecksCommunity = communityConfig.followerChecks || [];
   const chainNameCommunity = communityConfig.chainName;
 
@@ -576,7 +575,7 @@ export default function UserPage({ params }: { params: { community: string; addr
   const [selectedYear, setSelectedYear] = useState(selectedDate.getFullYear());
 
   const {
-    transactions, //isError,
+    transactions: unfilteredTransactions, //isError,
     // errorMessage,
   } = useTransactionsFromChains({
     chains: resolvedChains,
@@ -635,58 +634,54 @@ export default function UserPage({ params }: { params: { community: string; addr
   }
 
   function getFilteredTransactions() {
-    const onchainActivitiesChecks = communityConfig?.checks?.onchainActivities || [];
+    const onchainActivityChecks = communityConfig?.checks?.onchainActivities || [];
+    const allValidTransactions = [];
 
-    const validTransactions = [];
+    for (let i = 0; i < onchainActivityChecks.length; i++) {
+      const activityCheck = onchainActivityChecks[i];
+      const targetChainId = activityCheck.chainId;
+      const transactionsForChain = unfilteredTransactions.find((tx: any) => tx.chain.id === targetChainId);
 
-    for (let i = 0; i < onchainActivitiesChecks.length; i++) {
-      const onchainActivityCheck = onchainActivitiesChecks[i];
-      const observedChainId = onchainActivityCheck.chainId;
-      const selectedChainTransactions = transactions.find((element: any) => element.chain.id === observedChainId);
+      const validTransactionsForChain: any[] = [];
 
-      const checkValidTransactions: any[] = [];
-
-      if (onchainActivityCheck?.criteriaList === undefined) {
-        checkValidTransactions.push(...(selectedChainTransactions?.transactions || []));
+      if (!activityCheck?.criteriaList) {
+        validTransactionsForChain.push(...(transactionsForChain?.transactions || []));
       }
 
-      for (let j = 0; j < onchainActivityCheck?.criteriaList?.length; j++) {
-        function buildChecks(criteria: any) {
-          const selectedCheckFunctions: Array<(element: any) => boolean> = [];
+      for (let j = 0; j < activityCheck.criteriaList?.length; j++) {
+        function createCriteriaFunctions(criteria: any) {
+          const criteriaFunctions: Array<(tx: any) => boolean> = [];
 
           if (criteria.to) {
-            selectedCheckFunctions.push((element: any) => getAddress(element.to) === criteria.to);
+            criteriaFunctions.push((tx: any) => getAddress(tx.to) === criteria.to);
           }
 
           if (criteria.blockNumber) {
-            selectedCheckFunctions.push((element: any) => element.blockNumber.toString() === criteria.blockNumber);
+            criteriaFunctions.push((tx: any) => tx.blockNumber.toString() === criteria.blockNumber);
           }
 
-          return selectedCheckFunctions;
+          return criteriaFunctions;
         }
 
-        const checksFunctions = buildChecks(onchainActivityCheck.criteriaList[j]);
+        const criteriaChecks = createCriteriaFunctions(activityCheck.criteriaList[j]);
+        const filteredTransactions = getFilteredArrayForEvery(transactionsForChain?.transactions || [], criteriaChecks);
 
-        const filteredSelectedChainTransactions = getFilteredArrayForEvery(
-          selectedChainTransactions?.transactions || [],
-          checksFunctions,
-        );
-
-        checkValidTransactions.push(...filteredSelectedChainTransactions);
+        validTransactionsForChain.push(...filteredTransactions);
       }
 
-      validTransactions.push({
-        chain: observedChainId,
-        transactions: checkValidTransactions,
+      allValidTransactions.push({
+        chain: targetChainId,
+        transactions: validTransactionsForChain,
       });
     }
 
-    console.log(validTransactions);
+    console.log(allValidTransactions);
+    return allValidTransactions;
   }
 
-  getFilteredTransactions();
+  const allValidTransactions = getFilteredTransactions();
 
-  function getAllTimeTally(transactions: any) {
+  function getAllTimeTally(transactionsGroupedByChain: any) {
     let tally = 0;
 
     // const followersChecks = [];
@@ -697,8 +692,8 @@ export default function UserPage({ params }: { params: { community: string; addr
 
     // const onchainChecks: any[] = [];
     let filteredTransactionsTally = 0;
-    for (let i = 0; i < transactions.length; i++) {
-      filteredTransactionsTally += transactions[i].transactions.length * POINTS_PER_TRANSACTION;
+    for (let i = 0; i < transactionsGroupedByChain.length; i++) {
+      filteredTransactionsTally += transactionsGroupedByChain[i].transactions.length * POINTS_PER_TRANSACTION;
     }
     tally += filteredTransactionsTally;
 
@@ -709,7 +704,7 @@ export default function UserPage({ params }: { params: { community: string; addr
     return tally;
   }
 
-  function getYearlyTally(transactions: any, year: number) {
+  function getYearlyTally(transactionsGroupedByChain: any, year: number) {
     let tally = 0;
 
     const followersChecks = [];
@@ -722,20 +717,20 @@ export default function UserPage({ params }: { params: { community: string; addr
     const filteredFollowersTally = filteredFollowers.length * POINTS_PER_FOLLOW;
     tally += filteredFollowersTally;
 
-    const onchainChecks = [];
-    for (let i = 0; i < onchainChecksCommunity.length; i++) {
-      if (onchainChecksCommunity[i] === "date") {
-        onchainChecks.push((element: any) => isDateWithinYear(new Date(element.timeStamp * 1000), year));
-      }
+    let filteredTransactionsTally = 0;
+    const allYearlyValidTransactions = [];
+    for (let i = 0; i < transactionsGroupedByChain.length; i++) {
+      const allYearlyValidTransactionsForSpecificChain = transactionsGroupedByChain[i].transactions.filter(
+        (element: any) => isDateWithinYear(new Date(element.timeStamp * 1000), year),
+      );
+      allYearlyValidTransactions.push({
+        chain: transactionsGroupedByChain[i].chain,
+        transactions: allYearlyValidTransactionsForSpecificChain,
+      });
+
+      filteredTransactionsTally += allYearlyValidTransactionsForSpecificChain.length * POINTS_PER_TRANSACTION;
     }
 
-    const allFilteredTransactions = [];
-    let filteredTransactionsTally = 0;
-    for (let i = 0; i < transactions.length; i++) {
-      const filteredTransactions = getFilteredArrayForSome(transactions[i].transactions, onchainChecks);
-      allFilteredTransactions.push({ chain: transactions[i].chain, transactions: filteredTransactions });
-      filteredTransactionsTally += filteredTransactions.length * POINTS_PER_TRANSACTION;
-    }
     tally += filteredTransactionsTally;
 
     const filteredByYearFarcasterMessages = farcasterMessages.filter((element: any) =>
@@ -749,7 +744,7 @@ export default function UserPage({ params }: { params: { community: string; addr
     return tally;
   }
 
-  function getMonthlyTally(transactions: any, year: number, month: number) {
+  function getMonthlyTally(transactionsGroupedByChain: any, year: number, month: number) {
     let tally = 0;
 
     const followersChecks = [];
@@ -763,20 +758,20 @@ export default function UserPage({ params }: { params: { community: string; addr
     const filteredFollowersTally = filteredFollowers.length * POINTS_PER_FOLLOW;
     tally += filteredFollowersTally;
 
-    const onchainChecks = [];
-    for (let i = 0; i < onchainChecksCommunity.length; i++) {
-      if (onchainChecksCommunity[i] === "date") {
-        onchainChecks.push((element: any) => isDateWithinMonth(new Date(element.timeStamp * 1000), year, month));
-      }
+    let filteredTransactionsTally = 0;
+    const allYearlyValidTransactions = [];
+    for (let i = 0; i < transactionsGroupedByChain.length; i++) {
+      const allYearlyValidTransactionsForSpecificChain = transactionsGroupedByChain[i].transactions.filter(
+        (element: any) => isDateWithinMonth(new Date(element.timeStamp * 1000), year, month),
+      );
+      allYearlyValidTransactions.push({
+        chain: transactionsGroupedByChain[i].chain,
+        transactions: allYearlyValidTransactionsForSpecificChain,
+      });
+
+      filteredTransactionsTally += allYearlyValidTransactionsForSpecificChain.length * POINTS_PER_TRANSACTION;
     }
 
-    const allFilteredTransactions = [];
-    let filteredTransactionsTally = 0;
-    for (let i = 0; i < transactions.length; i++) {
-      const filteredTransactions = getFilteredArrayForSome(transactions[i].transactions, onchainChecks);
-      allFilteredTransactions.push({ chain: transactions[i].chain, transactions: filteredTransactions });
-      filteredTransactionsTally += filteredTransactions.length * POINTS_PER_TRANSACTION;
-    }
     tally += filteredTransactionsTally;
 
     const filteredByMonthFarcasterMessages = farcasterMessages.filter((element: any) =>
@@ -812,7 +807,7 @@ export default function UserPage({ params }: { params: { community: string; addr
   //   getChannelByName(community);
   // }, [community]);
 
-  function getDailyTally(transactions: any, year: number, month: number, day: number) {
+  function getDailyTally(transactionsGroupedByChain: any, year: number, month: number, day: number) {
     let tally = 0;
 
     const followersChecks = [];
@@ -826,20 +821,20 @@ export default function UserPage({ params }: { params: { community: string; addr
     const filteredFollowersTally = filteredFollowers.length * POINTS_PER_FOLLOW;
     tally += filteredFollowersTally;
 
-    const onchainChecks = [];
-    for (let i = 0; i < onchainChecksCommunity.length; i++) {
-      if (onchainChecksCommunity[i] === "date") {
-        onchainChecks.push((element: any) => isDateWithinDay(new Date(element.timeStamp * 1000), year, month, day));
-      }
+    let filteredTransactionsTally = 0;
+    const allYearlyValidTransactions = [];
+    for (let i = 0; i < transactionsGroupedByChain.length; i++) {
+      const allYearlyValidTransactionsForSpecificChain = transactionsGroupedByChain[i].transactions.filter(
+        (element: any) => isDateWithinDay(new Date(element.timeStamp * 1000), year, month, day),
+      );
+      allYearlyValidTransactions.push({
+        chain: transactionsGroupedByChain[i].chain,
+        transactions: allYearlyValidTransactionsForSpecificChain,
+      });
+
+      filteredTransactionsTally += allYearlyValidTransactionsForSpecificChain.length * POINTS_PER_TRANSACTION;
     }
 
-    const allFilteredTransactions = [];
-    let filteredTransactionsTally = 0;
-    for (let i = 0; i < transactions.length; i++) {
-      const filteredTransactions = getFilteredArrayForSome(transactions[i].transactions, onchainChecks);
-      allFilteredTransactions.push({ chain: transactions[i].chain, transactions: filteredTransactions });
-      filteredTransactionsTally += filteredTransactions.length * POINTS_PER_TRANSACTION;
-    }
     tally += filteredTransactionsTally;
 
     const filteredByDayFarcasterMessages = farcasterMessages.filter((element: any) =>
@@ -852,16 +847,16 @@ export default function UserPage({ params }: { params: { community: string; addr
     tally += filteredFarcasterMessagesTally;
 
     return {
-      transactions: allFilteredTransactions,
+      transactions: allYearlyValidTransactions,
       filteredFarcasterMessages: filteredFarcasterMessages,
       filteredFollowers,
       totalTally: tally,
     };
   }
 
-  const allTimeScore = getAllTimeTally(transactions);
-  const yearlyTally = getYearlyTally(transactions, selectedYear);
-  const totalMonthlyTally = getMonthlyTally(transactions, selectedYear, selectedMonth);
+  const allTimeScore = getAllTimeTally(allValidTransactions);
+  const yearlyTally = getYearlyTally(allValidTransactions, selectedYear);
+  const totalMonthlyTally = getMonthlyTally(allValidTransactions, selectedYear, selectedMonth);
 
   const dailyTallies = [];
   for (let i = 0; i < numOfDays; i++) {
@@ -871,7 +866,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       filteredFollowers,
       filteredFarcasterMessages,
       totalTally,
-    } = getDailyTally(transactions, selectedYear, selectedMonth, selectedDay);
+    } = getDailyTally(allValidTransactions, selectedYear, selectedMonth, selectedDay);
 
     dailyTallies.push({
       filteredTransactions,
@@ -950,7 +945,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       return result;
     }
 
-    return value.transactions.map((transaction, index) => {
+    return value.transactions.map((transaction: any, index: number) => {
       return (
         <Link
           key={"Transactions" + index}
