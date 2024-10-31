@@ -711,6 +711,8 @@ export default function UserPage({ params }: { params: { community: string; addr
 
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
+    tally += credentials.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+
     return tally;
   }
 
@@ -746,6 +748,14 @@ export default function UserPage({ params }: { params: { community: string; addr
     const filteredByYearFarcasterMessages = farcasterMessages.filter((element: any) =>
       isDateWithinYear(getFarcasterDate(element.data.timestamp), year),
     );
+
+    let filteredTalentProtocolBadges: any[] = [];
+
+    filteredTalentProtocolBadges = credentials.filter((element: any) =>
+      isDateWithinYear(new Date(element["onchain_at"]), year),
+    );
+
+    tally += filteredTalentProtocolBadges.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
 
     const filteredFarcasterMessages = getFilteredArrayForEvery(filteredByYearFarcasterMessages, buildFarcasterChecks());
 
@@ -783,6 +793,14 @@ export default function UserPage({ params }: { params: { community: string; addr
     }
 
     tally += filteredTransactionsTally;
+
+    let filteredTalentProtocolBadges: any[] = [];
+
+    filteredTalentProtocolBadges = credentials.filter((element: any) =>
+      isDateWithinMonth(new Date(element["onchain_at"]), year, month),
+    );
+
+    tally += filteredTalentProtocolBadges.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
 
     const filteredByMonthFarcasterMessages = farcasterMessages.filter((element: any) =>
       isDateWithinMonth(getFarcasterDate(element.data.timestamp), year, month),
