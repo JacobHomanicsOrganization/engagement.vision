@@ -691,6 +691,33 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   const allValidTransactions = getFilteredTransactions();
 
+  function getFilteredTalentProtocolCredentials() {
+    const talentProtocolChecks = communityConfig?.checks?.talentProtocol || [];
+
+    let allValidTalentProtocolCredentials: any[] = [];
+
+    talentProtocolChecks.forEach((check: any) => {
+      check.forEach((criterion: any) => {
+        const criteriaFunctions: Array<(credential: any) => boolean> = [];
+
+        if (criterion === "onchain_at") {
+          console.log("Pusehd");
+          criteriaFunctions.push((credential: any) => credential["onchain_at"] !== null);
+        }
+
+        if (criterion === "earned_at") {
+          criteriaFunctions.push((credential: any) => credential["earned_at"] !== null);
+        }
+
+        allValidTalentProtocolCredentials = getFilteredArrayForEvery(credentials || [], criteriaFunctions);
+      });
+    });
+
+    return allValidTalentProtocolCredentials;
+  }
+
+  const allValidTalentProtocolCredentials = getFilteredTalentProtocolCredentials();
+
   function getAllTimeTally(transactionsGroupedByChain: any) {
     let tally = 0;
 
@@ -751,7 +778,7 @@ export default function UserPage({ params }: { params: { community: string; addr
 
     let filteredTalentProtocolBadges: any[] = [];
 
-    filteredTalentProtocolBadges = credentials.filter((element: any) =>
+    filteredTalentProtocolBadges = allValidTalentProtocolCredentials.filter((element: any) =>
       isDateWithinYear(new Date(element["onchain_at"]), year),
     );
 
@@ -983,7 +1010,7 @@ export default function UserPage({ params }: { params: { community: string; addr
   });
 
   const talentProtocolComponents = dailyTallies[selectedDay - 1]?.filteredTalentProtocolBadges?.map((value, index) => {
-    console.log(value);
+    // console.log(value);
 
     return (
       // <Link key={"Followers" + index} href={getBlockExplorerTxLink(resolvedChain?.id, value.hash) || ""} target="#">
@@ -1117,7 +1144,7 @@ export default function UserPage({ params }: { params: { community: string; addr
   if (isLoadingWebsite) return <>Loading...</>;
   if (userError) return <>{userError}</>;
 
-  console.log(transactionsComponents);
+  // console.log(transactionsComponents);
 
   let transactionOutput;
   if (
