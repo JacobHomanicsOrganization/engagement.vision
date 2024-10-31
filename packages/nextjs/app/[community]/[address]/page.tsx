@@ -65,19 +65,19 @@ function customNotation(num: any) {
 //   return Math.floor(Math.random() * (max - min + 1)) + min;
 // }
 
-// const getPassport = async (username: string) => {
-//   try {
-//     const response = await axios.get(`/api/talent-protocol/passport/${username}`);
-//     return response.data;
-//   } catch (err) {}
-// };
+const getPassport = async (username: string) => {
+  try {
+    const response = await axios.get(`/api/talent-protocol/passport/${username}`);
+    return response.data;
+  } catch (err) {}
+};
 
-// const getPassportCredentials = async (username: string) => {
-//   try {
-//     const response = await axios.get(`/api/talent-protocol/credentials/${username}`);
-//     return response.data;
-//   } catch (err) {}
-// };
+const getPassportCredentials = async (username: string) => {
+  try {
+    const response = await axios.get(`/api/talent-protocol/credentials/${username}`);
+    return response.data;
+  } catch (err) {}
+};
 
 // const getUserWarpcastFid = async (username: string) => {
 //   const response = await axios.get(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
@@ -280,8 +280,8 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   useEffect(() => {
     async function fetchData() {
-      if (resolvedChains.length === 0) return;
-      if (params.address === undefined) return;
+      // if (resolvedChains.length === 0) return;
+      // if (params.address === undefined) return;
       // let profileAddress;
       // let profileName;
       // let profileAvatar;
@@ -496,10 +496,6 @@ export default function UserPage({ params }: { params: { community: string; addr
         }
       }
 
-      // const result = await getPassport(chosenProfile.addr || "");
-      // const result2 = await getPassportCredentials(result.passport["passport_id"]);
-      // setCredentials(result2["passport_credentials"]);
-
       if (followerChecksCommunity.length > 0) {
         // console.log(chosenProfile.name);
 
@@ -515,7 +511,7 @@ export default function UserPage({ params }: { params: { community: string; addr
 
             const response = await axios.get(`https://api.ethfollow.xyz/api/v1/users/${chosenProfile.name}/lists`);
 
-            console.log(response.data);
+            // console.log(response.data);
 
             const result = await axios.get(
               `https://api.ethfollow.xyz/api/v1/lists/${response.data["primary_list"]}/followers?limit=3000`,
@@ -539,14 +535,17 @@ export default function UserPage({ params }: { params: { community: string; addr
         }
       }
 
-      // const validPassports = result2["passport_credentials"].filter((x: any) => {
-      //   return x["onchain_at"] !== null;
-      // });
+      const result = await getPassport(chosenProfile.addr || "");
 
-      // for (let i = 0; i < result2["passport_credentials"].length; i++) {
-      //   if (result2["passport_credentials"][i]["onchain_at"] !== null) {
-      //   }
-      // }
+      // console.log(result);
+
+      const result2 = await getPassportCredentials(result.passport["passport_id"]);
+      setCredentials(result2["passport_credentials"]);
+
+      // console.log(validPassports);
+      // console.log(validPassports2);
+
+      // console.log("done");
 
       setIsLoadingUserProfile(false);
     }
@@ -566,7 +565,8 @@ export default function UserPage({ params }: { params: { community: string; addr
   const [followers, setFollowers] = useState<any[]>([]);
   const [following, setFollowing] = useState<any[]>([]);
 
-  // const [credentials, setCredentials] = useState([]);
+  const [credentials, setCredentials] = useState([]);
+  // console.log(credentials);
 
   const numOfDays = 31;
 
@@ -586,6 +586,7 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   const POINTS_PER_TRANSACTION = 100;
   const POINTS_PER_FARCASTER_MESSAGE = 25;
+  const POINTS_PER_TALENT_PROTOCOL_BADGE = 300;
   // const POINTS_PER_CREDENTIAL = 10;
   const POINTS_PER_FOLLOW = 10;
 
@@ -684,7 +685,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       });
     });
 
-    console.log(allFilteredTransactionsGroupedByChain);
+    // console.log(allFilteredTransactionsGroupedByChain);
     return allFilteredTransactionsGroupedByChain;
   }
 
@@ -833,9 +834,10 @@ export default function UserPage({ params }: { params: { community: string; addr
     let filteredTransactionsTally = 0;
     const allValidTransactions = [];
     for (let i = 0; i < transactionsGroupedByChain.length; i++) {
-      const allValidTransactionsForSpecificChain = transactionsGroupedByChain[i].transactions.filter((element: any) =>
-        isDateWithinDay(new Date(element.timeStamp * 1000), year, month, day),
-      );
+      const allValidTransactionsForSpecificChain = transactionsGroupedByChain[i].transactions.filter((element: any) => {
+        // console.log(new Date(element.timeStamp * 1000));
+        return isDateWithinDay(new Date(element.timeStamp * 1000), year, month, day);
+      });
 
       allValidTransactions.push({
         chain: transactionsGroupedByChain[i].chain,
@@ -846,6 +848,18 @@ export default function UserPage({ params }: { params: { community: string; addr
     }
 
     tally += filteredTransactionsTally;
+
+    // console.log(credentials);
+
+    let filteredTalentProtocolBadges: any[] = [];
+
+    filteredTalentProtocolBadges = credentials.filter((element: any) =>
+      isDateWithinDay(new Date(element["onchain_at"]), year, month, day),
+    );
+
+    tally += filteredTalentProtocolBadges.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+
+    // console.log(filteredTalentProtocolBadges);
 
     const filteredByDayFarcasterMessages = farcasterMessages.filter((element: any) =>
       isDateWithinDay(getFarcasterDate(element.data.timestamp), year, month, day),
@@ -860,6 +874,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       transactions: allValidTransactions,
       filteredFarcasterMessages: filteredFarcasterMessages,
       filteredFollowers,
+      filteredTalentProtocolBadges,
       totalTally: tally,
     };
   }
@@ -876,10 +891,12 @@ export default function UserPage({ params }: { params: { community: string; addr
       filteredFollowers,
       filteredFarcasterMessages,
       totalTally,
+      filteredTalentProtocolBadges,
     } = getDailyTally(allValidTransactions, selectedYear, selectedMonth, selectedDay);
 
     dailyTallies.push({
       filteredTransactions,
+      filteredTalentProtocolBadges,
       filteredFollowers,
       filteredFarcasterMessages,
       totalTally,
@@ -947,6 +964,22 @@ export default function UserPage({ params }: { params: { community: string; addr
     );
   });
 
+  const talentProtocolComponents = dailyTallies[selectedDay - 1]?.filteredTalentProtocolBadges?.map((value, index) => {
+    console.log(value);
+
+    return (
+      // <Link key={"Followers" + index} href={getBlockExplorerTxLink(resolvedChain?.id, value.hash) || ""} target="#">
+      <div
+        key={"TP" + index}
+        className="w-[200px] md:w-[400px] flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out"
+      >
+        <div className="bg-secondary rounded-lg">#{index + 1}</div>
+        <div className="overflow-hidden">{`${value.name} onchain at: ` + value.onchain_at}</div>
+      </div>
+      // </Link>
+    );
+  });
+
   const transactionsComponents = dailyTallies[selectedDay - 1]?.filteredTransactions?.map(value => {
     function removeTextBetweenChars(input: string, startChar: string, endChar: string): string {
       // Create a regex pattern to match everything between the first occurrence of startChar and endChar, including the characters themselves
@@ -990,6 +1023,18 @@ export default function UserPage({ params }: { params: { community: string; addr
       );
     }
 
+    if (value.filteredTalentProtocolBadges.length > 0) {
+      sources.push(
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          alt="Logo"
+          src={`/talent-protocol-logo/logo-purple.svg`}
+          className="h-[25px] rounded-lg"
+          style={{ aspectRatio: "1 / 1" }}
+          key={"source" + sources.length}
+        />,
+      );
+    }
     if (value.filteredFarcasterMessages.length > 0) {
       sources.push(
         /* eslint-disable-next-line @next/next/no-img-element */
@@ -1015,7 +1060,6 @@ export default function UserPage({ params }: { params: { community: string; addr
       },
     } as any;
 
-    console.log(value.filteredTransactions);
     for (let i = 0; i < value.filteredTransactions.length; i++) {
       if (value.filteredTransactions[i].transactions.length > 0) {
         sources.push(
@@ -1054,6 +1098,8 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   if (isLoadingWebsite) return <>Loading...</>;
   if (userError) return <>{userError}</>;
+
+  console.log(transactionsComponents);
 
   let transactionOutput;
   if (
@@ -1162,6 +1208,14 @@ export default function UserPage({ params }: { params: { community: string; addr
                 ) : (
                   <></>
                 )}
+                {talentProtocolComponents.length > 0 ? (
+                  <>
+                    <div className="text-4xl">Talent Protocol</div>
+                    <div className="flex flex-col space-y-1 items-center">{talentProtocolComponents}</div>
+                  </>
+                ) : (
+                  <></>
+                )}
                 {farcasterMessagesComponents.length > 0 ? (
                   <>
                     <div className="text-4xl">Farcaster Messages</div>
@@ -1180,7 +1234,7 @@ export default function UserPage({ params }: { params: { community: string; addr
                   <></>
                 )}
 
-                {transactionsComponents.length > 0 ? (
+                {transactionsComponents[0].length > 0 ? (
                   <>
                     <div className="text-4xl">Transactions</div>
                     <div className="flex flex-col space-y-1 items-center">{transactionsComponents}</div>{" "}

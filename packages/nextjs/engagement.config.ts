@@ -140,6 +140,10 @@ export const communitiesConfig: CriteriaDatabase = {
       title: "How Based Are You?",
       callToAction: "Find Out How Based You Are!",
     },
+    checks: {
+      onchainActivities: [{ chainId: 8453 }],
+    },
+
     farcasterChecks: [
       {
         channels: [
