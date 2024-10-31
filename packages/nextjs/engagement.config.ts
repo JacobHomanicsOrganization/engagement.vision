@@ -142,7 +142,7 @@ export const communitiesConfig: CriteriaDatabase = {
     },
     checks: {
       onchainActivities: [{ chainId: 8453 }],
-      talentProtocol: [["onchain_at"], ["earned_at"]],
+      talentProtocol: [["onchain_at"], ["earned_at"], ["onchain_at", "earned_at"]],
     },
 
     farcasterChecks: [

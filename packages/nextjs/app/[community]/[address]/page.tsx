@@ -195,8 +195,6 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   // const chains = communitiesConfig[params.community as keyof typeof communitiesConfig]?.onchainActivity || [];
 
-  // console.log(chains);
-
   //after cleanup, fix bug by making params.address lowercase if its not an address
 
   const setAppTheme = useGlobalState(({ setAppTheme }) => setAppTheme);
@@ -237,8 +235,6 @@ export default function UserPage({ params }: { params: { community: string; addr
     );
     return chains;
   }, [params.community]);
-
-  // console.log(resolvedChains);
 
   let resolvedChain: Chain | undefined;
   const { chain: selectedChain } = getChainByName(chainNameCommunity || "");
@@ -497,10 +493,6 @@ export default function UserPage({ params }: { params: { community: string; addr
       }
 
       if (followerChecksCommunity.length > 0) {
-        // console.log(chosenProfile.name);
-
-        // console.log(isEnsName(chosenProfile.name) || isBasename(chosenProfile.name));
-
         if (isEnsName(chosenProfile.name) || isBasename(chosenProfile.name)) {
           try {
             const response2 = await axios.get(
@@ -511,23 +503,19 @@ export default function UserPage({ params }: { params: { community: string; addr
 
             const response = await axios.get(`https://api.ethfollow.xyz/api/v1/users/${chosenProfile.name}/lists`);
 
-            // console.log(response.data);
-
             const result = await axios.get(
               `https://api.ethfollow.xyz/api/v1/lists/${response.data["primary_list"]}/followers?limit=3000`,
             );
             setFollowers(result.data.followers);
           } catch (e) {
-            // console.log("no eth follow");
+            // "no eth follow"
           }
 
           // const lists = response.data.lists;
 
-          // console.log(lists);
           // let followersAllLists: any[] = [];
           // for (let i = 0; i < lists.length; i++) {
           //   const result = await axios.get(`https://api.ethfollow.xyz/api/v1/lists/${lists[i]}/followers?limit=3000`);
-          //   console.log(result.data.followers);
           //   followersAllLists = followersAllLists.concat(result.data.followers);
           // }
 
@@ -537,15 +525,8 @@ export default function UserPage({ params }: { params: { community: string; addr
 
       const result = await getPassport(chosenProfile.addr || "");
 
-      // console.log(result);
-
       const result2 = await getPassportCredentials(result.passport["passport_id"]);
       setCredentials(result2["passport_credentials"]);
-
-      // console.log(validPassports);
-      // console.log(validPassports2);
-
-      // console.log("done");
 
       setIsLoadingUserProfile(false);
     }
@@ -566,7 +547,6 @@ export default function UserPage({ params }: { params: { community: string; addr
   const [following, setFollowing] = useState<any[]>([]);
 
   const [credentials, setCredentials] = useState([]);
-  // console.log(credentials);
 
   const numOfDays = 31;
 
@@ -581,8 +561,6 @@ export default function UserPage({ params }: { params: { community: string; addr
     chains: resolvedChains,
     address: profile?.addr,
   });
-
-  // console.log(transactions);
 
   const POINTS_PER_TRANSACTION = 100;
   const POINTS_PER_FARCASTER_MESSAGE = 25;
@@ -685,7 +663,6 @@ export default function UserPage({ params }: { params: { community: string; addr
       });
     });
 
-    // console.log(allFilteredTransactionsGroupedByChain);
     return allFilteredTransactionsGroupedByChain;
   }
 
@@ -694,22 +671,26 @@ export default function UserPage({ params }: { params: { community: string; addr
   function getFilteredTalentProtocolCredentials() {
     const talentProtocolChecks = communityConfig?.checks?.talentProtocol || [];
 
-    let allValidTalentProtocolCredentials: any[] = [];
+    const allValidTalentProtocolCredentials: any[] = [];
 
     talentProtocolChecks.forEach((check: any) => {
+      const criteriaFunctions: Array<(credential: any) => boolean> = [];
+      const checkCriteria: any[] = [];
       check.forEach((criterion: any) => {
-        const criteriaFunctions: Array<(credential: any) => boolean> = [];
-
         if (criterion === "onchain_at") {
-          console.log("Pusehd");
           criteriaFunctions.push((credential: any) => credential["onchain_at"] !== null);
+          checkCriteria.push("onchain_at");
         }
 
         if (criterion === "earned_at") {
           criteriaFunctions.push((credential: any) => credential["earned_at"] !== null);
+          checkCriteria.push("earned_at");
         }
+      });
 
-        allValidTalentProtocolCredentials = getFilteredArrayForEvery(credentials || [], criteriaFunctions);
+      allValidTalentProtocolCredentials.push({
+        tags: checkCriteria,
+        credentials: getFilteredArrayForEvery(credentials || [], criteriaFunctions),
       });
     });
 
@@ -717,6 +698,10 @@ export default function UserPage({ params }: { params: { community: string; addr
   }
 
   const allValidTalentProtocolCredentials = getFilteredTalentProtocolCredentials();
+
+  console.log(allValidTalentProtocolCredentials);
+
+  // console.log(allValidTalentProtocolCredentials);
 
   function getAllTimeTally(transactionsGroupedByChain: any) {
     let tally = 0;
@@ -776,13 +761,31 @@ export default function UserPage({ params }: { params: { community: string; addr
       isDateWithinYear(getFarcasterDate(element.data.timestamp), year),
     );
 
-    let filteredTalentProtocolBadges: any[] = [];
+    allValidTalentProtocolCredentials.forEach((element: any) => {
+      if (element.tags.includes("onchain_at")) {
+        const filtered1 = element.credentials.filter((element: any) =>
+          isDateWithinYear(new Date(element["onchain_at"]), year),
+        );
 
-    filteredTalentProtocolBadges = allValidTalentProtocolCredentials.filter((element: any) =>
-      isDateWithinYear(new Date(element["onchain_at"]), year),
-    );
+        tally += filtered1.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+      }
 
-    tally += filteredTalentProtocolBadges.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+      if (element.tags.includes("earned_at")) {
+        const filtered2 = element.credentials.filter((element: any) =>
+          isDateWithinYear(new Date(element["earned_at"]), year),
+        );
+
+        tally += filtered2.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+      }
+    });
+
+    // let filteredTalentProtocolBadges: any[] = [];
+
+    // filteredTalentProtocolBadges = allValidTalentProtocolCredentials.filter((element: any) =>
+    //   isDateWithinYear(new Date(element["onchain_at"]), year),
+    // );
+
+    // tally += filteredTalentProtocolBadges.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
 
     const filteredFarcasterMessages = getFilteredArrayForEvery(filteredByYearFarcasterMessages, buildFarcasterChecks());
 
@@ -821,13 +824,31 @@ export default function UserPage({ params }: { params: { community: string; addr
 
     tally += filteredTransactionsTally;
 
-    let filteredTalentProtocolBadges: any[] = [];
+    allValidTalentProtocolCredentials.forEach((element: any) => {
+      if (element.tags.includes("onchain_at")) {
+        const filtered1 = element.credentials.filter((element: any) =>
+          isDateWithinMonth(new Date(element["onchain_at"]), year, month),
+        );
 
-    filteredTalentProtocolBadges = credentials.filter((element: any) =>
-      isDateWithinMonth(new Date(element["onchain_at"]), year, month),
-    );
+        tally += filtered1.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+      }
 
-    tally += filteredTalentProtocolBadges.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+      if (element.tags.includes("earned_at")) {
+        const filtered2 = element.credentials.filter((element: any) =>
+          isDateWithinMonth(new Date(element["earned_at"]), year, month),
+        );
+
+        tally += filtered2.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+      }
+    });
+
+    // let filteredTalentProtocolBadges: any[] = [];
+
+    // filteredTalentProtocolBadges = credentials.filter((element: any) =>
+    //   isDateWithinMonth(new Date(element["onchain_at"]), year, month),
+    // );
+
+    // tally += filteredTalentProtocolBadges.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
 
     const filteredByMonthFarcasterMessages = farcasterMessages.filter((element: any) =>
       isDateWithinMonth(getFarcasterDate(element.data.timestamp), year, month),
@@ -880,7 +901,6 @@ export default function UserPage({ params }: { params: { community: string; addr
     const allValidTransactions = [];
     for (let i = 0; i < transactionsGroupedByChain.length; i++) {
       const allValidTransactionsForSpecificChain = transactionsGroupedByChain[i].transactions.filter((element: any) => {
-        // console.log(new Date(element.timeStamp * 1000));
         return isDateWithinDay(new Date(element.timeStamp * 1000), year, month, day);
       });
 
@@ -894,17 +914,78 @@ export default function UserPage({ params }: { params: { community: string; addr
 
     tally += filteredTransactionsTally;
 
-    // console.log(credentials);
+    const allFilteredTalentProtocolBadges: any[] = [];
+    const global_tags = [["onchain_at"], ["earned_at"], ["onchain_at", "earned_at"]];
 
-    let filteredTalentProtocolBadges: any[] = [];
+    // console.log(allValidTalentProtocolCredentials);
 
-    filteredTalentProtocolBadges = credentials.filter((element: any) =>
-      isDateWithinDay(new Date(element["onchain_at"]), year, month, day),
-    );
+    // for (let i = 0; i < allValidTalentProtocolCredentials.length; i++) {
 
-    tally += filteredTalentProtocolBadges.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+    //   allValidTalentProtocolCredentials[i].tags.forEach((tag: string) => {
 
-    // console.log(filteredTalentProtocolBadges);
+    //   });
+    //   }
+    // }
+
+    for (let i = 0; i < global_tags.length; i++) {
+      for (let j = 0; j < global_tags[i].length; j++) {
+        allValidTalentProtocolCredentials.forEach((element: any) => {
+          if (element.tags.includes(global_tags[i][j])) {
+            const criteriaFunctions: Array<(credential: any) => boolean> = [];
+
+            if (global_tags[i][j] === "onchain_at") {
+              criteriaFunctions.push((credential: any) =>
+                isDateWithinDay(new Date(credential["onchain_at"]), year, month, day),
+              );
+            }
+
+            if (global_tags[i][j] === "earned_at") {
+              criteriaFunctions.push((credential: any) =>
+                isDateWithinDay(new Date(credential["earned_at"]), year, month, day),
+              );
+            }
+
+            allFilteredTalentProtocolBadges.push({
+              tags: global_tags[i],
+              credentials: getFilteredArrayForEvery(element.credentials || [], criteriaFunctions),
+            });
+          }
+        });
+      }
+    }
+
+    for (let i = 0; i < allFilteredTalentProtocolBadges.length; i++) {
+      tally += allFilteredTalentProtocolBadges[i].credentials.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+    }
+
+    //   if (element.tags.includes("onchain_at")) {
+    //     const filtered1 = element.credentials.filter((element: any) =>
+    //       isDateWithinDay(new Date(element["onchain_at"]), year, month, day),
+    //     );
+
+    //     allFilteredTalentProtocolBadges.push({ tags: [] });
+
+    //     tally += filtered1.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+    //   }
+
+    //   if (element.tags.includes("earned_at")) {
+    //     const filtered2 = element.credentials.filter((element: any) =>
+    //       isDateWithinDay(new Date(element["earned_at"]), year, month, day),
+    //     );
+
+    //     allFilteredTalentProtocolBadges.push(...filtered2);
+
+    //     tally += filtered2.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+    //   }
+    // });
+
+    // let filteredTalentProtocolBadges: any[] = [];
+
+    // filteredTalentProtocolBadges = credentials.filter((element: any) =>
+    //   isDateWithinDay(new Date(element["onchain_at"]), year, month, day),
+    // );
+
+    // tally += filteredTalentProtocolBadges.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
 
     const filteredByDayFarcasterMessages = farcasterMessages.filter((element: any) =>
       isDateWithinDay(getFarcasterDate(element.data.timestamp), year, month, day),
@@ -919,7 +1000,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       transactions: allValidTransactions,
       filteredFarcasterMessages: filteredFarcasterMessages,
       filteredFollowers,
-      filteredTalentProtocolBadges,
+      filteredTalentProtocolBadges: allFilteredTalentProtocolBadges,
       totalTally: tally,
     };
   }
@@ -1010,8 +1091,6 @@ export default function UserPage({ params }: { params: { community: string; addr
   });
 
   const talentProtocolComponents = dailyTallies[selectedDay - 1]?.filteredTalentProtocolBadges?.map((value, index) => {
-    // console.log(value);
-
     return (
       // <Link key={"Followers" + index} href={getBlockExplorerTxLink(resolvedChain?.id, value.hash) || ""} target="#">
       <div
@@ -1068,6 +1147,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       );
     }
 
+    // console.log(value.filteredTalentProtocolBadges);
     if (value.filteredTalentProtocolBadges.length > 0) {
       sources.push(
         /* eslint-disable-next-line @next/next/no-img-element */
@@ -1143,8 +1223,6 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   if (isLoadingWebsite) return <>Loading...</>;
   if (userError) return <>{userError}</>;
-
-  // console.log(transactionsComponents);
 
   let transactionOutput;
   if (
