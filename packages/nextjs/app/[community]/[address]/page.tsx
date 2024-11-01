@@ -937,20 +937,16 @@ export default function UserPage({ params }: { params: { community: string; addr
       const criteriaFunctions: Array<(credential: any) => boolean> = [];
 
       for (let i = 0; i < element.criteria.length; i++) {
-        // const checkCriteria: any[] = [];
-
         if (element.criteria[i] === "onchain_at") {
-          criteriaFunctions.push((credential: any) => {
-            return isDateWithinDay(new Date(credential["onchain_at"]), year, month, day);
-          });
-          // checkCriteria.push("onchain_at");
+          criteriaFunctions.push((credential: any) =>
+            isDateWithinDay(new Date(credential["onchain_at"]), year, month, day),
+          );
         }
 
         if (element.criteria[i] === "earned_at") {
           criteriaFunctions.push((credential: any) =>
             isDateWithinDay(new Date(credential["earned_at"]), year, month, day),
           );
-          // checkCriteria.push("earned_at");
         }
       }
 
