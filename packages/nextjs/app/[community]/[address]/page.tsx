@@ -777,6 +777,24 @@ export default function UserPage({ params }: { params: { community: string; addr
       getFilteredArrayForEvery(element.credentials || [], criteriaFunctions);
     });
 
+    allValidTalentProtocolCredentials.forEach((element: any) => {
+      const criteriaFunctions: Array<(credential: any) => boolean> = [];
+
+      for (let i = 0; i < element.criteria.length; i++) {
+        if (element.criteria[i] === "onchain_at") {
+          criteriaFunctions.push((credential: any) => isDateWithinYear(new Date(credential["onchain_at"]), year));
+        }
+
+        if (element.criteria[i] === "earned_at") {
+          criteriaFunctions.push((credential: any) => isDateWithinYear(new Date(credential["earned_at"]), year));
+        }
+      }
+
+      const result = getFilteredArrayForEvery(element.credentials || [], criteriaFunctions);
+
+      tally += result.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+    });
+
     // }
 
     // if (element.criteria.includes("onchain_at")) {
@@ -840,6 +858,28 @@ export default function UserPage({ params }: { params: { community: string; addr
     }
 
     tally += filteredTransactionsTally;
+
+    allValidTalentProtocolCredentials.forEach((element: any) => {
+      const criteriaFunctions: Array<(credential: any) => boolean> = [];
+
+      for (let i = 0; i < element.criteria.length; i++) {
+        if (element.criteria[i] === "onchain_at") {
+          criteriaFunctions.push((credential: any) =>
+            isDateWithinMonth(new Date(credential["onchain_at"]), year, month),
+          );
+        }
+
+        if (element.criteria[i] === "earned_at") {
+          criteriaFunctions.push((credential: any) =>
+            isDateWithinMonth(new Date(credential["earned_at"]), year, month),
+          );
+        }
+      }
+
+      const result = getFilteredArrayForEvery(element.credentials || [], criteriaFunctions);
+
+      tally += result.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+    });
 
     // allValidTalentProtocolCredentials.forEach((element: any) => {
     //   if (element.tags.includes("onchain_at")) {
