@@ -548,7 +548,7 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   const [credentials, setCredentials] = useState([]);
 
-  const numOfDays = 13;
+  const numOfDays = 31;
 
   const [selectedDay, setSelectedDay] = useState(selectedDate.getDay());
   const [selectedMonth, setSelectedMonth] = useState(selectedDate.getMonth() + 1);
@@ -950,10 +950,13 @@ export default function UserPage({ params }: { params: { community: string; addr
         }
       }
 
+      const result = getFilteredArrayForEvery(element.credentials || [], criteriaFunctions);
       allFilteredTalentProtocolBadges.push({
         criteria: element.criteria,
-        credentials: getFilteredArrayForEvery(element.credentials || [], criteriaFunctions),
+        credentials: result,
       });
+
+      tally += result.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
     });
 
     // const allFilteredTalentProtocolBadges: any[] = [];
