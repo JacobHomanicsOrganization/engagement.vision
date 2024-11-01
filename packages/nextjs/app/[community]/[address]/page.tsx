@@ -548,7 +548,7 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   const [credentials, setCredentials] = useState([]);
 
-  const numOfDays = 31;
+  const numOfDays = 13;
 
   const [selectedDay, setSelectedDay] = useState(selectedDate.getDay());
   const [selectedMonth, setSelectedMonth] = useState(selectedDate.getMonth() + 1);
@@ -689,7 +689,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       });
 
       allValidTalentProtocolCredentials.push({
-        tags: checkCriteria,
+        criteria: checkCriteria,
         credentials: getFilteredArrayForEvery(credentials || [], criteriaFunctions),
       });
     });
@@ -698,10 +698,6 @@ export default function UserPage({ params }: { params: { community: string; addr
   }
 
   const allValidTalentProtocolCredentials = getFilteredTalentProtocolCredentials();
-
-  console.log(allValidTalentProtocolCredentials);
-
-  // console.log(allValidTalentProtocolCredentials);
 
   function getAllTimeTally(transactionsGroupedByChain: any) {
     let tally = 0;
@@ -762,22 +758,43 @@ export default function UserPage({ params }: { params: { community: string; addr
     );
 
     allValidTalentProtocolCredentials.forEach((element: any) => {
-      if (element.tags.includes("onchain_at")) {
-        const filtered1 = element.credentials.filter((element: any) =>
-          isDateWithinYear(new Date(element["onchain_at"]), year),
-        );
+      const criteriaFunctions: Array<(credential: any) => boolean> = [];
+      for (let i = 0; i < element.criteria.length; i++) {
+        // const checkCriteria: any[] = [];
 
-        tally += filtered1.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+        for (let j = 0; j < element.criteria[i].length; j++) {
+          if (element.criteria[i][j] === "onchain_at") {
+            criteriaFunctions.push((credential: any) => credential["onchain_at"] !== null);
+            // checkCriteria.push("onchain_at");
+          }
+
+          if (element.criteria[i][j] === "earned_at") {
+            criteriaFunctions.push((credential: any) => credential["earned_at"] !== null);
+            // checkCriteria.push("earned_at");
+          }
+        }
       }
-
-      if (element.tags.includes("earned_at")) {
-        const filtered2 = element.credentials.filter((element: any) =>
-          isDateWithinYear(new Date(element["earned_at"]), year),
-        );
-
-        tally += filtered2.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
-      }
+      getFilteredArrayForEvery(element.credentials || [], criteriaFunctions);
     });
+
+    // }
+
+    // if (element.criteria.includes("onchain_at")) {
+    //   const filtered1 = element.credentials.filter((element: any) =>
+    //     isDateWithinYear(new Date(element["onchain_at"]), year),
+    //   );
+
+    //   tally += filtered1.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+    // }
+
+    // if (element.criteria.includes("earned_at")) {
+    //   const filtered2 = element.credentials.filter((element: any) =>
+    //     isDateWithinYear(new Date(element["earned_at"]), year),
+    //   );
+
+    //   tally += filtered2.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+    // }
+    // });
 
     // let filteredTalentProtocolBadges: any[] = [];
 
@@ -824,23 +841,23 @@ export default function UserPage({ params }: { params: { community: string; addr
 
     tally += filteredTransactionsTally;
 
-    allValidTalentProtocolCredentials.forEach((element: any) => {
-      if (element.tags.includes("onchain_at")) {
-        const filtered1 = element.credentials.filter((element: any) =>
-          isDateWithinMonth(new Date(element["onchain_at"]), year, month),
-        );
+    // allValidTalentProtocolCredentials.forEach((element: any) => {
+    //   if (element.tags.includes("onchain_at")) {
+    //     const filtered1 = element.credentials.filter((element: any) =>
+    //       isDateWithinMonth(new Date(element["onchain_at"]), year, month),
+    //     );
 
-        tally += filtered1.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
-      }
+    //     tally += filtered1.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+    //   }
 
-      if (element.tags.includes("earned_at")) {
-        const filtered2 = element.credentials.filter((element: any) =>
-          isDateWithinMonth(new Date(element["earned_at"]), year, month),
-        );
+    //   if (element.tags.includes("earned_at")) {
+    //     const filtered2 = element.credentials.filter((element: any) =>
+    //       isDateWithinMonth(new Date(element["earned_at"]), year, month),
+    //     );
 
-        tally += filtered2.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
-      }
-    });
+    //     tally += filtered2.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+    //   }
+    // });
 
     // let filteredTalentProtocolBadges: any[] = [];
 
@@ -915,48 +932,75 @@ export default function UserPage({ params }: { params: { community: string; addr
     tally += filteredTransactionsTally;
 
     const allFilteredTalentProtocolBadges: any[] = [];
-    const global_tags = [["onchain_at"], ["earned_at"], ["onchain_at", "earned_at"]];
 
-    // console.log(allValidTalentProtocolCredentials);
+    allValidTalentProtocolCredentials.forEach((element: any) => {
+      const criteriaFunctions: Array<(credential: any) => boolean> = [];
 
-    // for (let i = 0; i < allValidTalentProtocolCredentials.length; i++) {
+      for (let i = 0; i < element.criteria.length; i++) {
+        // const checkCriteria: any[] = [];
 
-    //   allValidTalentProtocolCredentials[i].tags.forEach((tag: string) => {
+        if (element.criteria[i] === "onchain_at") {
+          criteriaFunctions.push((credential: any) => {
+            return isDateWithinDay(new Date(credential["onchain_at"]), year, month, day);
+          });
+          // checkCriteria.push("onchain_at");
+        }
 
-    //   });
+        if (element.criteria[i] === "earned_at") {
+          criteriaFunctions.push((credential: any) =>
+            isDateWithinDay(new Date(credential["earned_at"]), year, month, day),
+          );
+          // checkCriteria.push("earned_at");
+        }
+      }
+
+      allFilteredTalentProtocolBadges.push({
+        criteria: element.criteria,
+        credentials: getFilteredArrayForEvery(element.credentials || [], criteriaFunctions),
+      });
+    });
+
+    // const allFilteredTalentProtocolBadges: any[] = [];
+    // const global_tags = [["onchain_at"], ["earned_at"], ["onchain_at", "earned_at"]];
+
+    // // for (let i = 0; i < allValidTalentProtocolCredentials.length; i++) {
+
+    // //   allValidTalentProtocolCredentials[i].tags.forEach((tag: string) => {
+
+    // //   });
+    // //   }
+    // // }
+
+    // for (let i = 0; i < global_tags.length; i++) {
+    //   for (let j = 0; j < global_tags[i].length; j++) {
+    //     allValidTalentProtocolCredentials.forEach((element: any) => {
+    //       if (element.tags.includes(global_tags[i][j])) {
+    //         const criteriaFunctions: Array<(credential: any) => boolean> = [];
+
+    //         if (global_tags[i][j] === "onchain_at") {
+    //           criteriaFunctions.push((credential: any) =>
+    //             isDateWithinDay(new Date(credential["onchain_at"]), year, month, day),
+    //           );
+    //         }
+
+    //         if (global_tags[i][j] === "earned_at") {
+    //           criteriaFunctions.push((credential: any) =>
+    //             isDateWithinDay(new Date(credential["earned_at"]), year, month, day),
+    //           );
+    //         }
+
+    //         allFilteredTalentProtocolBadges.push({
+    //           tags: global_tags[i],
+    //           credentials: getFilteredArrayForEvery(element.credentials || [], criteriaFunctions),
+    //         });
+    //       }
+    //     });
     //   }
     // }
 
-    for (let i = 0; i < global_tags.length; i++) {
-      for (let j = 0; j < global_tags[i].length; j++) {
-        allValidTalentProtocolCredentials.forEach((element: any) => {
-          if (element.tags.includes(global_tags[i][j])) {
-            const criteriaFunctions: Array<(credential: any) => boolean> = [];
-
-            if (global_tags[i][j] === "onchain_at") {
-              criteriaFunctions.push((credential: any) =>
-                isDateWithinDay(new Date(credential["onchain_at"]), year, month, day),
-              );
-            }
-
-            if (global_tags[i][j] === "earned_at") {
-              criteriaFunctions.push((credential: any) =>
-                isDateWithinDay(new Date(credential["earned_at"]), year, month, day),
-              );
-            }
-
-            allFilteredTalentProtocolBadges.push({
-              tags: global_tags[i],
-              credentials: getFilteredArrayForEvery(element.credentials || [], criteriaFunctions),
-            });
-          }
-        });
-      }
-    }
-
-    for (let i = 0; i < allFilteredTalentProtocolBadges.length; i++) {
-      tally += allFilteredTalentProtocolBadges[i].credentials.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
-    }
+    // for (let i = 0; i < allFilteredTalentProtocolBadges.length; i++) {
+    //   tally += allFilteredTalentProtocolBadges[i].credentials.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+    // }
 
     //   if (element.tags.includes("onchain_at")) {
     //     const filtered1 = element.credentials.filter((element: any) =>
@@ -1091,6 +1135,27 @@ export default function UserPage({ params }: { params: { community: string; addr
   });
 
   const talentProtocolComponents = dailyTallies[selectedDay - 1]?.filteredTalentProtocolBadges?.map((value, index) => {
+    console.log(value);
+
+    console.log(value.credentials);
+
+    return value.credentials.map((element: any, index2: number) => {
+      let criteriaString = "";
+      for (let i = 0; i < value.criteria.length; i++) {
+        criteriaString += value.criteria[i] + `${i + 1 < value.criteria.length ? "," : ""}`;
+      }
+
+      return (
+        <div
+          key={"TP" + index + "-" + index2}
+          className="w-[200px] md:w-[400px] flex space-x-1 bg-base-100 rounded-lg p-2 bg-primary transform scale-100 hover:scale-95 transition duration-300 ease-in-out"
+        >
+          <div className="bg-secondary rounded-lg">#{index + 1}</div>
+          <div className="overflow-hidden">{`${element.name} ${criteriaString} at: ` + element.onchain_at}</div>
+        </div>
+      );
+    });
+
     return (
       // <Link key={"Followers" + index} href={getBlockExplorerTxLink(resolvedChain?.id, value.hash) || ""} target="#">
       <div
@@ -1147,19 +1212,21 @@ export default function UserPage({ params }: { params: { community: string; addr
       );
     }
 
-    // console.log(value.filteredTalentProtocolBadges);
-    if (value.filteredTalentProtocolBadges.length > 0) {
-      sources.push(
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          alt="Logo"
-          src={`/talent-protocol-logo/logo-purple.svg`}
-          className="h-[25px] rounded-lg"
-          style={{ aspectRatio: "1 / 1" }}
-          key={"source" + sources.length}
-        />,
-      );
+    for (let i = 0; i < value.filteredTalentProtocolBadges.length; i++) {
+      if (value.filteredTalentProtocolBadges[i].credentials.length > 0) {
+        sources.push(
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            alt="Logo"
+            src={`/talent-protocol-logo/logo-purple.svg`}
+            className="h-[25px] rounded-lg"
+            style={{ aspectRatio: "1 / 1" }}
+            key={"source" + sources.length}
+          />,
+        );
+      }
     }
+
     if (value.filteredFarcasterMessages.length > 0) {
       sources.push(
         /* eslint-disable-next-line @next/next/no-img-element */
