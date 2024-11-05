@@ -71,14 +71,18 @@ const getPassport = async (username: string) => {
   try {
     const response = await axios.get(`/api/talent-protocol/passport/${username}`);
     return response.data;
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const getPassportCredentials = async (username: string) => {
   try {
     const response = await axios.get(`/api/talent-protocol/credentials/${username}`);
     return response.data;
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 // const getUserWarpcastFid = async (username: string) => {
