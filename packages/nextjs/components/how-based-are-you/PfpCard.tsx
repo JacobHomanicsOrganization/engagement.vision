@@ -1,11 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { AddressRaw } from "../scaffold-eth/AddressRaw";
 import { Chain } from "viem/chains";
-
-// import { IconsLinksData } from "./config/socials.config";
-// import { IconsLinks } from "./icons-links/IconLinks";
 
 type Props = {
   name: string | null;
@@ -17,7 +13,7 @@ type Props = {
   efpFollowers?: number;
   size?: "sm" | "base" | "lg";
   efpFollowing?: number;
-  // iconslinks?: any;
+  talentScore?: number;
 };
 
 const sizeMap = {
@@ -34,8 +30,6 @@ export const PfpCard = ({
   ens,
   image, //iconslinks,
   size = "base",
-  efpFollowers,
-  efpFollowing,
 }: Props) => {
   return (
     <div className="flex flex-col items-center text-center">
@@ -63,6 +57,19 @@ export const PfpCard = ({
       {/* <div className="pointer-events-auto border-4 border-primary rounded-lg p-2">
         <IconsLinks iconsLinks={iconslinks} size="sm" justify="center" />
       </div> */}
+      {description ? <div className="text-lg m-2">{description}</div> : <></>}
+      {/* {talentScore ? (
+        <div className="flex m-4 border-t-4 border-t-[#826AEE] border-l-4 border-l-[#826AEE] border-r-4 border-r-[#826AEE] rounded-xl p-4">
+          <Image src={`/talent-protocol-logo/logo-purple.svg`} alt="TP" width={52} height={52} />
+          <div className="flex flex-col">
+            <p className="m-0">Builder Score</p>
+            <p className="m-0 text-[#826AEE] font-bold">{talentScore}</p>
+          </div>
+        </div>
+      ) : (
+        <></>
+      )}
+
       {efpFollowers && efpFollowing ? (
         <Link
           href={`https://ethfollow.xyz/${address}`}
@@ -85,8 +92,7 @@ export const PfpCard = ({
         </Link>
       ) : (
         <></>
-      )}
-      {description ? <div className="text-lg m-2">{description}</div> : <></>}
+      )} */}
     </div>
   );
 };

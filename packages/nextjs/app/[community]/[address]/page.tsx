@@ -20,6 +20,8 @@ import { getEnsText } from "~~/abis/ens";
 import { DayCard } from "~~/components/how-based-are-you/DayCard";
 import { PfpCard } from "~~/components/how-based-are-you/PfpCard";
 import { Score } from "~~/components/how-based-are-you/Score";
+import { EFPCard } from "~~/components/how-based-are-you/efp/EFPCard";
+import { BuilderScoreCard } from "~~/components/how-based-are-you/talent-protocl/BuilderScoreCard";
 import { communitiesConfig } from "~~/engagement.config";
 import { getBlockscoutExplorerTxLink, useTransactionsFromChains } from "~~/hooks/how-based-are-you/useTransactions";
 import { useGlobalState } from "~~/services/store/store";
@@ -525,6 +527,8 @@ export default function UserPage({ params }: { params: { community: string; addr
 
       const result = await getPassport(chosenProfile.addr || "");
 
+      setPassport(result.passport);
+
       const result2 = await getPassportCredentials(result.passport["passport_id"]);
       setCredentials(result2["passport_credentials"]);
 
@@ -545,6 +549,8 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   const [followers, setFollowers] = useState<any[]>([]);
   const [following, setFollowing] = useState<any[]>([]);
+
+  const [passport, setPassport] = useState<any>();
 
   const [credentials, setCredentials] = useState([]);
 
@@ -673,10 +679,18 @@ export default function UserPage({ params }: { params: { community: string; addr
 
     const allValidTalentProtocolCredentials: any[] = [];
 
+    let talentPassportChecks: any;
+
     talentProtocolChecks.forEach((check: any) => {
       const criteriaFunctions: Array<(credential: any) => boolean> = [];
       const checkCriteria: any[] = [];
+      const criteriaProperties: any[] = [];
+
       check.forEach((criterion: any) => {
+        if (criterion === "score") {
+          criteriaProperties.push("score");
+        }
+
         if (criterion === "onchain_at") {
           criteriaFunctions.push((credential: any) => credential["onchain_at"] !== null);
           checkCriteria.push("onchain_at");
@@ -688,16 +702,27 @@ export default function UserPage({ params }: { params: { community: string; addr
         }
       });
 
+      let validCredentails = [];
+
+      if (criteriaFunctions.length > 0) {
+        validCredentails = getFilteredArrayForEvery(credentials || [], criteriaFunctions);
+      }
+      talentPassportChecks = {
+        criteriaProperties,
+        criteria: checkCriteria,
+        credentials: validCredentails,
+      };
+
       allValidTalentProtocolCredentials.push({
         criteria: checkCriteria,
-        credentials: getFilteredArrayForEvery(credentials || [], criteriaFunctions),
+        credentials: validCredentails,
       });
     });
 
-    return allValidTalentProtocolCredentials;
+    return { allValidTalentProtocolCredentials, talentPassportChecks };
   }
 
-  const allValidTalentProtocolCredentials = getFilteredTalentProtocolCredentials();
+  const { allValidTalentProtocolCredentials, talentPassportChecks } = getFilteredTalentProtocolCredentials();
 
   function getAllTimeTally(transactionsGroupedByChain: any) {
     let tally = 0;
@@ -720,6 +745,14 @@ export default function UserPage({ params }: { params: { community: string; addr
     tally += filteredFarcasterMessages.length * POINTS_PER_FARCASTER_MESSAGE;
 
     tally += credentials.length * POINTS_PER_TALENT_PROTOCOL_BADGE;
+
+    const TALENT_PASSPORT_SCORE_VALUE = 5000;
+
+    talentPassportChecks.criteriaProperties.forEach((property: any) => {
+      if (property === "score") {
+        tally += passport?.score * TALENT_PASSPORT_SCORE_VALUE;
+      }
+    });
 
     return tally;
   }
@@ -1174,10 +1207,6 @@ export default function UserPage({ params }: { params: { community: string; addr
   });
 
   const talentProtocolComponents = dailyTallies[selectedDay - 1]?.filteredTalentProtocolBadges?.map((value, index) => {
-    console.log(value);
-
-    console.log(value.credentials);
-
     return value.credentials.map((element: any, index2: number) => {
       let criteriaString = "";
       for (let i = 0; i < value.criteria.length; i++) {
@@ -1486,7 +1515,7 @@ export default function UserPage({ params }: { params: { community: string; addr
       {/* <TransactionList address={params.address} year={selectedYear} month={selectedMonth} /> */}
       <div className="flex items-center flex-col flex-grow">
         <div className="m-4">
-          <div className="flex">
+          <div className="flex items-start">
             <PfpCard
               name={!isEnsResolved ? profile?.name ?? profile?.addr : undefined}
               image={profile?.avatar}
@@ -1495,14 +1524,29 @@ export default function UserPage({ params }: { params: { community: string; addr
               address={profile?.addr}
               ens={isEnsResolved ? profile?.name : undefined}
               size="sm"
+              talentScore={passport?.score}
               efpFollowers={followers.length > 0 ? followers.length : undefined}
               efpFollowing={following.length > 0 ? following.length : undefined}
             />
 
-            <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">
-              <Score title="Monthly Score" score={customNotation(totalMonthlyTally)} />
-              <Score title="Yearly Score" score={customNotation(yearlyTally)} />
-              <Score title="Overall Score" score={customNotation(allTimeScore)} />
+            <div>
+              <div className="flex flex-wrap justify-center m-0.5 md:m-4 space-x-1">
+                <Score title="Monthly Score" score={customNotation(totalMonthlyTally)} />
+                <Score title="Yearly Score" score={customNotation(yearlyTally)} />
+                <Score title="Overall Score" score={customNotation(allTimeScore)} />
+              </div>
+              <div className="flex flex-wrap items-start justify-center gap-4">
+                <div className="w-[250px]">
+                  <EFPCard
+                    efpFollowers={followers.length > 0 ? followers.length : undefined}
+                    efpFollowing={following.length > 0 ? following.length : undefined}
+                    address={profile?.addr}
+                  />
+                </div>
+                <div className="w-[250px]">
+                  <BuilderScoreCard talentScore={passport?.score} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
