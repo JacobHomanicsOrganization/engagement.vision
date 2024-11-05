@@ -13,6 +13,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json(response.data);
   } catch (error) {
-    res.status(500).json({ error: "Error fetching data from Twitter API" });
+    res.status(200).json({ error: "Error fetching data from TALENT PROTOCOL API" });
   }
 }
