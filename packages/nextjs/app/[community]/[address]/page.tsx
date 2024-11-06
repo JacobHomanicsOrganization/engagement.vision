@@ -537,6 +537,8 @@ export default function UserPage({ params }: { params: { community: string; addr
       setCredentials(result2["passport_credentials"]);
 
       setIsLoadingUserProfile(false);
+
+      getKarma();
     }
 
     fetchData();
@@ -548,6 +550,28 @@ export default function UserPage({ params }: { params: { community: string; addr
     params.address,
     followerChecksCommunity.length,
   ]);
+
+  async function getKarma() {
+    // const granteeGrants = await axios.get(
+    //   "https://gapapi.karmahq.xyz/grantees/0x5A4830885f12438E00D8f4d98e9Fe083e707698C/grants",
+    // );
+    // const granteeProjects = await axios.get(
+    //   "https://gapapi.karmahq.xyz/grantees/0x5A4830885f12438E00D8f4d98e9Fe083e707698C/projects",
+    // );
+    // const granteeCommunities = await axios.get(
+    //   "https://gapapi.karmahq.xyz/grantees/0x5A4830885f12438E00D8f4d98e9Fe083e707698C/communities",
+    // );
+    // const granteCommunitiesAdmin = await axios.get(
+    //   "https://gapapi.karmahq.xyz/grantees/0x23B7A53ecfd93803C63b97316D7362eae59C55B6/communities/admin",
+    // );
+    // setGranteeGrants(granteeGrants.data);
+    // console.log(granteeGrants);
+    // console.log(granteeProjects);
+    // console.log(granteeCommunities);
+    // console.log(granteCommunitiesAdmin);
+  }
+
+  // const [granteeGrants, setGranteeGrants] = useState<any>();
 
   const [farcasterMessages, setFarcasterMessages] = useState([]);
 
@@ -678,6 +702,50 @@ export default function UserPage({ params }: { params: { community: string; addr
 
   const allValidTransactions = getFilteredTransactions();
 
+  // function createKarma() {
+  //   const karmaChecks = communityConfig?.checks?.karma || [];
+
+  //   karmaChecks.forEach((check: any) => {});
+  // }
+
+  // function getFilteredKarmaGap() {
+  //   const checks = communityConfig?.checks?.karma || [];
+
+  //   const allValid: any[] = [];
+
+  //   console.log(checks);
+  //   checks.forEach((endPoint: any) => {
+  //     const criteriaFunctions: Array<(credential: any) => boolean> = [];
+  //     const checkCriteria: any[] = [];
+
+  //     console.log(endPoint);
+  //     endPoint.forEach((check: any) => {
+  //       check.forEach((criterion: any) => {
+  //         if (criterion === "createdAt") {
+  //           criteriaFunctions.push((element: any) => element["createdAt"] !== null);
+  //           checkCriteria.push("createdAt");
+  //         }
+  //       });
+
+  //       let validElements = [];
+
+  //       if (criteriaFunctions.length > 0) {
+  //         validElements = getFilteredArrayForEvery(granteeGrants || [], criteriaFunctions);
+  //       }
+
+  //       allValid.push({
+  //         criteria: checkCriteria,
+  //         elements: validElements,
+  //       });
+  //     });
+  //   });
+
+  //   return allValid;
+  // }
+
+  // const allValid = getFilteredKarmaGap();
+  // console.log(allValid);
+
   function getFilteredTalentProtocolCredentials() {
     const talentProtocolChecks = communityConfig?.checks?.talentProtocol || [];
 
@@ -752,7 +820,7 @@ export default function UserPage({ params }: { params: { community: string; addr
 
     const TALENT_PASSPORT_SCORE_VALUE = 5000;
 
-    talentPassportChecks.criteriaProperties.forEach((property: any) => {
+    talentPassportChecks?.criteriaProperties?.forEach((property: any) => {
       if (property === "score") {
         tally += passport?.score * TALENT_PASSPORT_SCORE_VALUE;
       }
@@ -1007,6 +1075,10 @@ export default function UserPage({ params }: { params: { community: string; addr
     }
 
     tally += filteredTransactionsTally;
+
+    // for (let i = 0; i < granteeGrants?.length; i++) {
+    //   console.log(granteeGrants[i]);
+    // }
 
     const allFilteredTalentProtocolBadges: any[] = [];
 
