@@ -198,6 +198,7 @@ export default function UserPage({ params }: { params: { community: string; addr
   const farcasterChecksCommunity = communityConfig.farcasterChecks || [];
   const followerChecksCommunity = communityConfig.followerChecks || [];
   const chainNameCommunity = communityConfig.chainName;
+  const talentProtocolChecks = communityConfig?.checks?.talentProtocol || [];
 
   // const chains = communitiesConfig[params.community as keyof typeof communitiesConfig]?.onchainActivity || [];
 
@@ -529,12 +530,14 @@ export default function UserPage({ params }: { params: { community: string; addr
         }
       }
 
-      const result = await getPassport(chosenProfile.addr || "");
+      if (talentProtocolChecks?.length > 0) {
+        const result = await getPassport(chosenProfile.addr || "");
 
-      setPassport(result.passport);
+        setPassport(result.passport);
 
-      const result2 = await getPassportCredentials(result.passport["passport_id"]);
-      setCredentials(result2["passport_credentials"]);
+        const result2 = await getPassportCredentials(result.passport["passport_id"]);
+        setCredentials(result2["passport_credentials"]);
+      }
 
       setIsLoadingUserProfile(false);
     }
@@ -547,6 +550,7 @@ export default function UserPage({ params }: { params: { community: string; addr
     // resolvedChain?.id,
     params.address,
     followerChecksCommunity.length,
+    talentProtocolChecks.length,
   ]);
 
   const [farcasterMessages, setFarcasterMessages] = useState([]);
@@ -679,8 +683,6 @@ export default function UserPage({ params }: { params: { community: string; addr
   const allValidTransactions = getFilteredTransactions();
 
   function getFilteredTalentProtocolCredentials() {
-    const talentProtocolChecks = communityConfig?.checks?.talentProtocol || [];
-
     const allValidTalentProtocolCredentials: any[] = [];
 
     let talentPassportChecks: any;
@@ -752,7 +754,7 @@ export default function UserPage({ params }: { params: { community: string; addr
 
     const TALENT_PASSPORT_SCORE_VALUE = 5000;
 
-    talentPassportChecks.criteriaProperties.forEach((property: any) => {
+    talentPassportChecks?.criteriaProperties?.forEach((property: any) => {
       if (property === "score") {
         tally += passport?.score * TALENT_PASSPORT_SCORE_VALUE;
       }
